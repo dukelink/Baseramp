@@ -1,0 +1,1 @@
+Open Source Project Manager Progressive Web App built on a small Typescript code base and extensible SQL data model
