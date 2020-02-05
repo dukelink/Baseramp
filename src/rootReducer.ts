@@ -1,11 +1,13 @@
 import { combineReducers } from '@reduxjs/toolkit';
 
-import sampleReducer from './features/SamplePage/SampleSlice';
+import userLoginReducer from './features/UserLogin/UserLoginSlice';
 import modelReducer from './model/ModelSlice';
+import sampleReducer from './features/SamplePage/SampleSlice';
 
 const rootReducer = combineReducers({
-  sample: sampleReducer,
-  model: modelReducer
+  userLogin: userLoginReducer,
+  model: modelReducer,
+  sample: sampleReducer
 })
 
 export type RootState = ReturnType<typeof rootReducer>

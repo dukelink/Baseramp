@@ -1,3 +1,24 @@
+/*
+    Baseramp Project Manager - An open source Project Management software built
+    as a Single Page Application (SPA) and Progressive Web Application (PWA) using
+    Typescript, React, and an extensible SQL database model.
+
+    Copyright (C) 2019-2020  William R. Lotherington, III
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/core/styles';
@@ -9,6 +30,7 @@ import Box from '@material-ui/core/Box';
 import Settings from '../features/SettingsPage/SettingsPage'
 import SystemNavigator from '../features/SystemNavigator/SystemNavigator';
 import { SampleForm } from '../features/SamplePage/SampleForm';
+import UserLogin from '../features/UserLogin/UserLogin';
 import { BrowserRouter as Router, Switch, Link, Route } from "react-router-dom";
 
 function TabPanel(props:any) {
@@ -65,8 +87,9 @@ export const SimpleTabs = (props:any) => {
       <Router>
         <Switch>
           <AppRoute exact path='/' menuItem={0}></AppRoute> 
-          <AppRoute exact path='/Settings' menuItem={1}></AppRoute>
-          <AppRoute exact path='/SampleForm' menuItem={2}></AppRoute>
+          <AppRoute exact path='/Navigate' menuItem={1}></AppRoute>
+          <AppRoute exact path='/Settings' menuItem={2}></AppRoute>
+          <AppRoute exact path='/SampleForm' menuItem={3}></AppRoute>
         </Switch>
       </Router>     
     </div>
@@ -111,9 +134,10 @@ function AppBarMenu(props:{menuItem:number, path:string, children?:any})
   return (
     <AppBar position="static">
       <Tabs value={ menuItem } aria-label="Application Tabs">
-        <Tab label={lbl({to:'/',label:'System Navigator'})} {...a11yProps(0)} />
-        <Tab label={lbl({to:'/Settings',label:'Settings...'})} {...a11yProps(1)} />
-        <Tab label={lbl({to:'/SampleForm',label:'Sample Form'})} {...a11yProps(2)} />
+        <Tab label={lbl({to:'/',label:'User Login'})} {...a11yProps(1)} />
+        <Tab label={lbl({to:'/Navigate',label:'System Navigator'})} {...a11yProps(1)} />
+        <Tab label={lbl({to:'/Settings',label:'Settings...'})} {...a11yProps(2)} />
+        <Tab label={lbl({to:'/SampleForm',label:'Sample Form'})} {...a11yProps(3)} />
       </Tabs> 
     </AppBar> );
 }
@@ -122,9 +146,10 @@ const TabPanels = (props:{menuItem:number}) =>
 {
   const { menuItem } = props;
   return (<>
-    <TabPanel value={menuItem} index={0}><SystemNavigator/></TabPanel>  
-    <TabPanel value={menuItem} index={1}><Settings/></TabPanel>  
-    <TabPanel value={menuItem} index={2}><SampleForm/></TabPanel>  
+    <TabPanel value={menuItem} index={0}><UserLogin/></TabPanel>  
+    <TabPanel value={menuItem} index={1}><SystemNavigator/></TabPanel>  
+    <TabPanel value={menuItem} index={2}><Settings/></TabPanel>  
+    <TabPanel value={menuItem} index={3}><SampleForm/></TabPanel>  
   </>)
 }
 

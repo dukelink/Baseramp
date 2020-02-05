@@ -54,12 +54,21 @@ app.use(function (req, res, next) {
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
+/*
 app.use('/api', 
   cors({credentials: true, origin: '*'}), 
-  [ passport.authenticate('basic', { session: false }) ]
-    .filter(x=>process.env.COMPUTERNAME!=='BASERAMP'), // TODO: Use setting for local/dev comuter name
+  passport.authenticate('basic', { session: false }),
   apiRouter );
- 
+*/
+
+app.use('/api', 
+  process.env.COMPUTERNAME==='BASERAMP' ?  
+    cors({credentials: true, origin: '*'})            // Required for local development
+    : [ ],                                            // Not required for Azure deployment        
+  passport.authenticate('basic', { session: false }), // Require authentication to access all API routes
+  apiRouter );
+
+
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
   next(createError(404));

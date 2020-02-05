@@ -20,22 +20,18 @@
 */
 
 import React, { ComponentType } from 'react';
-import { Provider, connect, ConnectedComponent, useDispatch } from 'react-redux';
+import { Provider, connect, ConnectedComponent } from 'react-redux';
 import { compose } from 'redux';
-import store from '../../store';
+import store from '../../index';
 import { RootState } from '../../rootReducer';
-import { NodeForm, AddNewFormButton, NodeFormProps } from './NodeForm';
-import Button from '@material-ui/core/Button';
+import SystemNavigator from './SystemNavigator';
 
 import  Adapter from 'enzyme-adapter-react-16';
 import { configure, mount, ReactWrapper } from 'enzyme';
 import { FormControlLabel, FormControl, TextField, Select, Switch, MenuItem, InputLabel, makeStyles } 
   from '@material-ui/core';
-import { setTestDataMode } from '../../model/ModelThunks';
 
 configure({ adapter: new Adapter() })
-
-store.dispatch(setTestDataMode(true));
 
 // Suppress console messages during unit testing...
 jest.spyOn(global.console, 'log').mockImplementation(() => jest.fn()); 
@@ -56,19 +52,13 @@ function renderWithRedux(
         )
 }
 
-const tableToTest = 'AppColumn';
+const NodeFormWithReflectedDescriptionField = (props?:any) => <>
+    <SystemNavigator {...props} />
+    <div id='testme'>
+    </div>
+</>;
 
-const NodeFormWithReflectedDescriptionField = (props:NodeFormProps) => {
-
-    return <>
-        <NodeForm {...props} />
-        <div id='testme'>
-            { props.record.AppColumn_description }
-        </div>
-    </>;
-}
-
-function mapStateToProps(state: RootState, ownProps: NodeFormProps):NodeFormProps {
+function mapStateToProps(state: RootState, ownProps: any):any {
     const navTableID = ownProps.navTableID || state.model.navigate.navTableID;
     const record = state.model.apiModel[tableToTest][navTableID] || {};
     return { 

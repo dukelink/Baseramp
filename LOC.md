@@ -148,8 +148,27 @@ Number of files read :  21
   317 B            build\static\css\main.6ddade24.chunk.css
 ```
 
+```
+Added initial Login page...
+            Physical :  1985
+              Source :  1627
+             Comment :  184
+ Single-line comment :  148
+       Block comment :  36
+               Mixed :  40
+ Empty block comment :  0
+               Empty :  214
+               To Do :  14
+Number of files read :  25
+  158.01 KB  build\static\js\2.32592e31.chunk.js
+  10.42 KB   build\static\js\main.5bb8ca3d.chunk.js
+  779 B      build\static\js\runtime-main.af831f84.js
+  317 B      build\static\css\main.6ddade24.chunk.css
+```
+
 # HELPFUL SNIPPETS:
 
+npx sloc src -- get lines of code reports, presented above
 choco upgrade yarn 
 
 # DOC TEST:
