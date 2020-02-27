@@ -59,7 +59,7 @@ const NodeFormWithReflectedDescriptionField = (props?:any) => <>
 </>;
 
 function mapStateToProps(state: RootState, ownProps: any):any {
-    const navTableID = ownProps.navTableID || state.model.navigate.navTableID;
+    const navTableID = ownProps.navTableID || state.navigate.navTableID;
     const record = state.model.apiModel[tableToTest][navTableID] || {};
     return { 
         navTable: tableToTest, 

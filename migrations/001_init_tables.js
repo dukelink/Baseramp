@@ -19,7 +19,9 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import * as Knex from 'knex';
+
+
+const { knexErrorHandler, database_schema : schema } = require('../routes/util');
 
 const baseFieldsBuilder = (table,field_root_name) => {
     table.increments(field_root_name+'_id').notNullable().primary();
@@ -30,58 +32,59 @@ const baseFieldsBuilder = (table,field_root_name) => {
     if (field_root_name!='status')
         table.integer(field_root_name+'_status_id').notNullable()
             .references('status_id')
-            .inTable('status');
+            .inTable(schema+'status');
 }
 
-export const schemaTables = (knex) =>
+const schemaTables = (knex) =>
 [
-    knex.schema.createTable('status', (table) => {
+    knex.schema.createTable(schema+'status', (table) => {
         baseFieldsBuilder(table,'status');
     }),
-    knex.schema.createTable('category', (table) => {
+    knex.schema.createTable(schema+'category', (table) => {
         baseFieldsBuilder(table,'category');
     }),
-    knex.schema.createTable('project', (table) => {
+    knex.schema.createTable(schema+'project', (table) => {
         baseFieldsBuilder(table,'project');
         // Additional fields beyond 'base class'...
         table.integer('project_category_id').notNullable()
             .references('category_id')
-            .inTable('category');
+            .inTable(schema+'category');
     }),
-    knex.schema.createTable('sprint', (table) => {
+    knex.schema.createTable(schema+'sprint', (table) => {
         baseFieldsBuilder(table,'sprint');
         // Additional fields beyond 'base class'...
         table.date('sprint_start').notNullable();
         table.date('sprint_stop').notNullable(); 
         // todo: compute # days
     }),
-    knex.schema.createTable('story', (table) => {
+    knex.schema.createTable(schema+'story', (table) => {
         baseFieldsBuilder(table,'story');
         // Additional fields beyond 'base class'...
         table.integer('story_project_id').notNullable()
             .references('project_id')
-            .inTable('project');
+            .inTable(schema+'project');
         table.integer('story_sprint_id').notNullable()
             .references('sprint_id')
-            .inTable('sprint');
+            .inTable(schema+'sprint');
         table.integer('story_points').nullable();
         table.integer('story_hours_planned').nullable();
         table.integer('story_hours_spent').nullable();
     }),
-    knex.schema.createTable('task', (table) => {
+    knex.schema.createTable(schema+'task', (table) => {
         baseFieldsBuilder(table,'task');
         // Additional fields beyond 'base class'...
         table.integer('task_story_id').notNullable()
             .references('story_id')
-            .inTable('story');
+            .inTable(schema+'story');
     })
 ]
 
-export const up = async (knex) => {
+exports.up = async function(knex) {
     for (let createTable of schemaTables(knex))
         await createTable;
 };
 
-export const down = function(knex) {
-
+exports.down = function(knex) {
+  
 };
+

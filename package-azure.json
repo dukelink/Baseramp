@@ -1,12 +1,18 @@
 {
-  "name": "goals-react-ts",
+  "name": "baseramp-project-manager",
+  "author": "William R. Lotherington,III, et. al.",
+  "email": "duke.lotherington@gmail.com",
+  "licence": "GPL3",
   "version": "0.1.0",
-  "private": true,
+  "private": false, 
   "dependencies": {
-    "cookie-parser": "~1.4.4",
+    "bcrypt": "^3.0.8",
     "cors": "^2.8.5",
     "debug": "~2.6.9",
     "express": "~4.17.1",
+    "express-flash-messages": "^0.1.1",    
+    "express-handlebars": "^3.1.0",
+    "express-session": "^1.17.0",
     "express-static-gzip": "^2.0.5",
     "gzip-all": "^1.0.0",
     "http-errors": "~1.6.3",
@@ -16,8 +22,8 @@
     "nodemon": "^2.0.2",
     "passport": "^0.4.1",
     "passport-http": "^0.3.0",
+    "passport-local": "^1.0.0",
     "pg": "^7.17.0",
-    "pug": "^2.0.4",
     "sloc": "^0.2.1"
   },
   "scripts": {

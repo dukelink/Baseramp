@@ -21,16 +21,16 @@
 
 import { Model } from './ModelSlice';
 
-export interface outlineNode {
-    itemKey: (number | string),  // When itemType=='Heading': use table names, and when
-    itemTitle: string,
-    table?: string,
-    tableID?: number,
-    parentTable?: string,
-    parentID?: number,
-    children: outlineNode[],
-    closedItem?: boolean,
-    inProgress?: boolean 
+export interface OutlineNode {
+    itemKey : (number | string),  // When itemType=='Heading': use table names, and when
+    itemTitle : string,
+    table ?: string,
+    tableID ?: string,
+    parentTable ?: string,
+    parentID ?: number,
+    children : OutlineNode[],
+    closedItem ?: boolean,
+    inProgress ?: boolean 
 }
 
 // HACK: XREF FEATURE...
@@ -93,14 +93,14 @@ export function buildOutline(model: Model, navActiveFilter: boolean) {
     let outline = buildTableHeadingsOutline(viewModel, Object.keys(viewModel), []);
     // HACK: ...XREF FEATURE
 
-    outline = sequenceOutline(outline) as outlineNode[];
+    outline = sequenceOutline(outline) as OutlineNode[];
 
     return outline;
 
-    function sequenceOutline(outline: outlineNode[],path='') {
+    function sequenceOutline(outline: OutlineNode[],path='') {
         return outline
             .filter((item) => (!navActiveFilter || !item.closedItem))
-            .map<outlineNode>((outline: outlineNode) => {
+            .map<OutlineNode>((outline: OutlineNode) => {
                 path = path + outline.table + (outline.tableID||'');
                 outline.itemKey = path;
                 outline.children = sequenceOutline(outline.children,path);
@@ -138,7 +138,7 @@ export function buildOutline(model: Model, navActiveFilter: boolean) {
 
 
         return rows
-            .map((row: any): outlineNode => (
+            .map((row: any): OutlineNode => (
             // Following code embeds some DB naming convention rules: 
             //    _id, _title, _<table>_<parentTable>_id, ...
             {
@@ -187,13 +187,13 @@ export function buildOutline(model: Model, navActiveFilter: boolean) {
                 parentTable?: string,
                 parentID?: number
         ) {
-        let outline: outlineNode[];
+        let outline: OutlineNode[];
         outline = tableHeadings
             .filter((TableHeading) => (
                 parentTable ||                     // Tables w/ parents are filtered by parentIDs in buildRowsOutline()
                 !childTableSet.has(TableHeading))  // Otherwise top level of outine only presents tables that are never children
             )
-            .map((tableHeading): outlineNode => (
+            .map((tableHeading): OutlineNode => (
                 {
                     itemKey: tableHeading,
                     itemTitle: properCasePluralize(tableHeading),

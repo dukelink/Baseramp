@@ -3,7 +3,7 @@
     as a Single Page Application (SPA) and Progressive Web Application (PWA) using
     Typescript, React, and an extensible SQL database model.
 
-    Copyright (C) 2019-2020  William R. Lotherington, III
+    Copyright (C) 2019-2020  William R. Lotherington, III 
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -19,17 +19,24 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Settings } from '../Settings';
-import store, { AppThunk } from  '../store';
+import { Environment } from '../environment';
+import store, { AppThunk } from  '../store';  // REVIEW: Are there any anti-patterns associated with thunks being state-aware?
 import { Fetch } from '../utils/Fetch';
-import { load, refreshRecordInVM, addRecordToVM, deleteRecordFromVM, setTestDataModeReducer, clearModeReducer }
-     from './ModelSlice';
-import { testModelData } from '../model/testModel';
+import  { metaload, load, 
+          refreshRecordInVM, 
+          addRecordToVM, 
+          deleteRecordFromVM, 
+          setTestDataModeReducer, 
+          clearModelReducer 
+        } from './ModelSlice';
+    
+import { testModelData } from './testModel';
 
-type AppStore = typeof store;
+type AppStore = typeof store; 
 
-export const initialLoad = (route:string="all") => {
-  Fetch(Settings.serverURL + route)
+export const initialLoad = (route:string="all") => 
+{
+  Fetch(Environment.serverURL + route)
   .then(res => res && res.json())
   .then(res => {
       store.dispatch(load(res));
@@ -38,47 +45,93 @@ export const initialLoad = (route:string="all") => {
   .catch((error) =>{});
 }
 
+export const loadMetadata = () => 
+{
+  Fetch(Environment.serverURL + 'meta')
+  .then(res => res && res.json())
+  .then(res => {
+      store.dispatch(metaload(res));
+      return res;
+  })
+  .catch((error) =>{});
+}
+
 export const updateRecord = (navTable:string,navTableID:string,recordDelta:any) 
-    : AppThunk => async dispatch => {
+  : AppThunk => async dispatch => 
+{
+  const state = store.getState(); // TODO: not SSR compatible; consider changing
+  const navActiveFilter = state.navigate.navActiveFilter;
+  let err = false;
+
   if (Object.keys(recordDelta).length) {
-    if (process.env.NODE_ENV==='test') {
-      dispatch(refreshRecordInVM({navTable,navTableID,recordDelta}));
-    } else
-      Fetch(Settings.serverURL + navTable + '/' + navTableID, {
+    if (!state.navigate.testDataMode) {
+      await Fetch(Environment.serverURL + navTable + '/' + navTableID, {
           method: 'PUT',
           body: JSON.stringify(recordDelta),
           headers: { 'Content-Type': 'application/json' }
-      })
-      .then(res => dispatch(refreshRecordInVM({navTable,navTableID,recordDelta})))
-      .catch((error) =>{});
+      }).then().catch((error) =>{ err = true; });
+    }
+
+    if (!err)
+      dispatch(refreshRecordInVM({navTable,navTableID,navActiveFilter,recordDelta}));
   }
 }
 
 export const insertRecord = (navTable:string,record:any) 
-    : AppThunk => async dispatch => {
+  : AppThunk => async dispatch => 
+{
+  const state = store.getState(); // TODO: not SSR compatible; consider changing
+  const navActiveFilter = state.navigate.navActiveFilter;
+  let err = false;
+
   if (Object.keys(record).length) {
-    Fetch(Settings.serverURL + navTable, { 
+    if (!state.navigate.testDataMode) 
+    {
+      await Fetch(Environment.serverURL + navTable, { 
         method: 'POST', 
         body: JSON.stringify(record),
         headers: { 'Content-Type': 'application/json' }                        
     })
-    .then(res => res && res.json())
-    .then(res => dispatch(addRecordToVM({navTable,record:res[0]})))
-    .catch((error) =>{}) 
+      .then(res => res && res.json())
+      .then(res => {
+        // Grab committed record from server that will be populated with
+        // a primary key field, and any other fields computed server-side... 
+        record = res[0] 
+      })
+      .catch((error) =>{ err = true; }) 
+    } 
+    else // test mode: compute temporary/mock primary key...
+    {
+      const newTempPKID = Math.min(-1,...Object.keys(state.model.apiModel[navTable]).map((id:string)=>Number.parseInt(id))) - 1;
+      console.log(`New temp PKID = ${newTempPKID}`);
+      record[navTable+'_id'] = newTempPKID.toString();
+    }
+
+    if (!err)
+      dispatch(addRecordToVM({navTable,navActiveFilter,record}))
   }
 }
 
 export const deleteRecord = (navTable:string, navTableID:string)
-    : AppThunk => async dispatch => {
-  Fetch( Settings.serverURL + navTable + '/' + navTableID,
-      { method: 'DELETE' }
-  )
-  .then(res => dispatch(deleteRecordFromVM({navTable,navTableID})))
-  .catch((error) =>{})
+  : AppThunk => async dispatch => 
+{
+  const state = store.getState(); // TODO: not SSR compatible; consider changing
+  const navActiveFilter = state.navigate.navActiveFilter;
+  let err = false;
+
+  if (!state.navigate.testDataMode)   
+    await Fetch( Environment.serverURL + navTable + '/' + navTableID,
+        { method: 'DELETE' }
+    ).then().catch((error) =>{ err = true; });
+
+  if (!err)
+    dispatch(deleteRecordFromVM({navTable,navTableID,navActiveFilter}))
 }
 
-export const setTestDataMode = (testDataMode:boolean) : AppThunk => dispatch => {
-  dispatch(clearModeReducer());
+export const setTestDataMode = (testDataMode:boolean) 
+    : AppThunk => dispatch => 
+{
+  dispatch(clearModelReducer());
   dispatch(setTestDataModeReducer({testDataMode}));
 
   // COMMENT OUT TO GET FRESH TEST MODEL...

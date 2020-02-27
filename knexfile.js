@@ -7,6 +7,9 @@ const development = {
         database: 'Projects',
         multipleStatements: true,
         encrypt: true
+    },
+    migrations: {
+        tableName: 'guest.knex_migrations'
     }
 }
 

@@ -21,10 +21,11 @@
 
 var fs = require('fs');
 var path = require('path'); 
+const { knexErrorHandler, database_schema : schema } = require('../routes/util');
 
 exports.up = async function(knex) {
 
-    await knex.schema.createTable('AppTable', (table) => {
+    await knex.schema.createTable(schema+'AppTable', (table) => {
         table.increments('AppTable_id').notNullable().primary();
         table.string('AppTable_title',50).notNullable();
         table.text('AppTable_description').nullable();
@@ -33,7 +34,7 @@ exports.up = async function(knex) {
         table.string('AppTable_table_name',128).notNullable();
     }) 
 
-    await knex.schema.createTable('AppColumn', (table) => {
+    await knex.schema.createTable(schema+'AppColumn', (table) => {
         table.increments('AppColumn_id').notNullable().primary();
         table.string('AppColumn_title',50).notNullable();
         table.text('AppColumn_description').nullable();
@@ -41,7 +42,7 @@ exports.up = async function(knex) {
 
         table.integer('AppColumn_AppTable_id').notNullable()            
             .references('AppTable_id')
-            .inTable('AppTable');
+            .inTable(schema+'AppTable');
 
         table.boolean('AppColumn_ui_hidden').nullable().defaultTo(false);
         table.string('AppColumn_ui_minwidth',16).nullable().defaultTo("120px");
@@ -55,10 +56,10 @@ exports.up = async function(knex) {
 
         table.integer('AppColumn_related_pk_id').nullable()
             .references('AppColumn_id')
-            .inTable('AppColumn');
+            .inTable(schema+'AppColumn');
     }) 
 
-    await knex.schema.createTable('table_metadata', (table) => {
+    await knex.schema.createTable(schema+'table_metadata', (table) => {
         table.increments('table_metadata_id').notNullable().primary();
         table.string('table_metadata_title',50).notNullable();
         table.text('table_metadata_description').nullable();
@@ -67,7 +68,7 @@ exports.up = async function(knex) {
         table.integer('table_metadata_table_name').nullable();
     }) 
 
-    await knex.schema.createTable('column_metadata', (table) => {
+    await knex.schema.createTable(schema+'column_metadata', (table) => {
         table.increments('column_metadata_id').notNullable().primary();
         table.string('column_metadata_title',50).nullable();
         table.text('column_metadata_description').nullable();
@@ -115,7 +116,7 @@ exports.up = async function(knex) {
             column_metadata_read_only: true },
         {   column_metadata_general_column_name: '_table_name', 
             column_metadata_read_only: true }
-    ]).into('column_metadata');
+    ]).into(schema+'column_metadata');
 
     let sqlMetaFKs = fs.readFileSync(
         path.join(__dirname, '..', 'sql', 'schema_foreign_keys.sql')

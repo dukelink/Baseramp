@@ -64,12 +64,12 @@ It may take up to five minutes for this change to take effect.
 }
 
 exports.findByUsername = function(username, cb) {
-//  process.nextTick(function() { // RESEARCH IF NEEDED/USEFUL
+//  process.nextTick(function() {... // RESEARCH IF NEEDED/USEFUL
   knex('user')
   .select('*')
   .then((data)=>{
     data.forEach((record)=>{
-      if (record.user_login === username)
+      if (record.user_login.toLowerCase() === username.toLowerCase())
         return cb(null, record);
       else
         return cb(null,null); // responds correctly with 'unauthorized'
@@ -79,5 +79,7 @@ exports.findByUsername = function(username, cb) {
     // TODO: Add error handing
     return cb(null, null);
   }); 
-//  }); 
+// ...}); 
 }
+
+module.exports.database_schema = 'dbo.'; // TODO: Research best place for this and similar settings

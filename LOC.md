@@ -166,6 +166,176 @@ Number of files read :  25
   317 B      build\static\css\main.6ddade24.chunk.css
 ```
 
+```
+Added mobile friendly flyout panel for system navigation control...
+            Physical :  2423
+              Source :  1770
+             Comment :  453
+ Single-line comment :  151
+       Block comment :  302
+               Mixed :  43
+ Empty block comment :  50
+               Empty :  293
+               To Do :  17
+Number of files read :  26
+  159.21 KB (+983 B)  build\static\js\2.f849bb9d.chunk.js
+  11.07 KB (+631 B)   build\static\js\main.a531165a.chunk.js
+  783 B               build\static\js\runtime-main.bae97f51.js
+  581 B               build\static\css\2.8271af8e.chunk.css
+  327 B (+10 B)       build\static\css\main.2af95729.chunk.css
+```
+
+```
+Complete offline demo mode...
+            Physical :  2465
+              Source :  1762
+             Comment :  487
+ Single-line comment :  162
+       Block comment :  325
+               Mixed :  42
+ Empty block comment :  56
+               Empty :  314
+               To Do :  18
+Number of files read :  28
+  159.48 KB (+44 B)  build\static\js\2.11ad91cd.chunk.js
+  11.1 KB (+187 B)   build\static\js\main.5171f437.chunk.js
+  783 B              build\static\js\runtime-main.bae97f51.js
+  581 B              build\static\css\2.8271af8e.chunk.css
+  327 B              build\static\css\main.2af95729.chunk.css
+```
+
+```
+Update to 'local' authentication & offload login management to server-side node forms...
+  157.74 KB  build\static\js\2.df8d266e.chunk.js
+  10.86 KB   build\static\js\main.5f22871a.chunk.js
+  783 B      build\static\js\runtime-main.bae97f51.js
+  581 B      build\static\css\2.8271af8e.chunk.css
+  327 B      build\static\css\main.2af95729.chunk.css
+```
+
+```
+Sort out authentication:
+  159.48 KB  build\static\js\2.e9e26672.chunk.js
+  11.29 KB   build\static\js\main.4565893c.chunk.js
+  783 B      build\static\js\runtime-main.bae97f51.js
+  581 B      build\static\css\2.8271af8e.chunk.css
+  327 B      build\static\css\main.2af95729.chunk.css
+```
+
+```
+Refine Account Log In / Log Out...
+  157.26 KB (-1.87 KB)  build\static\js\2.77c9f399.chunk.js
+  11.39 KB (+44 B)      build\static\js\main.123cf8ac.chunk.js
+  783 B                 build\static\js\runtime-main.bae97f51.js
+  583 B                 build\static\css\2.47271137.chunk.css
+  336 B                 build\static\css\main.2af95729.chunk.css
+              Physical :  2625
+              Source :  1892
+             Comment :  524
+ Single-line comment :  167
+       Block comment :  357
+               Mixed :  52
+ Empty block comment :  60
+               Empty :  321
+               To Do :  20
+Number of files read :  29
+```
+
+```
+Replace some drill props with custom hooks; progress on new user registration:
+            Physical :  2732
+              Source :  1976
+             Comment :  549
+ Single-line comment :  172
+       Block comment :  377
+               Mixed :  55
+ Empty block comment :  64
+               Empty :  326
+               To Do :  22
+Number of files read :  30
+  157.23 KB (-38 B)  build\static\js\2.4bef3d5b.chunk.js
+  11.61 KB (+227 B)  build\static\js\main.4eeca061.chunk.js
+  783 B              build\static\js\runtime-main.bae97f51.js
+  583 B              build\static\css\2.47271137.chunk.css
+  336 B              build\static\css\main.2af95729.chunk.css
+```
+
+```
+Refactoring NodeForm & NodeFormView...
+            Physical :  2737
+              Source :  1982
+             Comment :  551
+ Single-line comment :  174
+       Block comment :  377
+               Mixed :  56
+ Empty block comment :  64
+               Empty :  324
+               To Do :  24
+Number of files read :  30
+  157.23 KB (+2 B)   build\static\js\2.47933f37.chunk.js
+  11.37 KB (-251 B)  build\static\js\main.21e31d9d.chunk.js       
+  783 B              build\static\js\runtime-main.bae97f51.js     
+  583 B              build\static\css\2.47271137.chunk.css        
+  336 B              build\static\css\main.2af95729.chunk.css    
+```
+
+```
+Implement an interface between NodeForms and form CRUD operations...
+            Physical :  2901
+              Source :  2095
+             Comment :  599
+ Single-line comment :  191
+       Block comment :  408
+               Mixed :  64
+ Empty block comment :  68
+               Empty :  339
+               To Do :  23
+Number of files read :  31
+  157.29 KB (+60 B)  build\static\js\2.b36772eb.chunk.js
+  11.82 KB (+250 B)  build\static\js\main.72c0680b.chunk.js
+  783 B              build\static\js\runtime-main.bae97f51.js
+  583 B              build\static\css\2.47271137.chunk.css
+  336 B              build\static\css\main.2af95729.chunk.css
+```
+
+```
+Added logic to intelligently initialize newly added record...
+            Physical :  2928
+              Source :  2113
+             Comment :  604
+ Single-line comment :  200
+       Block comment :  404
+               Mixed :  62
+ Empty block comment :  68
+               Empty :  341
+               To Do :  23
+Number of files read :  31
+  157.29 KB (+1 B)   build\static\js\2.835d2b02.chunk.js
+  11.96 KB (+106 B)  build\static\js\main.6aa8babd.chunk.js
+  783 B              build\static\js\runtime-main.bae97f51.js
+  583 B              build\static\css\2.47271137.chunk.css
+  336 B              build\static\css\main.2af95729.chunk.css
+```
+
+```
+Refresh NPM dependencies to latest version...
+            Physical :  3018
+              Source :  2155
+             Comment :  634
+ Single-line comment :  210
+       Block comment :  424
+               Mixed :  60
+ Empty block comment :  72
+               Empty :  361
+               To Do :  23
+Number of files read :  32
+  154.8 KB (-2.53 KB)  build\static\js\2.565abd1f.chunk.js
+  12.03 KB (-17 B)     build\static\js\main.749e61b9.chunk.js
+  783 B                build\static\js\runtime-main.bae97f51.js        
+  583 B                build\static\css\2.47271137.chunk.css
+  336 B                build\static\css\main.2af95729.chunk.css   
+```
+
 # HELPFUL SNIPPETS:
 
 npx sloc src -- get lines of code reports, presented above

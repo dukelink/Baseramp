@@ -21,29 +21,31 @@
 
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
-export interface UserLoginState {
-    login : string;
-    password : string;
-    authenticated : boolean;
+export interface AccountState {
+  user_id     :  string,
+  user_title  :  string,
+  user_login  :  string,
+  user_active :  boolean
 }
 
-const initialState: UserLoginState = {
-    login: '',
-    password: '',
-    authenticated: false 
-}
+export const initialState: AccountState = {
+  user_id     :  '',
+  user_title  :  '',
+  user_login  :  '',
+  user_active :  false
+};
 
-const userLoginSlice = createSlice({
-  name: 'userLogin',
+const accountSlice = createSlice({
+  name: 'account',
   initialState,
   reducers: {
-    update(state, action: PayloadAction<{field:'login'|'password',value:string}>) {
-      state[action.payload.field] = action.payload.value;
+    setAccountState(state, action: PayloadAction<AccountState>) {
+      Object.assign(state, { ...initialState, ...action.payload } );
     }
   }
 })
 
-export const { update } = userLoginSlice.actions
+export const { setAccountState } = accountSlice.actions
 
-export default userLoginSlice.reducer
+export default accountSlice.reducer
 

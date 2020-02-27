@@ -1,6 +1,3 @@
-import store from  '../store';
-
-
 // TODO: if response format is json, we could include
 // ".then(res => res && res.json())" in this fetch wrapper...
 //
@@ -9,23 +6,18 @@ import store from  '../store';
 // even though I have a centralized alert message now.  Note that
 // exceptions may be quashed using ".catch((error) =>{})".
 //
-export var Fetch = (resource:any,init:RequestInit={}):Promise<Response | void> => { 
-    const state = store.getState();
-    const { login, password } = state.userLogin;
-
+export var Fetch = (resource:any,init:RequestInit={},defaultMessage=true):Promise<Response | void> => { 
     // no sense in mutating callers object; also handle undefined case w/ defaults
     let _init : any = {...init}; 
     _init.headers = _init.headers || {};
-    _init.headers.Authorization = 'Basic '+btoa(login + ':' + password);
     _init.headers['Content-Type'] = _init.headers['Content-Type'] || 'application/json; charset=utf-8';
-
-console.log(`Fetch: resource=${resource} login=${login} password=${password}.`);
 
     return new Promise<Response>((resolve,reject)=>{
         return fetch(resource,_init)        
         .then(res => {
             if (res.status >= 400/* Http error response range */) {
-                alert(res.statusText); 
+                if (defaultMessage)
+                    alert(`Error fetching resource ${resource}: ${res.statusText}`); 
                 reject(res.statusText);
             }
             else
@@ -42,7 +34,10 @@ console.log(`Fetch: resource=${resource} login=${login} password=${password}.`);
             //   remote resource at http://localhost:8080/api/all. (Reason: CORS request did not succeed).
             // TODO: Access and report these additional details from accessing browser console API...
             //
-            alert(error); 
+            if (error)
+                alert(error); 
+            else if (defaultMessage)
+                console.warn(`Fetch exception with no error message`)
             reject(error);
         });
     })

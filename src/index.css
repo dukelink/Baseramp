@@ -19,3 +19,7 @@ html b {
   width: 100%;
   overflow: hidden;
 }
+
+html, body {
+  overflow: hidden
+}

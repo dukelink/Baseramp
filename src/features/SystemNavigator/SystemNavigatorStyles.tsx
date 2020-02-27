@@ -10,7 +10,6 @@ export const useTreeItemStyles = makeStyles(theme => ({
     labelIcon: {
       marginRight: theme.spacing(1),
       cursor: 'default',
-      color: 'black'
     },
     labelIconInProgress: {
       marginRight: theme.spacing(1),
@@ -26,11 +25,9 @@ export const useTreeItemStyles = makeStyles(theme => ({
       fontSize: 16,
       flexGrow: 1,
       cursor: 'default',
-      color: 'black'
     },
     labelTextClosedItem: {
       fontSize: 16,
-      color: 'black',
       flexGrow: 1,
       cursor: 'default',
       textDecoration: 'line-through'
@@ -44,8 +41,8 @@ export const useTreeItemStyles = makeStyles(theme => ({
     paperFullHeight: {
       padding: theme.spacing(2),
       textAlign: 'left',
-      color: theme.palette.text.secondary,
-      height: "calc(100vh - 130px)",
+      color: theme.palette.text.primary,
+      height: "calc(100vh - 50px)",
       overflowY: "auto",
       overflowX: "hidden",
       marginBottom: "0px"

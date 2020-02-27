@@ -21,9 +21,10 @@
 
 var fs = require('fs');
 var path = require('path'); 
+const { knexErrorHandler, database_schema : schema } = require('../routes/util');
 
 exports.up = async (knex) => {
-    await knex.schema.createTable('user', (table) => {
+    await knex.schema.createTable(schema+'user', (table) => {
         table.increments('user_id').notNullable().primary();
         table.string('user_title',80).notNullable().unique();
         table.string('user_login',80).notNullable().unique();
@@ -33,13 +34,13 @@ exports.up = async (knex) => {
         table.string('user_phone',30).nullable();
     })
 
-    await knex.schema.createTable('audit', (table) => {
+    await knex.schema.createTable(schema+'audit', (table) => {
         table.integer('audit_user_id',80).notNullable()
             .references('user_id')
-            .inTable('user');
+            .inTable(schema+'user');
         table.integer('audit_AppTable_id',80).notNullable()
             .references('AppTable_id')
-            .inTable('AppTable');
+            .inTable(schema+'AppTable');
         table.integer('audit_table_id').notNullable();
         table.string('audit_update_type', 6).notNullable();
         table.timestamp('audit_update_time', {useTz: true});

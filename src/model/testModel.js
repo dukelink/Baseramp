@@ -1,18 +1,15 @@
-export const testModelData = 
-{
+export const testModelData = {
     "apiModel": {
         "category": {
             "2": {
                 "category_id": 2,
                 "category_title": "Work",
-                "category_description": "",
                 "category_rank": 23,
                 "category_status_id": 2
             },
             "3": {
                 "category_id": 3,
                 "category_title": "Continuing Education",
-                "category_description": null,
                 "category_rank": 3,
                 "category_status_id": 2
             }
@@ -21,7 +18,6 @@ export const testModelData =
             "10": {
                 "sprint_id": 10,
                 "sprint_title": "Backlog",
-                "sprint_description": "",
                 "sprint_rank": 1,
                 "sprint_status_id": 1,
                 "sprint_start": "2019-11-01T00:00:00.000Z",
@@ -30,7 +26,6 @@ export const testModelData =
             "16": {
                 "sprint_id": 16,
                 "sprint_title": "Sprint 01/06-01/12/2020",
-                "sprint_description": null,
                 "sprint_rank": null,
                 "sprint_status_id": 3,
                 "sprint_start": "2020-01-07T00:00:00.000Z",
@@ -41,7 +36,6 @@ export const testModelData =
             "8": {
                 "project_id": 8,
                 "project_title": "Portfolio: \"Project\" React App",
-                "project_description": null,
                 "project_rank": 2,
                 "project_status_id": 2,
                 "project_category_id": 2
@@ -49,7 +43,6 @@ export const testModelData =
             "19": {
                 "project_id": 19,
                 "project_title": "Javascript Studies & Client Side Libraries",
-                "project_description": "",
                 "project_rank": 1,
                 "project_status_id": 1,
                 "project_category_id": 3
@@ -57,7 +50,6 @@ export const testModelData =
             "38": {
                 "project_id": 38,
                 "project_title": "Server Side Development Technologies",
-                "project_description": null,
                 "project_rank": null,
                 "project_status_id": 1,
                 "project_category_id": 3
@@ -67,7 +59,6 @@ export const testModelData =
             "210": {
                 "story_id": 210,
                 "story_title": "Refactor and split out \"ViewModelAPI\"",
-                "story_description": null,
                 "story_rank": null,
                 "story_status_id": 3,
                 "story_project_id": 8,
@@ -79,7 +70,6 @@ export const testModelData =
             "215": {
                 "story_id": 215,
                 "story_title": "Fix 'any' TS types of IAppState, ViewModel* files",
-                "story_description": null,
                 "story_rank": null,
                 "story_status_id": 3,
                 "story_project_id": 8,
@@ -91,7 +81,6 @@ export const testModelData =
             "217": {
                 "story_id": 217,
                 "story_title": "Research ExpressJS alternatives & add-ons; Fastify",
-                "story_description": "Also check out add-on express-jit...\nSee these benchmarks:\nhttps://www.youtube.com/watch?v=JbV7MCeEPb8\n",
                 "story_rank": null,
                 "story_status_id": 1,
                 "story_project_id": 38,
@@ -103,7 +92,6 @@ export const testModelData =
             "220": {
                 "story_id": 220,
                 "story_title": "Javascript iterators and generators",
-                "story_description": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Iterators_and_Generators\nAfter this check out Redux-Saga (see also, end of):\nhttps://stackoverflow.com/questions/35411423/how-to-dispatch-a-redux-action-with-a-timeout/35415559#35415559",
                 "story_rank": null,
                 "story_status_id": 1,
                 "story_project_id": 19,
@@ -115,7 +103,6 @@ export const testModelData =
             "225": {
                 "story_id": 225,
                 "story_title": "Publish to GitHub using GPL based FOSS license",
-                "story_description": "Include initial license, readme, contributor (future) notes, etc.",
                 "story_rank": null,
                 "story_status_id": 1,
                 "story_project_id": 8,

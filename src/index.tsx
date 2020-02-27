@@ -29,20 +29,45 @@ import 'core-js/es/array'; // 01/07/2020 - sufficient for Edge browser as of tod
 
 import React from 'react';
 import ReactDOM from 'react-dom';
+import { CssBaseline, ThemeProvider, createMuiTheme } from '@material-ui/core'
 
-import { Provider } from 'react-redux'
+import { Provider, useSelector } from 'react-redux'
 import store from './store';
+import { RootState } from './rootReducer';
+import { loadMetadata } from './model/ModelThunks'; 
 
 import './index.css';
 import * as serviceWorker from './serviceWorker';
-import { SimpleTabs } from './components/Menu';
+import { SimpleTabs } from './features/Menu/Menu';
+
+import 'typeface-roboto';
+import { ThemeOptions } from '@material-ui/core/styles/createMuiTheme';
 
 const Main = () => {
     return (
         <Provider store = { store }>
-            <SimpleTabs />
+            <UI /> 
         </Provider>
     );
+}
+
+const UI = () => {
+    const palettetype = useSelector((state:RootState)=>(state.settings.paletteType));
+
+    loadMetadata(); 
+
+    const theme : ThemeOptions = {
+        palette: {
+            type: palettetype
+        }
+    };
+    const muiTheme = createMuiTheme(theme);
+    return <>
+        <CssBaseline />
+        <ThemeProvider theme={muiTheme}>
+            <SimpleTabs />
+        </ThemeProvider>
+    </>;
 }
 
 window.onload = function() {

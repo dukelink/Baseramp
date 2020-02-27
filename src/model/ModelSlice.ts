@@ -20,18 +20,10 @@
 */
 
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { outlineNode, buildOutline } from './SystemOutline';
+import { OutlineNode, buildOutline } from './SystemOutline';
 import { RootState } from '../rootReducer';
-
-export interface NavigateState {
-  navTable: string;
-  navTableID: string;
-  navParentTable: string;
-  navStrParentID: string;
-  navActiveFilter : boolean;
-  navOutline: outlineNode[];
-  testDataMode: boolean;
-};
+import { testModelData } from '../model/testModel';
+import { useSelector } from 'react-redux';
 
 export interface RecordOfAnyType { [key:string]:any; }
 export interface Records<T> { [key:string]:T; }
@@ -53,31 +45,33 @@ export interface IAppTableRow {
 export interface IAppColumnRow {
   AppColumn_id: string;
   AppColumn_title: string;
-  AppColumn_description?: any;
+  AppColumn_description?: string;
   AppColumn_rank: number;
   AppColumn_AppTable_id: string;
   AppColumn_ui_hidden: boolean;
-  AppColumn_ui_minwidth?: any;
+  AppColumn_ui_minwidth?: number;
   AppColumn_read_only: boolean;
   AppColumn_column_name: string;
   AppColumn_is_nullable: string;
-  AppColumn_data_type: string;
+  AppColumn_data_type: 'bit' | 'character varying' | 'date' | 'datetimeoffset' | 'integer' | 'text';
   AppColumn_character_maximum_length?: number;
   AppColumn_column_default?: any;
   AppColumn_related_pk_id?: string;
 }
 
-export interface MetaModelState {
+export interface IMetaModelState {
   AppTable : Records<IAppTableRow>, 
   AppColumn : Records<IAppColumnRow>,
-  [key:string] : Records<IAppTableRow|IAppColumnRow> // just to allow ['AppTable'|'AppColumn'] syntax
+  // And just to allow ['AppTable'|'AppColumn'] syntax, we'll add...
+  // (Only used around line # 165, below, may deprecate this access later...)
+  [key:string] : Records<IAppTableRow|IAppColumnRow> 
 }
 
 export interface Model {
   apiModel: ViewModelState,
   derivedModel: ViewModelDerived,
-  metaModel: MetaModelState,
-  navigate: NavigateState
+  metaModel: IMetaModelState,
+  outline: OutlineNode[]
 }
 
 let initialState : Model = {
@@ -87,15 +81,7 @@ let initialState : Model = {
     AppTable : {},
     AppColumn : {}
   },
-  navigate: {
-    navTable: "",
-    navTableID: "",
-    navParentTable: "",
-    navStrParentID: "",
-    navActiveFilter: true,
-    navOutline: [],
-    testDataMode: false
-  }
+  outline: []
 };
 
 function buildDerived(model: Model) 
@@ -106,13 +92,13 @@ function buildDerived(model: Model)
   let inprogress_status_ids: Array<number>;
   let apiDerived : ViewModelDerived = {}; 
 
-  inactive_status_ids = Object.values(apiModel['status']).filter((row: any) => (
+  inactive_status_ids = Object.values(apiModel['status']).filter((row: RecordOfAnyType) => (
     (row['status_title'] === 'Completed' || row['status_title'] === 'Canceled')
-  )).map((row: any) => (row['status_id']));
+  )).map((row: RecordOfAnyType) => (row['status_id']));
 
-  inprogress_status_ids = Object.values(apiModel['status']).filter((row: any) => (
+  inprogress_status_ids = Object.values(apiModel['status']).filter((row: RecordOfAnyType) => (
     (row['status_title'] === 'Started') 
-  )).map((row: any) => (row['status_id']));
+  )).map((row: RecordOfAnyType) => (row['status_id']));
 
   Object.keys(apiModel).forEach(tableName=>{
     const records = apiModel[tableName];
@@ -131,78 +117,96 @@ function buildDerived(model: Model)
   model.derivedModel = apiDerived;
 }
 
+function loadData(state:Model,data:Records<any>)
+{
+  Object.assign(state.apiModel,data);
+  // Sync meta data if loaded as part of post-login 'all' route,
+  // otherwise do not clear existing metadata...
+  if (Object.keys(state.apiModel.AppTable)) {
+    state.metaModel.AppTable = state.apiModel.AppTable;
+    state.metaModel.AppColumn = state.apiModel.AppColumn;
+  }
+  buildDerived(state);
+  state.outline = buildOutline(state,true/*we always load with filter on for now*/); 
+}
+
 const model = createSlice({
   name: 'model',
   initialState,
   reducers: {
-    load(state,action:PayloadAction<any>) { 
-      Object.assign(state.apiModel,action.payload);
-      state.metaModel.AppTable = state.apiModel['AppTable'];
-      state.metaModel.AppColumn = state.apiModel['AppColumn']; // sync new meta slice
-      buildDerived(state);
-      state.navigate.navOutline = buildOutline(state,state.navigate.navActiveFilter);
+    metaload(state,action:PayloadAction<Records<any>>) {
+      Object.assign(state.metaModel,action.payload);
+    },
+    load(state,action:PayloadAction<Records<any>>) { 
+      loadData(state,action.payload);
     },
     refreshRecordInVM(state,action:PayloadAction<{
-        navTable:string,navTableID:string,recordDelta:any}>) {
-      const { navTable, navTableID, recordDelta } = action.payload;
+        navTable:string,navTableID:string,navActiveFilter:boolean,recordDelta:RecordOfAnyType}>) {
+      const { navTable, navTableID, navActiveFilter, recordDelta } = action.payload;
       Object.assign(state.apiModel[navTable][navTableID], recordDelta); 
       buildDerived(state);
       if (['AppTable','AppColumn'].includes(navTable)) {// sync new meta slice
           Object.assign(state.metaModel[navTable][navTableID], recordDelta);
       }
-      state.navigate.navOutline = buildOutline(state,state.navigate.navActiveFilter);
+      state.outline = buildOutline(state,navActiveFilter);
     },
-    addRecordToVM(state,action:PayloadAction<{navTable:string,record:any}>) {
-      const { navTable, record } = action.payload;
-      state.navigate.navTableID = record[navTable+'_id'];
-      state.apiModel[navTable][state.navigate.navTableID] = record;
+    addRecordToVM(state,action:PayloadAction<{navTable:string,navActiveFilter:boolean,record:RecordOfAnyType}>) {
+      const { navTable, navActiveFilter, record } = action.payload;
+      const navTableID = record[navTable+'_id'];
+      state.apiModel[navTable][navTableID] = record;
       buildDerived(state);
-      state.navigate.navOutline = buildOutline(state,state.navigate.navActiveFilter);
+      state.outline = buildOutline(state,navActiveFilter);
     }, 
-    deleteRecordFromVM(state,action:PayloadAction<{navTable:string,navTableID:string}>) {
-      const { navTable, navTableID } = action.payload;
+    deleteRecordFromVM(state,action:PayloadAction<{navTable:string,navTableID:string,navActiveFilter:boolean}>) {
+      const { navTable, navTableID, navActiveFilter } = action.payload;
       delete state.apiModel[navTable][navTableID];
       buildDerived(state);
-      state.navigate.navOutline = buildOutline(state,state.navigate.navActiveFilter);
-      state.navigate.navTableID = '';
-    },
-    setFocus(state, action: PayloadAction<Pick<outlineNode,'table'|'tableID'|'parentTable'|'parentID'>>) {
-      const { table, tableID, parentTable, parentID } = action.payload;
-      state.navigate.navTable = table||"";
-      state.navigate.navTableID = (tableID||"").toString();
-      state.navigate.navParentTable = (parentTable||"");
-      state.navigate.navStrParentID = (parentID||"").toString();
-    },
-    addNewBlankRecordForm(state,action:PayloadAction<{navTable:string}>) {
-      const { navTable } = action.payload;
-      state.navigate.navTableID = '-1';
-      console.log('ADD NEW BLANK RECORD')
+      state.outline = buildOutline(state,navActiveFilter);
     },
     setActiveItemDisplay(state,action:PayloadAction<{navActiveFilter:boolean}>) {
-      state.navigate.navActiveFilter = action.payload.navActiveFilter;
-      state.navigate.navOutline = buildOutline(state,state.navigate.navActiveFilter);
+      state.outline = buildOutline(state,action.payload.navActiveFilter);
     },
     setTestDataModeReducer(state,action:PayloadAction<{testDataMode:boolean}>) {
-      state.navigate.testDataMode = action.payload.testDataMode; 
+      if (action.payload.testDataMode)
+        loadData(state,testModelData.apiModel); 
     },
-    clearModeReducer(state) {
-      Object.assign(state, initialState); 
+    clearModelReducer(state) {
+      // Reset everything to initial state, except for meta data which we will retain...
+      Object.assign(state, {...initialState, metaModel: state.metaModel}); 
     }
   }
 });
 
-export const selectTableAppCols = (state:RootState,navTable:string) => {
+export const useInitializedRecord = (navTable:string) => {
+  const columnMetadata = useTableAppCols(navTable);
+  // Mutating 'record' to accumulate initial values will be faster than
+  // successively replacing values ("immutably") using reduce... 
+  let record : RecordOfAnyType = {};
+  columnMetadata.forEach( col => {
+    // Since NodeForms use a two state switch control
+    // for boolean values, we cannot visibly represent 
+    // undefined or null so users would be unable to, e.g., 
+    // see or have an easy way to enter 'false' for a required
+    // boolean field since it would already display as off/false.
+    // NOTE: More rules will probably be added here in the future,
+    // including perhaps querying initial values from SQL if
+    // database level defaults have been defined...
+    if (col.AppColumn_data_type==='bit')
+      record[col.AppColumn_column_name] = false;
+  });
+  return record;
+}
+
+export const useTableAppCols = (navTable:string) => {
+  const state = useSelector<RootState,RootState>(state=>state);
   return Object.values(state.model.metaModel.AppColumn) 
       .filter( row => row.AppColumn_AppTable_id===navTable );       
 }
 
-export const selectFieldMetadata = (state:RootState,fieldName:string) => {
+export const useFieldMetadata = (fieldName:string) => {
+  const state = useSelector<RootState,RootState>(state=>state);
   const appCol = state.model.metaModel.AppColumn[fieldName];
   const _related_pk_id = appCol.AppColumn_related_pk_id;
-
-  //
-  // TODO: split out reference table stuff into another function
-  //
   let referenceTableName : string = '';
   let referenceTable:Records<any> = []; 
   if (_related_pk_id) {
@@ -211,20 +215,18 @@ export const selectFieldMetadata = (state:RootState,fieldName:string) => {
           .AppTable_table_name;
       referenceTable = Object.values(state.model.apiModel[referenceTableName]);
   }
-
   return { appCol, referenceTableName, referenceTable }; 
 }
 
 export const { 
+  metaload,
   load, 
   refreshRecordInVM, 
-  addNewBlankRecordForm, 
   addRecordToVM, 
   deleteRecordFromVM, 
   setActiveItemDisplay, 
   setTestDataModeReducer,
-  clearModeReducer,
-  setFocus
+  clearModelReducer
 } = model.actions;
 
 export default model.reducer; 
