@@ -2,15 +2,51 @@
 
 Baseramp Project Manager - An open source Project Management software built as a Single Page Application (SPA) and Progressive Web Application (PWA) using Typescript, React, and an extensible SQL database model.
 
-Version 1.0 and a contributor guide will be forthcoming. Here's are some slide, and a video to describe and demo the project:
+Version 1.0 and a contributor guide will be forthcoming. Here are some slide, and a video to describe and demo the project:
 
-# Slides
+<!--a href=""-->
+  <img 
+  src="./docs/Baseramp%20Project%20Manager.svg" 
+  width="640px" 
+  alt="Baseramp Project Manager Into Slide">
+<!--/a-->
 
-[Baseramp Project Manager Slide Show](./docs/Baseramp%20Project%20Manager.pdf)
+<img alt="Baseramp Project Manager Slide 1"
+src="./docs/Baseramp%20Project%20Manager%20(1).svg" 
+width="640px">
 
-# Video
+<img alt="Baseramp Project Manager Slide 2"
+src="./docs/Baseramp%20Project%20Manager%20(2).svg" 
+width="640px">
 
-[Baseramp Project Manager Intro Video](./docs/Baseramp%20Project%20Manager%20Intro.mp4)
+<img alt="Baseramp Project Manager Slide 3"
+src="./docs/Baseramp%20Project%20Manager%20(3).svg" 
+width="640px">
+
+<img alt="Baseramp Project Manager Slide 4"
+src="./docs/Baseramp%20Project%20Manager%20(4).svg" 
+width="640px">
+
+<img alt="Baseramp Project Manager Slide 5"
+src="./docs/Baseramp%20Project%20Manager%20(5).svg" 
+width="640px">
+
+<img alt="Baseramp Project Manager Slide 6"
+src="./docs/Baseramp%20Project%20Manager%20(6).svg" 
+width="640px">
+
+<img alt="Baseramp Project Manager Slide 7"
+src="./docs/Baseramp%20Project%20Manager%20(7).svg" 
+width="640px">
+
+
+# Video Into to Project
+
+[Baseramp Project Manager Intro Video](https://youtu.be/8a5TfmJIXd8)
+
+<iframe width="560" height="315" src="https://www.youtube.com/embed/8a5TfmJIXd8" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+
+[![Baseramp Intro Video](http://img.youtube.com/vi/8a5TfmJIXd8/0.jpg)](https://www.youtube.com/watch?v=8a5TfmJIXd8 "Baseramp Intro Video")
 
 # Database ERD
 
