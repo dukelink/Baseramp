@@ -1,0 +1,42 @@
+{
+  "name": "baseramp-project-manager",
+  "author": "William R. Lotherington,III, et. al.",
+  "email": "duke.lotherington@gmail.com",
+  "licence": "GPL3",
+  "version": "0.1.0",
+  "private": false, 
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "express": "~4.17.1",
+    "express-session": "^1.17.0",
+    "express-static-gzip": "^2.0.5",
+    "http-errors": "~1.6.3",
+    "knex": "^0.20.7",
+    "mssql": "^6.0.1",
+    "passport": "^0.4.1",
+    "passport-http": "^0.3.0",
+    "passport-local": "^1.0.0",
+    "dotenv": "8.2.0"
+  },
+  "devDependencies": {
+    "debug": "~2.6.9",    
+    "gzip-all": "^1.0.0",    
+    "morgan": "~1.9.1",    
+    "nodemon": "^2.0.2",    
+    "pg": "^7.17.0",
+    "sloc": "^0.2.1",
+    "tslint": "^6.0.0",
+    "@types/node": "^13.7.7",
+    "@types/express": "^4.17.2",
+    "@types/http-errors": "1.6.1",
+    "@types/passport-local": "1.0.33",
+    "@types/passport": "^1.0.2",
+    "typescript": "^3.8.3"
+  },
+  "scripts": {
+    "start": "node ./dist/bin/www.js",
+    "local": "(npx nodemon node ./dist/bin/www.js)",
+    "dev":  "(tsc --watch)"
+  }
+}

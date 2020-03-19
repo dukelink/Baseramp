@@ -1,0 +1,71 @@
+{
+  "name": "baseramp-project-manager",
+  "author": "William R. Lotherington,III, et. al.",
+  "email": "duke.lotherington@gmail.com",
+  "licence": "GPL3",
+  "version": "0.1.0",
+  "private": false,  
+  "proxy": "http://localhost:8080",
+  "devDependencies": {
+    "@date-io/date-fns": "^1.3.13",
+    "@material-ui/core": "^4.9.5",
+    "@material-ui/icons": "^4.9.1",
+    "@material-ui/lab": "^4.0.0-alpha.45",
+    "@material-ui/pickers": "^3.2.10",
+    "@reduxjs/toolkit": "^1.2.5",
+    "@testing-library/react": "^9.4.1",
+    "@testing-library/jest-dom": "^5.1.1",
+    "@types/enzyme": "^3.10.5",
+    "@types/enzyme-adapter-react-16": "^1.0.6",
+    "@types/jest": "^25.1.4",
+    "@types/node": "^13.9.1",
+    "@types/react": "^16.9.23",
+    "@types/react-dom": "^16.9.5",
+    "@types/react-redux": "^7.1.7",
+    "@types/react-router-dom": "^5.1.3",
+    "@types/react-text-mask": "^5.4.6",
+    "core-js": "3.6.4",
+    "date-fns": "^2.10.0",
+    "enzyme": "^3.11.0",
+    "enzyme-adapter-react-16": "^1.15.2",
+    "enzyme-to-json": "^3.4.4",
+    "gzip-all": "^1.0.0",
+    "prop-types": "^15.7.2",
+    "react": "^16.13.0",
+    "react-app-polyfill": "^1.0.6",
+    "react-dom": "^16.13.0",
+    "react-number-format": "^4.4.1",
+    "react-redux": "^7.2.0",
+    "react-router-dom": "5.1.2",
+    "react-scripts": "^3.4.0",
+    "react-text-mask": "^5.4.3",
+    "redux": "^4.0.5",
+    "redux-mock-store": "^1.5.4",
+    "redux-thunk": "^2.3.0",
+    "typeface-roboto": "0.0.75",
+    "typescript": "^3.8.3",
+    "sloc": "^0.2.1"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build && npx gzip-all build/**/*.* && rm -d -r ../server/dist/build && mv build ../server/dist",
+    "test": "react-scripts test",
+    "coverage": "react-scripts test --coverage --verbose --watchAll=false  --ci --runInBand ",
+    "eject": "react-scripts eject"
+  },
+  "eslintConfig": {
+    "extends": "react-app"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  }
+}

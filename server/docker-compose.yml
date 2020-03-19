@@ -1,0 +1,12 @@
+version: '2.1'
+
+services:
+    server:
+        image: ec2-projects-2:latest 
+        environment: 
+            - MS_SQL_PW=${MS_SQL_PW}
+            - MS_SQL_URI=${MS_SQL_URI}
+            - MS_SQL_USER=${MS_SQL_USER}
+            - MS_SQL_DB=${MS_SQL_DB}
+        ports:
+            - 8080:8080

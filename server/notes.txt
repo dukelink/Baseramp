@@ -1,0 +1,169 @@
+# followed: https://www.youtube.com/watch?v=82gwumVIXFo
+FROM node
+
+WORKDIR //Users/dukel/Documents/Projects/goals-react-ts/server
+
+COPY package*.json ./
+
+RUN npm install
+
+COPY . .
+
+EXPOSE 8080
+
+CMD ["node", "./dist/bin/www.js"]
+
+# https://wrl-projects.scm.azurewebsites.net/api/logstream
+
+# docker build . -t ec2-projects-1
+# docker tag ec2-projects-1:latest baseramp.azurecr.io/ec2-projects-1:latest
+# docker push baseramp.azurecr.io/ec2-projects-1:lat
+# curl -X POST curl "https://\$WRL-Projects:7dD9vjrWnD760PFapjgvdz8nmiALqzoawr3PHxitJMNGbvPeKxzwJqBqPCJb@wrl-projects.scm.azurewebsites.net/docker/hook" -d -H
+
+# docker run -p 8080:8080 ec2-projects-1
+# docker stop $(docker ps -a -q)
+# docker system prune
+# docker rmi <image hash>
+
+# To to ship this image, to another machine :
+# docker ps -a  
+# #or docker container ls -a
+# docker commit <container-id> mynewimage
+# #start here if you never started your image 
+# #(ex: if just created using docker build -t helloWorld:core .)
+# docker image ls
+# docker save mynewimage > /tmp/mynewimage.tar
+# On the other machine:
+
+# docker load < /tmp/mynewimage.tar
+# docker images
+# As explained in comments above, when working on windows with linux containers, containers resides within the docker disk image located at DockerDesktop/settings/advanced/DiskImageLocation
+
+# or try... docker export --output="latest.tar" red_panda
+
+# (See link @ https://stackoverflow.com/questions/42250222/what-is-docker-image-location-on-windows-10)
+
+#docker tag local-image:tagname new-repo:tagname
+#docker push new-repo:tagname
+#docker login   (wlotherington243 / Gr8c...)
+
+# curl https://\$MySiteName:SomeLongPassword@mysite.scm.azurewebsites.net/docker/hook -H "" -d ""
+
+# C:\Users\dukel>az webapp show --resource-group appsvc_linux_centralus --name baseramp-projects --query possibleOutboundIpAddresses
+# "40.112.243.7,40.118.229.231,13.64.89.216,40.78.16.175,52.160.111.150,13.64.91.216,13.64.94.144,13.91.124.136,13.91.125.204,40.118.239.192"
+
+# TEMPLATE FOR WEB HOOK UPDATE:
+# $ curl -X POST curl "https://\$WRL-Projects:7dD9vjrWnD760PFapjgvdz8nmiALqzoawr3PHxitJMNGbvPeKxzwJqBqPCJb@wrl-projects.scm.azurewebsit es.net/docker/hook" -d -H
+# {"OperationId":"4d9eee3d-d626-449f-ac93-2ac2dfc66957","TrackingUrl":"https://wrl-projects.scm.azurewebsites.net/api/logstream?filter=op:4d9eee3d-d626-449f-ac93-2ac2dfc66957,volatile:false"}
+
+
+AWS:
+
+repository:
+283385774951.dkr.ecr.us-west-1.amazonaws.com/baseramp
+
+$ aws ecr get-login --no-include-email --region us-west-1
+docker login -u AWS -p eyJwYXlsb2FkIjoiY21Ba0NNVEpSd0RiOXJQRndHSFNPYjMxTFVIQXU1MXVjVDd0ZjZwYzdjeTB0aDFOVkozaDhHMEJiZ2NqVlVXRWJUekNrZ29OZTdRa2FzTnhPalNWNHNNR1ZDbjBpLzRMbm5xSEpSeUt2bmM2U1JESWdPcTJXQzV3YzNXaEcyYjVCMDVpQUIxZjdQSzlUSjFTa3EzdnNPS3I4NURUM3RUdEE1YTJnQm9kNEs4U2dGaEpXdzNNVWZab3F4cXMyTlB0T3JWbDVxQWlqR0ZISGt0UXNQTWt0dnA1YnVJOCtNeW9IRnlFZ2lmNDhaZ2crMm9rdEdXUTF2S1FvMGNkK0c0eHRLeUExTS80VFJ5WVFWYUEzMi9PcXE3Y3VtbmdqbzJiSG5RY0tabGdkOFRRZzJmaEI3U291dW5OQmV4dEZFV1BUbWVvR0hzb2IzamNsaFBKcjNqa1lKNXJZMWtzZ0E5ZUcvbTMybkZFRGN5WjJxMnBXOW9Oa0ErKzJlVWEvdlFsaTN3a0xyYXhVMHJTRTNXSFlpS3ZTR0F1Q0pEb0NKL0FjNW9vaGFJc1lxR3dKMXdjQVp4SElDcW0vU1VxNnM4cUc1N0VNcTRFTVVqTVlGdWV0eEcxRzMrQXEwQlM2T0Vyc3g0ZDNkNXRGK1FRMXJieE54WE5EOUpFcXlEZlJHRXRmbzRWOFpxUUppV3Zaa2tzOFF5Wkx6QWxoZWxaK1p6c2F6T3ZRanlvMTJpcVRCUEk2YU1XakJLYUh4UVlxUUFzN0dZNjRWeVJoZXBSTUJJeWd3VEttTlFWaldiMTkycUMyVEhzT1lEdDlCTjZjN0lsVm80bFBwVEVneGhWY1NTbVVwUEF6UVhYakE3dUZ1R0d5STdPaXQ3N2RDTWExUGtPQmFUN01rcnAvNDBhZmRVNW43NmlWUURyd1VGUm9ZN0hFQThlQVBmMEx6cGVQT1FtdWlFN2tjS3FscjFOOHJGeThNNHNpdmt2dFh6emJYU3laMjBpVGFzRmUxYmcvQW1nTGRBK1lqTG1kMjIraDhQZkFVQi9NVlR1UnFaMVpxK2JSaDlVd3cxeHJmUFgzbmt3SFZyYjJBMzl2Vm5YVnBTYWdKaG9TWkxjaWZaVXR5OFZrWFl4bHJpOWdZY2VMcTIxZTVUMm1oWitXY3NkVVNtSFFpQStqVWdpTkpZZTlTcFo5VjVrcm5oVk9yejIxM2R0N2prYUNiRlZzR3NjbEZRemd1anlSdGJSNnFqSHYvUzMrMXpBZS91MEw1RXp0dVhiS09ma2pYK1RuK283VXNPajlhbWlIUW9kZjNKNzBFb3FOdjRCS1lBbjJ4MkN2dzFWQTMzSUhtOU81dUlBN1AzaTh0MVpvcGdZbVRXakZ3U0hiZVlhTjhIRCIsImRhdGFrZXkiOiJBUUVCQUhpakVGWEd3RjFjaXBWT2FjRzhxUm1Kb1ZCUGF5OExVVXZVOFJDVlYwWG9Id0FBQUg0d2ZBWUpLb1pJaHZjTkFRY0dvRzh3YlFJQkFEQm9CZ2txaGtpRzl3MEJCd0V3SGdZSllJWklBV1VEQkFFdU1CRUVETEJWV2Q3d1ZFSU9zb2ZHS3dJQkVJQTdZZ2RMNHRCcGJzaE92alZ1Q3BOQVhHRWdzWWUzbEZFU2RHeDRzcEhKaG42czBoZlR4Q2hmemk4NHBielhLeDNSQ25Sd0hJd3pIM0FtM0NzPSIsInZlcnNpb24iOiIyIiwidHlwZSI6IkRBVEFfS0VZIiwiZXhwaXJhdGlvbiI6MTU4MzkyNjAwNH0= https://283385774951.dkr.ecr.us-west-1.amazonaws.com
+
+dukel@BASEramp MINGW64 ~/Documents/Projects/goals-react-ts/server (docker_work)
+$ aws ecr create-repository --repository-name=baseramp --region=us-west-1
+{   
+    "repository": {
+        "repositoryArn": "arn:aws:ecr:us-west-1:283385774951:repository/baseramp",
+        "registryId": "283385774951",
+        "repositoryName": "baseramp",
+        "repositoryUri": "283385774951.dkr.ecr.us-west-1.amazonaws.com/baseramp", 
+        "createdAt": 1583886134.0,
+        "imageTagMutability": "MUTABLE"
+    }
+}
+
+Created tasks successfully
+Task Ids : ["9eccbaad-4949-47b0-a45a-8145fd263697"]
+
+
+Launch Status
+ECS Service status - 5 of 5 completed
+Configure Task Networking
+Create security group
+Create security group
+basera-9897 succeeded sg-0493201675611cd5e
+Set inbound rules
+Set inbound rules
+succeeded sg-0493201675611cd5e
+Configure Service Discovery
+Create a private DNS namespace
+Create a private DNS namespace
+ns-ugvedbnhkb7f3lxl created
+Create service discovery service
+Create service discovery service
+arn:aws:servicediscovery:us-west-1:283385774951:service/srv-hq5gb6gqxfheyxds created
+Create Service
+Create service: baseramp
+Service created
+Service created. Tasks will start momentarily. View: baseramp
+
+
+Launch Status
+ECS Service status - 4 of 4 completed
+Configure Task Networking
+Create security group
+Create security group
+basera-5797 succeeded sg-0d61ca5bfac9466dd
+Set inbound rules
+Set inbound rules
+succeeded sg-0d61ca5bfac9466dd
+Configure Service Discovery
+Create service discovery service
+Create service discovery service
+arn:aws:servicediscovery:us-west-1:283385774951:service/srv-hptsbqxydhd7wq6e created
+Create Service
+Create service: baseramp-projects
+Service created
+Service created. Tasks will start momentarily. View: baseramp-projects
+
+Launch Status
+ECS Service status - 5 of 5 completed
+Create Load Balancer
+IAM Role: <create_new>
+IAM Service role created
+IAM Service role created. Waiting to attach policy. View: arn:aws:iam::283385774951:role/ecsServiceRole
+IAM Policy
+IAM Service policy attached
+IAM Service policy attached to the role: arn:aws:iam::283385774951:role/ecsServiceRole. View policy: AmazonEC2ContainerServiceRole
+Target Group: ecs-basera-test
+Target Group created
+Target Group created. Waiting to create listener/rule. View: ecs-basera-test
+Rule: 80:HTTP /test*:1
+Rule created
+Rule created. Waiting to create service. View in load balancer: test
+Create Service
+Create service: test
+Service created
+Service created. Tasks will start momentarily. View: test
+
+===============================
+$ aws ecs create-cluster --cluster-name baseramp-cluster --region us-west-1
+{
+    "cluster": {
+        "clusterArn": "arn:aws:ecs:us-west-1:283385774951:cluster/baseramp-cluster",
+        "clusterName": "baseramp-cluster",
+        "status": "ACTIVE",
+        "registeredContainerInstancesCount": 0,
+        "runningTasksCount": 0,
+        "pendingTasksCount": 0,
+        "activeServicesCount": 0,
+        "statistics": [],
+        "tags": [],
+        "settings": [
+            {
+                "name": "containerInsights",
+                "value": "disabled"
+            }
+        ]
+    }
+}
+
+$ aws logs create-log-group --log-group-name baseramp-log --region us-west-1
+
+
