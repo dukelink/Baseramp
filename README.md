@@ -7,37 +7,37 @@ Version 1.0 and a contributor guide will be forthcoming. Here are some slide, an
 <!--a href=""-->
   <img 
   src="./docs/Baseramp%20Project%20Manager.svg" 
-  width="640px" 
+  width="1024px" 
   alt="Baseramp Project Manager Into Slide">
 <!--/a-->
 
 <img alt="Baseramp Project Manager Slide 1"
 src="./docs/Baseramp%20Project%20Manager%20(1).svg" 
-width="640px">
+width="1024px">
 
 <img alt="Baseramp Project Manager Slide 2"
 src="./docs/Baseramp%20Project%20Manager%20(2).svg" 
-width="640px">
+width="1024px">
 
 <img alt="Baseramp Project Manager Slide 3"
 src="./docs/Baseramp%20Project%20Manager%20(3).svg" 
-width="640px">
+width="1024px">
 
 <img alt="Baseramp Project Manager Slide 4"
 src="./docs/Baseramp%20Project%20Manager%20(4).svg" 
-width="640px">
+width="1024px">
 
 <img alt="Baseramp Project Manager Slide 5"
 src="./docs/Baseramp%20Project%20Manager%20(5).svg" 
-width="640px">
+width="1024px">
 
 <img alt="Baseramp Project Manager Slide 6"
 src="./docs/Baseramp%20Project%20Manager%20(6).svg" 
-width="640px">
+width="1024px">
 
 <img alt="Baseramp Project Manager Slide 7"
 src="./docs/Baseramp%20Project%20Manager%20(7).svg" 
-width="640px">
+width="1024px">
 
 
 # Video Into to Project
@@ -47,7 +47,7 @@ width="640px">
 <a href="https://www.youtube.com/watch?v=8a5TfmJIXd8">
   <img 
   src="./docs/BaseRampVidoPic.jpg" 
-  width="640px" 
+  width="1024px" 
   alt="Baseramp Project Manager Into Video">
 </a>
 
