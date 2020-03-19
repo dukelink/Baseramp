@@ -44,7 +44,12 @@ width="640px">
 
 [Baseramp Project Manager Intro Video](https://youtu.be/8a5TfmJIXd8)
 
-[![Baseramp Intro Video](./docs/BaseRampVidoPic.jpg)](https://www.youtube.com/watch?v=8a5TfmJIXd8 "Baseramp Intro Video")
+<a href="https://www.youtube.com/watch?v=8a5TfmJIXd8">
+  <img 
+  src="./docs/BaseRampVidoPic.jpg" 
+  width="640px" 
+  alt="Baseramp Project Manager Into Video">
+</a>
 
 # Database ERD
 
