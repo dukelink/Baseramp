@@ -44,9 +44,7 @@ width="640px">
 
 [Baseramp Project Manager Intro Video](https://youtu.be/8a5TfmJIXd8)
 
-<iframe width="560" height="315" src="https://www.youtube.com/embed/8a5TfmJIXd8" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-
-[![Baseramp Intro Video](http://img.youtube.com/vi/8a5TfmJIXd8/0.jpg)](https://www.youtube.com/watch?v=8a5TfmJIXd8 "Baseramp Intro Video")
+[![Baseramp Intro Video](./docs/BaseRampVidoPic.jpg)](https://www.youtube.com/watch?v=8a5TfmJIXd8 "Baseramp Intro Video")
 
 # Database ERD
 
