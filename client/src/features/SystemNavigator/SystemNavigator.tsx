@@ -119,7 +119,10 @@ export const SystemNavigator = () => {
                           console.log(mode);
                           setMode(mode==='Both'?mode:'Edit'); 
                       } } >
-                      Add { navTable }
+                      Add 
+                      { (navTable===navParentTable ? ' Sub ' : ' ') // HACK: CYCLIC RELATIONSHIPS
+                        + navTable 
+                      }
                   </Button> 
                 : <>
                   { (JSON.stringify(originalRecord)!==JSON.stringify(record)

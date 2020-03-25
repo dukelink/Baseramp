@@ -25,6 +25,8 @@
 -- (TODO: Postgres may require different syntax)
 DECLARE @TablesToRefresh varchar(200) = ?; 
 
+DELETE FROM [Audit]; -- not critical data at present; helps avoid RI constraints....
+
 DROP TABLE IF EXISTS TABLE_COLUMNS;
 
 /*
