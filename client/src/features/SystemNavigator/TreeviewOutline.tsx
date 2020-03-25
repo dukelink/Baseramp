@@ -26,7 +26,7 @@ import { useTreeItemStyles } from './SystemNavigatorStyles';
 
 import { useDispatch } from 'react-redux';
 import { setFocus } from './NavigateSlice';
-import { OutlineNode } from '../../model/SystemOutline';
+import { OutlineNode } from '../../model/ModelOutline';
 
 import FolderIcon from '@material-ui/icons/Folder';
 import AssignmentIcon from '@material-ui/icons/Assignment';

@@ -1,10 +1,12 @@
 import { useRef, useEffect, useLayoutEffect, useState } from 'react';
+import { RecordOfAnyType } from '../model/ModelTypes';
 
 export const recordDelta = (newObj: {[key:string]:any}, origObj: {[key:string]:any}) => {
-    var changes : {[key:string]:any} = {};
+    var changes = {} as RecordOfAnyType;
     Object.keys(newObj).forEach((fld) => {
-        if (newObj[fld] !== origObj[fld])
-            changes[fld] = (newObj[fld] || '');
+        if (newObj[fld] !== origObj[fld]
+            && !fld.includes("Project Sprint")) // HACK: XREF - do not write compound virtual 'key' fields
+          changes[fld] = (newObj[fld] || '');
     });
     return changes;
   }
@@ -23,23 +25,33 @@ export const usePrevious = (value:any) : any =>
   return ref.current;
 }
 
-// https://stackoverflow.com/questions/19014250/rerender-view-on-browser-resize-with-react
 export function useWindowSize() {
-  const [size, setSize] = useState([0, 0]);
-  useLayoutEffect(() => {
-    function updateSize() {
-      setSize([window.innerWidth, window.innerHeight]);
-    }
-    window.addEventListener('resize', updateSize);
-    updateSize();
-    return () => window.removeEventListener('resize', updateSize);
-  }, []);
-  return size;
-}
+  const ref = useRef<[number,number]>();
+  ref.current = [window.innerWidth, window.innerHeight];
+  const [size, setSize] = useState(ref.current);
 
-/* 
-function ShowWindowDimensions(props) {
-  const [width, height] = useWindowSize();
-  return <span>Window size: {width} x {height}</span>;
+  console.log(`useWindowSize(): size = ${JSON.stringify(size)}, innerWidth=${window.innerWidth}, innerHeight=${window.innerHeight}`);
+
+  function updateSize() {
+    setSize([window.innerWidth, window.innerHeight]);
+  }
+
+  useLayoutEffect(() => {
+    // Trigger update for web apps pinned to desktop in IOS
+    // (no resize events are fired so I am using setInterval() 
+    //  as a universal solution!). This reduces # of updates too,
+    //  like a denounce solution...
+    const intv = setInterval( () => {
+      if (ref.current && ( 
+          ref.current[0]!==window.innerWidth
+          || ref.current[1]!==window.innerHeight )
+      ) {
+        ref.current = [window.innerWidth, window.innerHeight];
+        updateSize();
+      }
+    }, 200 ); 
+    return () => { clearInterval(intv); }
+  }, []);
+  
+  return size; 
 }
-*/

@@ -13,7 +13,7 @@ export const development = {
         encrypt: true
     },
     migrations: {
-        tableName: 'guest.knex_migrations'
+        tableName: 'knex_migrations'
     }
 }
 

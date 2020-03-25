@@ -27,7 +27,7 @@ import NumberFormat from 'react-number-format';
 import DateFnsUtils from '@date-io/date-fns';
 import { MuiPickersUtilsProvider, KeyboardDatePicker } from '@material-ui/pickers'; 
 
-import { useFieldMetadata } from '../../model/ModelSlice';
+import { useFieldMetadata } from '../../model/ModelSelectors';
 
 const useStyles = makeStyles(theme => ({
   container: {

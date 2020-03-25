@@ -23,7 +23,7 @@ import React, { useState, useRef, MutableRefObject } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { Button } from '@material-ui/core';
 import { NodeForm, NodeFormEditState, NodeFormEditState_OnChange } from '../NodeForm/NodeForm';
-import { useInitializedRecord } from '../../model/ModelSlice';
+import { useInitializedRecord } from '../../model/ModelSelectors';
 import { insertRecord } from '../../model/ModelThunks';
 import { useDispatch } from 'react-redux';
 import { Login_OnDone } from './AccountPage';

@@ -354,6 +354,45 @@ Number of files read :  32
   583 B      build\static\css\2.47271137.chunk.css      
   336 B      build\static\css\main.2af95729.chunk.css   
 ```
+
+```
+File sizes after gzip:
+  153.91 KB  build\static\js\2.caec9d44.chunk.js
+  11.83 KB   build\static\js\main.14483712.chunk.js
+  783 B      build\static\js\runtime-main.fd5b1e98.js
+  583 B      build\static\css\2.47271137.chunk.css
+  434 B      build\static\css\main.2c61f976.chunk.css
+            Physical :  3072
+              Source :  2186
+             Comment :  629
+ Single-line comment :  181
+       Block comment :  448
+               Mixed :  46
+ Empty block comment :  76
+               Empty :  379
+               To Do :  18
+Number of files read :  33  
+```
+
+```
+Release refactored Sprint-Projects XREF feature:
+  153.91 KB  build\static\js\2.c08fc1a2.chunk.js
+  12.28 KB   build\static\js\main.ecd67824.chunk.js
+  783 B      build\static\js\runtime-main.fd5b1e98.js
+  583 B      build\static\css\2.47271137.chunk.css
+  434 B      build\static\css\main.2c61f976.chunk.css
+            Physical :  3220
+              Source :  2274
+             Comment :  694
+ Single-line comment :  213
+       Block comment :  481
+               Mixed :  52
+ Empty block comment :  84
+               Empty :  388
+               To Do :  19
+Number of files read :  35  
+```
+
 # HELPFUL SNIPPETS:
 
 npx sloc src -- get lines of code reports, presented above

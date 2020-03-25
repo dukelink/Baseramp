@@ -4,25 +4,24 @@
   "email": "duke.lotherington@gmail.com",
   "licence": "GPL3",
   "version": "0.1.0",
-  "private": false, 
+  "private": false,
   "dependencies": {
     "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
+    "dotenv": "8.2.0",
     "express": "~4.17.1",
     "express-session": "^1.17.0",
     "express-static-gzip": "^2.0.5",
-    "http-errors": "~1.6.3",
-    "knex": "^0.20.7",
-    "minimist": "^1.2.5",
-    "mssql": "^6.0.1",
+    "http-errors": "~1.7.3",
+    "knex": "^0.20.13",
+    "mssql": "^6.2.0",
     "passport": "^0.4.1",
     "passport-http": "^0.3.0",
-    "passport-local": "^1.0.0",
-    "dotenv": "8.2.0"
+    "passport-local": "^1.0.0"
   },
   "scripts": {
     "start": "node ./dist/bin/www.js",
     "local": "(npx nodemon node ./dist/bin/www.js)",
-    "dev":  "(tsc --watch)"
+    "dev": "(tsc --watch)"
   }
 }

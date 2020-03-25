@@ -22,6 +22,7 @@
 import { Environment } from '../environment';
 import store, { AppThunk } from  '../store';  // REVIEW: Are there any anti-patterns associated with thunks being state-aware?
 import { Fetch } from '../utils/Fetch';
+import { recordDelta } from '../utils/utils';
 import  { metaload, load, 
           refreshRecordInVM, 
           addRecordToVM, 
@@ -31,6 +32,7 @@ import  { metaload, load,
         } from './ModelSlice';
     
 import { testModelData } from './testModel';
+import { RecordOfAnyType } from './ModelTypes';
 
 export const initialLoad = (route:string="all") => 
 {
@@ -75,12 +77,16 @@ export const updateRecord = (navTable:string,navTableID:string,recordDelta:any)
   }
 }
 
-export const insertRecord = (navTable:string,record:any) 
+export const insertRecord = (navTable:string, _record:RecordOfAnyType) 
   : AppThunk => async dispatch => 
 {
   const state = store.getState(); // TODO: not SSR compatible; consider changing
   const navActiveFilter = state.navigate.navActiveFilter;
   let err = false;
+
+  // HACK: XREF - I have a business rule in recordDelta that filters out 
+  // derived key fields...  I may move the rule elsewhere later...
+  let record = recordDelta(_record,{}); 
 
   if (Object.keys(record).length) {
     if (!state.navigate.testDataMode) 

@@ -61,11 +61,15 @@ export const SystemNavigator = () => {
   const { record, isFormValid, originalRecord } = latestNodeformState;
 
   const { outline } = state.model; 
-
   const [ mode, setMode ] = useState<EditMode>('Both');
   const [ width ] = useWindowSize();
   const otherMode = mode==='Outline' ? 'Edit' : 'Outline';
   const otherLabel = mode==='Outline' ? 'Form' : 'Outline';
+
+  // Does navTable physically exist in apiModel?
+  // if not then we'll suppress CRUD buttons for virtually created xref tables
+  // HACK XREF...
+  const notVirtualXrefTable = state.model.apiModel[navTable] !== undefined; 
 
   console.log(`SystemNavigator:: navTable: ${navTable}, navTableID: ${navTableID}`);
 
@@ -85,88 +89,93 @@ export const SystemNavigator = () => {
     <Grid container spacing={0}>
 
       {/* Outline/Edit Navigation Bar */}
-      <Grid item xs={12} style={{ display: navTable ? 'inline-block' : 'none'  }}> 
-        <div className = { classes.OutlineEditButton } 
-              color='secondary'
-              style = {{ 
-                width: '100%', 
-                visibility: navTable ? 'visible' : 'hidden' }}>
-          { 
-            (mode !== "Both" && navTableID ) &&
-              <IconButton area-label="Navigation Outline"
-                  style = {{ padding: 6 }} 
-                  onClick = { () => { setMode(otherMode) } }>
-                <div>
-                  { otherLabel }&nbsp;
-                </div> 
-                <PlayCircleFilledIcon 
-                  className = { otherMode==='Outline' ? classes.rotate80 : '' } />
-              </IconButton>
-          }
-          <div style={{ display: 'inline-block', float: 'right' }} className={classes.buttonBar}>
-              { !navTableID ? 
-                <Button 
-                    variant='contained' 
-                    onClick = { () => {
-                        dispatch(addNewBlankRecordForm({navTable}));
-                        console.log(mode);
-                        setMode(mode==='Both'?mode:'Edit'); 
-                    } } >
-                    Add { navTable }
-                </Button> 
-              : <>
-                { JSON.stringify(originalRecord)===JSON.stringify(record) || <>
-                  <Button
-                      id="crudSave" 
-                      variant='contained' 
-                      disabled={ !isFormValid }
-                      onClick={ () => {
-                          if (!isFormValid) {
-                              alert('Please fill in all required fields before saving');
-                              return;
-                          }
-                          if (navTableID==="-1") 
-                              dispatch(insertRecord(navTable, record));
-                          else
-                              dispatch(updateRecord(navTable, navTableID,
-                                  recordDelta(record, originalRecord)));                 
-                  }}> Save </Button> 
+      <Grid item xs = {12} 
+            className = { classes.OutlineEditButton } 
+            style = {{ display: navTable ? 'inline-block' : 'none'  }}> 
+        { notVirtualXrefTable &&
+          <div 
+                color='secondary'
+                style = {{ 
+                  width: '100%', 
+                  visibility: navTable ? 'visible' : 'hidden' }}>
+            { 
+              (mode !== "Both" && navTableID ) &&
+                <IconButton area-label="Navigation Outline"
+                    style = {{ padding: 6 }} 
+                    onClick = { () => { setMode(otherMode) } }>
+                  <div>
+                    { otherLabel }&nbsp;
+                  </div> 
+                  <PlayCircleFilledIcon 
+                    className = { otherMode==='Outline' ? classes.rotate80 : '' } />
+                </IconButton>
+            }
+            <div style={{ display: 'inline-block', float: 'right' }} className={classes.buttonBar}>
+                { !navTableID ? 
                   <Button 
-                      id="crudCancel" variant='contained'
-                      onClick={ ()=> { 
-                        // Trigger rerender of NodeForm
-                        // (requires props to change, so a clear and restore ID)
-                        dispatch(setFocus({ 
-                          table:navTable, 
-                          tableID: '', 
-                          parentTable: navParentTable,
-                          parentID: navStrParentID 
-                        }));
-                        if (navTableID === '-1')
-                          setMode(mode==='Both'?mode:'Outline');
-                        else
+                      variant='contained' 
+                      onClick = { () => {
+                          dispatch(addNewBlankRecordForm({navTable}));
+                          console.log(mode);
+                          setMode(mode==='Both'?mode:'Edit'); 
+                      } } >
+                      Add { navTable }
+                  </Button> 
+                : <>
+                  { (JSON.stringify(originalRecord)!==JSON.stringify(record)
+                      || navTableID==='-1') && <>
+                    <Button
+                        id="crudSave" 
+                        variant='contained' 
+                        disabled={ !isFormValid }
+                        onClick={ () => {
+                            if (!isFormValid) {
+                                alert('Please fill in all required fields before saving');
+                                return;
+                            }
+                            if (navTableID==="-1") 
+                                dispatch(insertRecord(navTable, record));
+                            else
+                                dispatch(updateRecord(navTable, navTableID,
+                                    recordDelta(record, originalRecord)));                 
+                    }}> Save </Button> 
+                    <Button 
+                        id="crudCancel" variant='contained'
+                        onClick={ ()=> { 
+                          // Trigger rerender of NodeForm
+                          // (requires props to change, so a clear and restore ID)
                           dispatch(setFocus({ 
-                            table: navTable, 
-                            tableID: navTableID,
+                            table:navTable, 
+                            tableID: '', 
                             parentTable: navParentTable,
                             parentID: navStrParentID 
                           }));
-                      }
-                  }> Cancel </Button>
-                </>}
+                          if (navTableID === '-1')
+                            setMode(mode==='Both'?mode:'Outline');
+                          else
+                            dispatch(setFocus({ 
+                              table: navTable, 
+                              tableID: navTableID,
+                              parentTable: navParentTable,
+                              parentID: navStrParentID 
+                            }));
+                        }
+                    }> Cancel </Button>
+                  </>}
 
-                <Button 
-                    id="crudDelete" 
-                    variant='contained' 
-                    disabled={ !navTable || !navTableID || navTableID==='-1' }
-                    onClick={ () => {
-                      dispatch(deleteRecord(navTable, navTableID));
-                      setMode(mode==='Both'?mode:'Outline');
-                    } }
-                > Delete </Button>
-              </>}
+                  <Button 
+                      id="crudDelete" 
+                      variant='contained' 
+                      disabled={ !navTable || !navTableID || navTableID==='-1' }
+                      onClick={ () => {
+                        dispatch(deleteRecord(navTable, navTableID));
+                        setMode(mode==='Both'?mode:'Outline');
+                      } }
+                  > Delete </Button>
+                </>}
+            </div>
           </div>
-        </div>
+        }
       </Grid> 
 
       {/* Outline Panel/Form */}

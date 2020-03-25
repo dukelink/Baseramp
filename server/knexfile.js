@@ -16,7 +16,7 @@ exports.development = {
         encrypt: true
     },
     migrations: {
-        tableName: 'guest.knex_migrations'
+        tableName: 'knex_migrations'
     }
 };
 //# sourceMappingURL=knexfile.js.map

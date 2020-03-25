@@ -19,9 +19,9 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import React, { useState, useEffect, memo } from 'react';
-import { useTableAppCols, RecordOfAnyType, IAppColumnRow } 
-  from '../../model/ModelSlice';
+import React, { useState, useEffect } from 'react';
+import { RecordOfAnyType, AppColumnRow } from '../../model/ModelTypes';
+import { useTableAppCols } from '../../model/ModelSelectors';
 import { usePrevious } from '../../utils/utils';
 import { AppField } from './FieldFactory';  
 
@@ -44,8 +44,7 @@ export interface NodeFormProps {
   onChange   ?: NodeFormEditState_OnChange
 }
 
-export const NodeForm = 
-memo( 
+export const NodeForm =  
 (props : NodeFormProps) => {
   const { navTable, navTableID, record } = props;
   const priorRecord = usePrevious(record);
@@ -77,7 +76,7 @@ memo(
     <div style={{ paddingRight: 16 }}>
       {
         tableAppCols
-          .filter((appCol:IAppColumnRow) => !appCol.AppColumn_ui_hidden)
+          .filter((appCol:AppColumnRow) => !appCol.AppColumn_ui_hidden)
           .map((appCol:any) => {
             const fieldName = appCol.AppColumn_column_name;
             return (
@@ -120,4 +119,4 @@ memo(
         });
     }
   }
-});
+};

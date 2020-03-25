@@ -20,7 +20,7 @@
 */
 
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { OutlineNode } from '../../model/SystemOutline';
+import { OutlineNode } from '../../model/ModelOutline';
 
 interface INavigateState {
   navTable: string;
@@ -47,7 +47,16 @@ const model = createSlice({
   initialState,
   reducers: {
     setFocus(state, action: PayloadAction<INavigateRecordFocus>) {
-      const { table, tableID, parentTable, parentID } = action.payload;
+      let { table, tableID, parentTable, parentID } = action.payload;
+
+      // HACK: XREF...
+      if (table==='Project Sprint') {
+        table = 'project';
+        if (tableID && tableID !== '-1' && typeof tableID==='string')
+          tableID = tableID.split('-')[0]; // Extract product_id value only
+      }
+      // ... HACK: XREF
+
       state.navTable = table||"";
       state.navTableID = (tableID||"").toString();
       state.navParentTable = (parentTable||"");
