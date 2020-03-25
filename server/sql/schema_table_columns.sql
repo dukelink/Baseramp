@@ -56,6 +56,9 @@ where table_catalog=DB_NAME() /* mssql function */
 	and table_name <> 'sysdiagrams'
 ORDER BY TABLE_NAME,ORDINAL_POSITION;
 
+ALTER TABLE AppColumn NOCHECK CONSTRAINT appcolumn_appcolumn_related_pk_id_foreign;
+ALTER TABLE AppColumn NOCHECK CONSTRAINT appcolumn_appcolumn_apptable_id_foreign;
+
 DELETE FROM AppColumn
 WHERE AppColumn_AppTable_id in (
 	SELECT AppTable_id 
@@ -63,6 +66,10 @@ WHERE AppColumn_AppTable_id in (
 	WHERE @TablesToRefresh='*' 
 		or charindex('['+AppTable_table_name+']',@TablesToRefresh) > 0
 )
+
+ALTER TABLE AppColumn CHECK CONSTRAINT appcolumn_appcolumn_related_pk_id_foreign;
+ALTER TABLE AppColumn CHECK CONSTRAINT appcolumn_appcolumn_apptable_id_foreign;
+
 
 DELETE FROM AppTable
 WHERE @TablesToRefresh='*' 

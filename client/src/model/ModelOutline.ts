@@ -35,7 +35,7 @@ export interface OutlineNode {
 
 const parentChildTables: any = { 
     category: ['project'],
-    project: ['story'],
+    project: ['story', 'project'  /* Cyclic relationship */ ],
 //    story: ['task'], // pending...
     user: [],
     sprint: [
@@ -80,7 +80,17 @@ export function buildOutline(derivedModel: ViewModelDerived, navActiveFilter: bo
 
         if (parentTable && parentID)
         rows = rows
-            .filter((row:RecordDerived) => (row.record[tableHeading + '_' + parentTable + '_id'] === parentID));
+            .filter((row:RecordDerived) => { 
+                // HACK: CYCLIC RELATIONSHIPS... 
+                // - only present under parent record of same type...
+                if (row.record[tableHeading+'_'+tableHeading+'_id']
+                        && tableHeading != parentTable)
+                    return false;
+                // ... HACK: CYCLIC RELATIONSHIPS
+
+                return row.record[tableHeading + '_' + parentTable + '_id'] 
+                    === parentID;
+            });
         
         return rows
             .map((row: any): OutlineNode => (
@@ -135,22 +145,29 @@ export function buildOutline(derivedModel: ViewModelDerived, navActiveFilter: bo
                 parentTable ||                     // Tables w/ parents are filtered by parentIDs in buildRowsOutline()
                 !childTableSet.has(TableHeading))  // Otherwise top level of outine only presents tables that are never children
             )
-            .map((tableHeading): OutlineNode => (
-                {
+            .map((tableHeading): OutlineNode => { 
+                let itemTitle : string;
+
+                if (tableHeading===parentTable)
+                    // HACK: CYCLIC RELATIONSHIPS - format outline title "Sub <Table>"
+                    itemTitle = 'Sub ' + properCasePluralize(tableHeading);
+                else if (tableHeading.includes(" "))
+                    // HACK: XREF - compound headings, temp hack - split at space
+                    itemTitle = properCasePluralize(tableHeading.split(" ")[0])
+                else
+                    itemTitle = properCasePluralize(tableHeading);
+
+                return ({
                     itemKey: tableHeading,
-                    itemTitle: properCasePluralize(
-                        tableHeading.split(" ")[0]// HACK: XREF - compound headings, temp hack
-                    ),
+                    itemTitle,
                     table: tableHeading,
                     parentTable,
                     parentID,
                     closedItem: false,
                     inProgress: false,
-                    children: buildRowsOutline(
-                                tableHeading, 
-                                parentTable, parentID)
-                }
-            ));
+                    children: buildRowsOutline(tableHeading, parentTable, parentID)
+                })
+            });
         return outline;
     }
 }

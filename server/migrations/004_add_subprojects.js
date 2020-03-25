@@ -23,14 +23,10 @@ var fs = require('fs');
 var path = require('path'); 
 
 exports.up = async (knex) => {
-    await knex.schema.createTable('user', (table) => {
-        table.increments('user_id').notNullable().primary();
-        table.string('user_title',80).notNullable().unique();
-        table.string('user_login',80).notNullable().unique();
-        table.string('user_password_hash',100).notNullable();
-        table.boolean('user_active').notNullable().defaultTo(false);
-        table.string('user_email',80).nullable();
-        table.string('user_phone',30).nullable();
+    await knex.schema.table('project', (table) => {
+        table.integer('project_project_id').nullable()
+            .references('project_id')
+            .inTable('project');
     })
 
     // Drop and recreate all foreign key relationship metadata.
@@ -47,7 +43,7 @@ exports.up = async (knex) => {
     let sqlMetaColumns = fs.readFileSync(
         path.join(__dirname, '..', 'sql', 'schema_table_columns.sql')
     ).toString();
-    await knex.raw(sqlMetaColumns,'[project]|[audit]');
+    await knex.raw(sqlMetaColumns,'[project]');
 };
 
 exports.down = function(knex) {
