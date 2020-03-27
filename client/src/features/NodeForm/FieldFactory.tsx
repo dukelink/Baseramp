@@ -130,14 +130,17 @@ export const AppField = ( props : {
 
     case 'character varying' :
       // TODO: Eventually the following will be represented in meta-data...
-      if (fieldName.split('_').pop()==='description')
+      if (fieldType==='character varying' && !AppColumn_character_maximum_length)
         InputProps = { rows: "5", rowsMin: "5", rowsMax: "10", multiline: true };
       rv = (
         <TextField
           variant="outlined" 
           className={ classes.textControl }
           error={ flagEmptyRequiredField }  
-          style = {{ minWidth: AppColumn_ui_minwidth || "150px" }} 
+          style = {{ minWidth: AppColumn_ui_minwidth || 
+            ( AppColumn_character_maximum_length 
+              || fieldType!=='character varying' ? "150px" : "100%" )
+          }} 
           label = { appColTitle }
           value = { field==null 
             ? '' 

@@ -21,6 +21,8 @@
  
 import { ViewModelDerived, RecordDerived } from './ModelTypes';
 
+import { properCasePluralize } from '../utils/utils';
+
 export interface OutlineNode {
     itemKey : (number | string),  // When itemType=='Heading': use table names, and when 
     itemTitle : string,
@@ -36,6 +38,8 @@ export interface OutlineNode {
 const parentChildTables: any = { 
     category: ['project'],
     project: ['story', 'project'  /* Cyclic relationship */ ],
+    quiz: ['problem','quiz'],
+    problem: ['response'],
 //    story: ['task'], // pending...
     user: [],
     sprint: [
@@ -50,7 +54,10 @@ const parentChildTables: any = {
 }
 
 // Get set of all 'child' tables, used to exclude them from top levels of outline...
-const childTableSet = new Set(Object.values(parentChildTables).flat());
+const childTableSet = new Set(Object.values(parentChildTables)
+    .flat()
+    .filter( (tbl) => (tbl !== 'quiz') )  // HACK: CYCLIC; TODO: Generalize
+);
 
 export function buildOutline(derivedModel: ViewModelDerived, navActiveFilter: boolean) {
 
@@ -79,19 +86,27 @@ export function buildOutline(derivedModel: ViewModelDerived, navActiveFilter: bo
         let rows = Object.values(rowsObj); // conversion to table objects
 
         if (parentTable && parentID)
-        rows = rows
-            .filter((row:RecordDerived) => { 
-                // HACK: CYCLIC RELATIONSHIPS... 
-                // - only present under parent record of same type...
-                if (row.record[tableHeading+'_'+tableHeading+'_id']
-                        && tableHeading != parentTable)
-                    return false;
-                // ... HACK: CYCLIC RELATIONSHIPS
+            rows = rows
+                .filter((row:RecordDerived) => { 
+                    // HACK: CYCLIC RELATIONSHIPS... 
+                    // - only present under parent record of same type...
+                    if (row.record[tableHeading+'_'+tableHeading+'_id']
+                            && tableHeading !== parentTable)
+                        return false;
+                    // ... HACK: CYCLIC RELATIONSHIPS
 
-                return row.record[tableHeading + '_' + parentTable + '_id'] 
-                    === parentID;
-            });
-        
+                    return row.record[tableHeading + '_' + parentTable + '_id'] 
+                        === parentID;
+                });
+        else
+            // HACK: CYCLIC RELATIONSHIPS ... 
+            // - only present under parent record of same type...
+            rows = rows
+                .filter((row:RecordDerived) => ( 
+                    !row.record[tableHeading+'_'+tableHeading+'_id']
+                            || tableHeading === parentTable));
+            // ... HACK: CYCLIC RELATIONSHIPS
+   
         return rows
             .map((row: any): OutlineNode => (
             // Following code embeds some DB naming convention rules: 
@@ -170,15 +185,4 @@ export function buildOutline(derivedModel: ViewModelDerived, navActiveFilter: bo
             });
         return outline;
     }
-}
-
-const properCasePluralize = (s: string):string => 
-{
-    let proper : string;
-
-    proper = s[0].toUpperCase().toUpperCase() + s.substr(1).toLowerCase();
-    if (s.substr(-1).toLowerCase() === 'y') {
-        return proper.substring(0, proper.length - 1) + 'ies';
-    }
-    return proper + (proper.substr(-1) === 's' ? 'es' : 's');
 }

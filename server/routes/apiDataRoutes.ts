@@ -38,7 +38,7 @@ export const addApiDataRoutes = (router : Router ) =>
         delete:'delete'
     }
 
-    const tables = ['category','sprint','project','story','AppTable','AppColumn','status','user'/*,'task'*/];
+    const tables = ['category','sprint','project','story','problem','quiz','response','AppTable','AppColumn','status','user'/*,'task'*/];
 
     // Authentication Middleware
     const loggedInOnly = (req, res, next) => {
@@ -71,10 +71,12 @@ export const addApiDataRoutes = (router : Router ) =>
 
     let getRoutes = [
         (new apiRoute('/all',methods.get,
-            tables.map((tableName)=>({
+            tables.map((tableName)=>{
+            console.log(`Route 'all' includes table: ${tableName}.`)
+            return ({
                 name: tableName,
                 query: tableSelect(tableName)
-            } as any))
+            } as any) })
         ))
     ];
 
