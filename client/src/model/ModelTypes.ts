@@ -89,5 +89,7 @@ export interface Model {
   apiModel: ViewModelState,
   derivedModel: ViewModelDerived,
   metaModel: IMetaModelState,
-  outline: OutlineNode[]
+  outline: OutlineNode[],
+  inactive_status_ids: number[],
+  inprogress_status_ids: number[]
 }

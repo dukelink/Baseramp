@@ -32,7 +32,9 @@ let initialState : Model = {
     AppTable : {},
     AppColumn : {}
   },
-  outline: []
+  outline: [],
+  inactive_status_ids: [],
+  inprogress_status_ids: []
 };
 
 const model = createSlice({

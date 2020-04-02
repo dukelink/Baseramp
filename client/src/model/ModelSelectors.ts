@@ -59,7 +59,18 @@ export const useFieldMetadata = (fieldName:string) => {
       referenceTableName = state.model.metaModel.AppTable
         [state.model.metaModel.AppColumn[_related_pk_id].AppColumn_AppTable_id]
           .AppTable_table_name;
-      referenceTable = Object.values(state.model.apiModel[referenceTableName]);
+      referenceTable = Object.values(state.model.apiModel[referenceTableName])
+        .filter((rec:RecordOfAnyType) => (
+          // Don't filter out any foreign keys if Active record only filter is OFF...
+          !state.navigate.navActiveFilter ||
+          // Otherwise, filter out any foreign keys that ARE in the inactive list...
+          !state.model.inactive_status_ids
+            .includes(rec[referenceTableName+'_status_id'] || '*no-match*') ||
+          // Except DO NOT filter out the foreign key currently being referenced...
+          rec[referenceTableName+'_id']
+            === state.model.apiModel[state.navigate.navTable][state.navigate.navTableID]
+            [fieldName.replace(state.navigate.navParentTable+'_',referenceTableName+'_')]
+        ));
   }
   return { appCol, referenceTableName, referenceTable }; 
 }

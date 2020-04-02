@@ -39,13 +39,14 @@ export function buildDerived(model: Model)
   //
   // Compute attributes of closed & in progress for all records in all tables
   //
-  inactive_status_ids = Object.values(apiModel['status']).filter((row: RecordOfAnyType) => (
-    (row['status_title'] === 'Completed' || row['status_title'] === 'Canceled')
-  )).map((row: RecordOfAnyType) => (row['status_id']));
+  inactive_status_ids = Object.values<RecordOfAnyType>(apiModel['status'])
+    .filter( (row) => (
+      ['Completed', 'Canceled', 'Suspended'].includes(row['status_title']) ))
+    .map( (row) => (row['status_id']) );
   //
-  inprogress_status_ids = Object.values(apiModel['status']).filter((row: RecordOfAnyType) => (
-    (row['status_title'] === 'Started') 
-  )).map((row: RecordOfAnyType) => (row['status_id']));
+  inprogress_status_ids = Object.values<RecordOfAnyType>(apiModel['status'])
+    .filter( (row) => (row['status_title'] === 'Started') )
+    .map( (row) => (row['status_id']) );
   //
   Object.keys(apiModel).forEach(tableName=>{
     const records = apiModel[tableName];
@@ -61,6 +62,11 @@ export function buildDerived(model: Model)
     })
     apiDerived[tableName] = recordsDerived;
   })
+
+  //
+  // Retain list of inactive and in-progress status IDs 
+  //
+  Object.assign(model,{inactive_status_ids,inprogress_status_ids});
 
   // HACK: XREF ...
   //
