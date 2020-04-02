@@ -51,6 +51,7 @@ export const useTableAppCols = (navTable:string) => {
 
 export const useFieldMetadata = (fieldName:string) => {
   const state = useSelector<RootState,RootState>(state=>state);
+  const { navTable, navTableID, navParentTable, navActiveFilter } = state.navigate; 
   const appCol = state.model.metaModel.AppColumn[fieldName];
   const _related_pk_id = appCol.AppColumn_related_pk_id;
   let referenceTableName : string = '';
@@ -62,14 +63,15 @@ export const useFieldMetadata = (fieldName:string) => {
       referenceTable = Object.values(state.model.apiModel[referenceTableName])
         .filter((rec:RecordOfAnyType) => (
           // Don't filter out any foreign keys if Active record only filter is OFF...
-          !state.navigate.navActiveFilter ||
+          !navActiveFilter ||
           // Otherwise, filter out any foreign keys that ARE in the inactive list...
           !state.model.inactive_status_ids
             .includes(rec[referenceTableName+'_status_id'] || '*no-match*') ||
           // Except DO NOT filter out the foreign key currently being referenced...
-          rec[referenceTableName+'_id']
-            === state.model.apiModel[state.navigate.navTable][state.navigate.navTableID]
-            [fieldName.replace(state.navigate.navParentTable+'_',referenceTableName+'_')]
+          ((navTableID && navTableID!=='-1') &&
+            rec[referenceTableName+'_id']
+              === state.model.apiModel[navTable][navTableID]
+              [fieldName.replace(navParentTable+'_',referenceTableName+'_')])
         ));
   }
   return { appCol, referenceTableName, referenceTable }; 
