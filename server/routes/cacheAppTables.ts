@@ -4,14 +4,14 @@ import { knexErrorHandler } from './util';
 const knex = Knex(development);
 
 // REVIEW: "ES2015 Shorthand method definition" use per load() and recall() examples below...
-export const cacheAppTables = 
+export const cacheTable = 
 {
     cache : undefined as any, // OK for recall() to error out if load() never called
 
     load(req=undefined,res=undefined) {
         this.cache = 
             knex
-                .select('AppTable_id','AppTable_table_name')
+                .select('*')
                 .from('AppTable')
                 .then((data) => data.reduce(
                     // Translation map from table names to ids

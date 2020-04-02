@@ -50,7 +50,8 @@ const parentChildTables: any = {
         'Project Sprint'  // HACK: XREF
     ],
     'Project Sprint': [ 'story' ],
-    AppTable: ['AppColumn'] 
+    AppTable: ['AppColumn']
+
 }
 
 // Get set of all 'child' tables, used to exclude them from top levels of outline...

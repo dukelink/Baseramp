@@ -20,7 +20,7 @@
 */
 
 import passport from 'passport';
-import { cacheAppTables } from './cacheAppTables';
+import { cacheTable } from './cacheAppTables';
 
 
 
@@ -52,10 +52,10 @@ export const addApiAuthRoutes = (router) =>
                     } 
                     else // Successful login
                     {
-                        cacheAppTables.load(req,res);
-                        const { user_id, user_title, user_login, user_active } 
+                        cacheTable.load(req,res);
+                        const { user_id, user_title, user_login, user_active, user_role_id } 
                             = user; // reflect a subset of user attributes
-                        return res.json({user_id, user_title, user_login, user_active});
+                        return res.json({user_id, user_title, user_login, user_active, user_role_id});
                     }
                 });
             })(req, res, next);

@@ -30,7 +30,8 @@ interface UserState   // Info about current auth user
   user_id     :  string,
   user_title  :  string,
   user_login  :  string,
-  user_active :  boolean
+  user_active :  boolean,
+  user_role_id : number
 }
 
 export type AccountState = 

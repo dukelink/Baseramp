@@ -23,7 +23,7 @@ import { Router, Request, Response } from 'express';
 import Knex from "knex";
 import { development } from '../knexfile';
 import { knexErrorHandler } from './util';
-import { cacheAppTables } from './cacheAppTables';
+import { cacheTable } from './cacheAppTables';
 import bcrypt from "bcryptjs";
 const knex = Knex(development);
 
@@ -38,7 +38,7 @@ export const addApiDataRoutes = (router : Router ) =>
         delete:'delete'
     }
 
-    const tables = ['category','sprint','project','story','problem','quiz','response','AppTable','AppColumn','status','user'/*,'task'*/];
+    const tables = ['category','sprint','project','story','problem','quiz','response','AppTable','AppColumn','status','user', 'role'/*,'task'*/];
 
     // Authentication Middleware
     const loggedInOnly = (req, res, next) => {
@@ -417,7 +417,7 @@ export const addApiDataRoutes = (router : Router ) =>
 
     const recordAuditTrail = (updateType,tableName,tableID,reqUser,recordUpdates = {}) => 
     {
-        return cacheAppTables.recall()
+        return cacheTable.recall()
             .then(appTables => {
                 return (
                     knex
