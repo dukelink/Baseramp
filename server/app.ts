@@ -41,7 +41,13 @@ passport.serializeUser(function(user:any, done) {
 passport.deserializeUser(function(userId, done) {
   User.findById(userId, (err, user) => {
 // TDD:    console.log(`passport.deserializeUser() User.findById() callback; user=\n${JSON.stringify(user)}\nError=${err}\n\n`);
-    done(err, { user_id:user.user_id, username:user.user_login } ); // Put whatever we want available to routes in 'req' object
+    done(err, { 
+      // Put whatever we want available to routes in 'req' object
+      // RESEARCH: Research security of role id info...
+      user_id: user.user_id, 
+      user_role_id: user.user_role_id, 
+      username: user.user_login 
+    } ); 
   });
 });
 

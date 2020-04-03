@@ -207,49 +207,52 @@ export const addApiDataRoutes = (router : Router ) =>
     async function tablePostHandler(req:Request<any>,res:Response<any>,tableName:string) 
     {
         let record = req.body;
-        if (!tableName && Object.keys(record).length) 
-            res.status(400).end(); // TODOL error message handling
-        else {
-            const primaryKeyField = tableName+'_id';
-            let primaryKeyID;
-            let fullRecordReadback;
 
-            record = await businessRules(tableName, req, res, record);
+        await roleAuthorizedRoute(req,res).then((authorized)=>{
+            // roleAuthorizedRoute handles error response, 
+            // so just return if not authorized...
+            if (!authorized) return;    
+        });
 
-            console.log(record)
+        const primaryKeyField = tableName+'_id';
+        let primaryKeyID;
+        let fullRecordReadback;
 
-            await knex
-                .from(tableName)
-                .insert(record, [primaryKeyField]) // TODO: validate against dd and handle nulls, etc.
-                .then(async (data)=>{
-                    // console.log(data);
-                    primaryKeyID = data[0]; // Note: Postgresql needed "[0][primaryKeyField]" but not MS SQL???
-                    // NOTE: Currently I relfect the added record just in case there are any computed fields...
-                    await knex(tableName)
-                        .select('*')
-                        .where(primaryKeyField,'=',primaryKeyID)
-                        // TODO: Perhaps we should return data[0] but this'll require client change and to recordAuditTrail call...
-                        .then((data)=>{ fullRecordReadback = data }) 
-                        // TODO: Can/should we differentiate (for client) between an error here and on the insert itself???
-                        .catch( (error) => { knexErrorHandler(req,res,error) } );           
-                })
-                .catch( (error) => { knexErrorHandler(req,res,error) } ); 
+        record = await businessRules(tableName, req, res, record);
 
-            let user_id;
-            if (tableName==='user' && !req.user)
-                user_id = fullRecordReadback[0]['user_id'];
-            else
-                user_id = (req.user as any).user_id
-            await recordAuditTrail(  // TODO: Could run in parallel
-                'INSERT',
-                tableName,
-                primaryKeyID,
-                user_id, 
-                fullRecordReadback[0]  // Will include any default values, as well as the identity primary key field :)
-            );
+        console.log(record)
 
-            res.send(fullRecordReadback);
-        }
+        await knex
+            .from(tableName)
+            .insert(record, [primaryKeyField]) // TODO: validate against dd and handle nulls, etc.
+            .then(async (data)=>{
+                // console.log(data);
+                primaryKeyID = data[0]; // Note: Postgresql needed "[0][primaryKeyField]" but not MS SQL???
+                // NOTE: Currently I relfect the added record just in case there are any computed fields...
+                await knex(tableName)
+                    .select('*')
+                    .where(primaryKeyField,'=',primaryKeyID)
+                    // TODO: Perhaps we should return data[0] but this'll require client change and to recordAuditTrail call...
+                    .then((data)=>{ fullRecordReadback = data }) 
+                    // TODO: Can/should we differentiate (for client) between an error here and on the insert itself???
+                    .catch( (error) => { knexErrorHandler(req,res,error) } );           
+            })
+            .catch( (error) => { knexErrorHandler(req,res,error) } ); 
+
+        let user_id;
+        if (tableName==='user' && !req.user)
+            user_id = fullRecordReadback[0]['user_id'];
+        else
+            user_id = (req.user as any).user_id
+        await recordAuditTrail(  // TODO: Could run in parallel
+            'INSERT',
+            tableName,
+            primaryKeyID,
+            user_id, 
+            fullRecordReadback[0]  // Will include any default values, as well as the identity primary key field :)
+        );
+
+        res.send(fullRecordReadback);
     }
 
     router.put("/:table/:id", loggedInOnly, 
@@ -257,45 +260,45 @@ export const addApiDataRoutes = (router : Router ) =>
     {
         const tableName = req.params.table;
 
-        if (!tableName && Object.keys(req.body).length) 
-            res.status(400).end(); // TODO: error message handling
-        else 
-        {
-            const primaryKeyField = tableName+'_id';
-            let primaryKeyID = req.params.id;
-            let recordDelta = req.body;
-            let newPKID;
+        await roleAuthorizedRoute(req,res).then((authorized)=>{
+            // roleAuthorizedRoute handles error response, 
+            // so just return if not authorized...
+            if (!authorized) return;    
+        });
 
-            await businessRules(tableName, req, res, recordDelta).
-                then((data:any) => { recordDelta = data; });
+        const primaryKeyField = tableName+'_id';
+        let primaryKeyID = req.params.id;
+        let recordDelta = req.body;
+        let newPKID;
 
-            // HACK: May want to change structure of AppColumn/AppTable keys
-            // and remove this...
-            // If business rules updated primary key (e.g. for AppColumn table)
-            // then capture new primary key id and erase it (since we cannot update PKs).
-            if (newPKID = recordDelta[primaryKeyField]) {
-                primaryKeyID = newPKID; 
-                delete recordDelta[primaryKeyField];
-            }
+        await businessRules(tableName, req, res, recordDelta).
+            then((data:any) => { recordDelta = data; });
 
-            await knex
-                .from(tableName)
-                .where(primaryKeyField,'=', primaryKeyID)
-                .update(recordDelta) 
-                .catch( (error) => { knexErrorHandler(req,res,error) } ); 
-
-            await recordAuditTrail(
-                'UPDATE',
-                tableName,
-                primaryKeyID,
-                req.user.user_id,
-                recordDelta
-            );
-
-            res.status(200).end();        
+        // HACK: May want to change structure of AppColumn/AppTable keys
+        // and remove this...
+        // If business rules updated primary key (e.g. for AppColumn table)
+        // then capture new primary key id and erase it (since we cannot update PKs).
+        if (newPKID = recordDelta[primaryKeyField]) {
+            primaryKeyID = newPKID; 
+            delete recordDelta[primaryKeyField];
         }
-    });
 
+        await knex
+            .from(tableName)
+            .where(primaryKeyField,'=', primaryKeyID)
+            .update(recordDelta) 
+            .catch( (error) => { knexErrorHandler(req,res,error) } ); 
+
+        await recordAuditTrail(
+            'UPDATE',
+            tableName,
+            primaryKeyID,
+            req.user.user_id,
+            recordDelta
+        );
+
+        res.status(200).end();        
+    });
 
     router.delete("/:table/:id", loggedInOnly, 
     async function(req : AuthenticatedRequest, res) 
@@ -304,9 +307,13 @@ export const addApiDataRoutes = (router : Router ) =>
         const primaryKeyField = tableName+'_id';
         const primaryKeyID = req.params.id;
 
-        if (!tableName) 
-            res.status(400).end(); // TODOL error message handling
-        else if (tableName==='user') {
+        await roleAuthorizedRoute(req,res).then((authorized)=>{
+            // roleAuthorizedRoute handles error response, 
+            // so just return if not authorized...
+            if (!authorized) return;    
+        })
+
+        if (tableName==='user') {
             // Deprecate by 'renaming' user; this preserves audit trail
             await knex
                 .from(tableName)
@@ -353,6 +360,53 @@ export const addApiDataRoutes = (router : Router ) =>
                 .catch( (error) => { knexErrorHandler(req,res,error) } ); 
         }
     });
+
+    const roleAuthorizedRoute = async (req : Request, res : Response) =>
+    {
+        const tableName = req.params.table;
+        const method = req.method;
+
+        if (!tableName) {
+            res.statusMessage 
+                = `${method} method routes need a table name.`;
+            res.status(400).end();
+            return false;
+        }
+
+        if (['POST','PUT'].includes(method) 
+                && Object.keys(req.body).length) {
+            res.statusMessage 
+                = `${method} method routes need at least one field within the JSON body.`;
+            res.status(400).end();
+            return false;
+        }            
+
+        const { user_role_id, user_id } = req.user;
+
+        if (!user_id) {
+            res.statusMessage 
+                = `Your session is closed; please login again.`;
+            res.status(409).end();
+            return false;
+        }
+
+        await Promise.all([
+            cacheTable('role').recall(),
+            cacheTable('AppTable').recall()
+        ]).then((promises)=>{
+            const [roles,appTables] = promises;
+            if ( roles[user_role_id]['role_title'] !== 'Admin'
+                && appTables[tableName]['AppTable_role_id'] !== user_role_id
+            ) {
+                res.statusMessage 
+                    = `You are not authorized to modify the '${tableName}' table.`;
+                res.status(409).end();
+                return false;
+            }
+        });
+
+        return true;
+    }
 
     const businessRules = (tableName:string, req: Request, res: Response, record:any={}) => 
     {
@@ -417,14 +471,14 @@ export const addApiDataRoutes = (router : Router ) =>
 
     const recordAuditTrail = (updateType,tableName,tableID,reqUser,recordUpdates = {}) => 
     {
-        return cacheTable.recall()
+        return cacheTable('AppTable').recall()
             .then(appTables => {
                 return (
                     knex
                     .from('audit')
                     .insert({
                         audit_user_id : reqUser,
-                        audit_AppTable_id : appTables[tableName],
+                        audit_AppTable_id : appTables[tableName]['AppTable_id'],
                         audit_table_id : tableID,
                         audit_update_type : updateType,
                         audit_field_changes : JSON.stringify(recordUpdates)

@@ -52,7 +52,8 @@ export const addApiAuthRoutes = (router) =>
                     } 
                     else // Successful login
                     {
-                        cacheTable.load(req,res);
+                        cacheTable('AppTable').load(req,res);
+                        cacheTable('role').load(req,res);
                         const { user_id, user_title, user_login, user_active, user_role_id } 
                             = user; // reflect a subset of user attributes
                         return res.json({user_id, user_title, user_login, user_active, user_role_id});
