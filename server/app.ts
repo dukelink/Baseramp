@@ -46,6 +46,7 @@ passport.deserializeUser(function(userId, done) {
       // RESEARCH: Research security of role id info...
       user_id: user.user_id, 
       user_role_id: user.user_role_id, 
+      role_title: user.role_title,
       username: user.user_login 
     } ); 
   });

@@ -63,8 +63,10 @@ const childTableSet = new Set(Object.values(parentChildTables)
 export function buildOutline(derivedModel: ViewModelDerived, navActiveFilter: boolean) {
 
     let outline = buildTableHeadingsOutline(Object.keys(derivedModel));
+
     outline = sequenceOutline(outline) as OutlineNode[];
     return outline;
+
     function sequenceOutline(outline: OutlineNode[],path='') {
         return outline
             .filter((item) => (!navActiveFilter || !item.closedItem))

@@ -7,9 +7,11 @@ import { knexErrorHandler } from './routes/util';
 export const User = {
   findByUsername : username => {
     const prom = new Promise((resolve,reject)=>{
-
-      knex('user').select('*').where('user_login','=',username)
+      knex('user').select('user.*','role.role_title')
+      .leftJoin('role','user_role_id','role_id')
+      .where('user_login','=',username)
       .then((data)=>{
+        // console.log(`USER DATA BY NAME: ${JSON.stringify(data)}`)
         if (data.length) {
           const user_id = data[0].user_id.toString();
           const user_obj = {...data[0], user_id};
@@ -23,8 +25,11 @@ export const User = {
   }, 
 
   findById : (userId, cb) => {
-    knex('user').select('*').where('user_id','=',userId)
+    knex('user').select('user.*','role.role_title')
+    .leftJoin('role','user_role_id','role_id')
+    .where('user_id','=',userId)
     .then((data)=>{
+      // console.log(`USER DATA BY ID: ${JSON.stringify(data)}`)
       if (data.length) {
         const user_id = data[0].user_id.toString();
         const user_obj = { [user_id] : {...data[0], user_id } };

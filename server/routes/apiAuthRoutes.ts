@@ -22,8 +22,6 @@
 import passport from 'passport';
 import { cacheTable } from './cacheAppTables';
 
-
-
 export const addApiAuthRoutes = (router) => 
 {
     router.post('/login', 
@@ -54,9 +52,9 @@ export const addApiAuthRoutes = (router) =>
                     {
                         cacheTable('AppTable').load(req,res);
                         cacheTable('role').load(req,res);
-                        const { user_id, user_title, user_login, user_active, user_role_id } 
+                        const { user_id, user_title, user_login, user_active, user_role_id, role_title } 
                             = user; // reflect a subset of user attributes
-                        return res.json({user_id, user_title, user_login, user_active, user_role_id});
+                        return res.json({user_id, user_title, user_login, user_active, user_role_id, role_title});
                     }
                 });
             })(req, res, next);

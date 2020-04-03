@@ -41,53 +41,57 @@ const model = createSlice({
   name: 'model',
   initialState,
   reducers: {
-    metaload(state,action:PayloadAction<Records<any>>) {
-      Object.assign(state.metaModel,action.payload);
+    metaload(model, action:PayloadAction<Records<any>>) {
+      Object.assign(model.metaModel,action.payload);
     },
-    load(state,action:PayloadAction<Records<any>>) { 
-      loadData(state,action.payload);
-      state.outline = buildOutline(state.derivedModel,true/*we always load with filter on for now*/); 
+    load(model, action:PayloadAction<Records<any>>) { 
+      loadData(model,action.payload);
+      model.outline = buildOutline(model.derivedModel,true/*we always load with filter on for now*/); 
     },
-    refreshRecordInVM(state,action:PayloadAction<{
+    refreshRecordInVM(model : Model, action:PayloadAction<{
         navTable:string,navTableID:string,navActiveFilter:boolean,recordDelta:RecordOfAnyType}>) {
       const { navTable, navTableID, navActiveFilter, recordDelta } = action.payload;
-      Object.assign(state.apiModel[navTable][navTableID], recordDelta); 
-      buildDerived(state);
+      Object.assign(model.apiModel[navTable][navTableID], recordDelta); 
+      buildDerived(model);
       switch (navTable) {
         case 'AppTable' :
-          Object.assign(state.metaModel.AppTable[navTableID], recordDelta);
+          Object.assign(model.metaModel.AppTable[navTableID], recordDelta);
           break;
         case 'AppColumn' :
-          Object.assign(state.metaModel.AppColumn[navTableID], recordDelta);
+          Object.assign(model.metaModel.AppColumn[navTableID], recordDelta);
           break;
       } 
-      state.outline = buildOutline(state.derivedModel,navActiveFilter);
+      model.outline = buildOutline(model.derivedModel,navActiveFilter);
     },
-    addRecordToVM(state,action:PayloadAction<{navTable:string,navActiveFilter:boolean,record:RecordOfAnyType}>) {
+    addRecordToVM(model, action : 
+        PayloadAction<{navTable:string,navActiveFilter:boolean,record:RecordOfAnyType}>) {
       const { navTable, navActiveFilter, record } = action.payload;
       const navTableID = record[navTable+'_id'];
-      state.apiModel[navTable][navTableID] = record;
-      buildDerived(state);
-      state.outline = buildOutline(state.derivedModel,navActiveFilter);
+      model.apiModel[navTable][navTableID] = record;
+      buildDerived(model);
+      model.outline = buildOutline(model.derivedModel,navActiveFilter);
     }, 
-    deleteRecordFromVM(state,action:PayloadAction<{navTable:string,navTableID:string,navActiveFilter:boolean}>) {
+    deleteRecordFromVM(model, action : 
+        PayloadAction<{navTable:string,navTableID:string,navActiveFilter:boolean}>) {
       const { navTable, navTableID, navActiveFilter } = action.payload;
-      delete state.apiModel[navTable][navTableID];
-      buildDerived(state);
-      state.outline = buildOutline(state.derivedModel,navActiveFilter);
+      delete model.apiModel[navTable][navTableID];
+      buildDerived(model);
+      model.outline = buildOutline(model.derivedModel,navActiveFilter);
     },
-    setActiveItemDisplay(state,action:PayloadAction<{navActiveFilter:boolean}>) {
-      state.outline = buildOutline(state.derivedModel,action.payload.navActiveFilter);
+    setActiveItemDisplay(model, action : 
+        PayloadAction<{navActiveFilter:boolean}>) {
+      model.outline = buildOutline(model.derivedModel,action.payload.navActiveFilter);
     },
-    setTestDataModeReducer(state,action:PayloadAction<{testDataMode:boolean}>) {
+    setTestDataModeReducer(model, action : 
+        PayloadAction<{testDataMode:boolean}>) {
       if (action.payload.testDataMode) {
-        loadData(state,testModelData.apiModel); 
-        state.outline = buildOutline(state.derivedModel,true/*we always load with filter on for now*/); 
+        loadData(model,testModelData.apiModel); 
+        model.outline = buildOutline(model.derivedModel,true/*we always load with filter on for now*/); 
       }
     },
-    clearModelReducer(state) {
+    clearModelReducer(model) {
       // Reset everything to initial state, except for meta data which we will retain...
-      Object.assign(state, {...initialState, metaModel: state.metaModel}); 
+      Object.assign(model, {...initialState, metaModel: model.metaModel}); 
     }
   }
 });

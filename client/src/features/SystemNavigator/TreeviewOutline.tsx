@@ -83,6 +83,9 @@ const OutlineItem = memo((props:{item:OutlineNode, key : any, children?:any}) =>
 
 export const Outline = (props:{outline:OutlineNode[]}) => {
   const classes : any = useTreeItemStyles();
+
+console.log(JSON.stringify(props));
+
   return (
     <TreeView 
         className = {classes.treeviewRoot}

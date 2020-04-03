@@ -120,8 +120,10 @@ export const addApiDataRoutes = (router : Router ) =>
                     'AppTable_title',
                     'AppTable_description',
                     'AppTable_rank',
-                    'AppTable_table_name'
-                ).from('AppTable');
+                    'AppTable_table_name',
+                    "role.role_title"
+                ).from('AppTable')
+                .leftJoin('role','AppTable_role_id','role_id');
             case 'AppColumn':
                 return knex.select(
                     'AppColumn.AppColumn_column_name as AppColumn_id',
@@ -374,7 +376,7 @@ export const addApiDataRoutes = (router : Router ) =>
         }
 
         if (['POST','PUT'].includes(method) 
-                && Object.keys(req.body).length) {
+                && !Object.keys(req.body).length) {
             res.statusMessage 
                 = `${method} method routes need at least one field within the JSON body.`;
             res.status(400).end();

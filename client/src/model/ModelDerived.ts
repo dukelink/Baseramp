@@ -107,21 +107,21 @@ export function buildDerived(model: Model)
   model.derivedModel = apiDerived;
 }
 
-export function loadData(state:Model,data:Records<any>)
+export function loadData(model:Model,data:Records<any>)
 {
-  Object.assign(state.apiModel,data);
+  Object.assign(model.apiModel,data);
 
   // Sync meta data if loaded as part of post-login 'all' route,
   // otherwise do not clear existing metadata...
-  if (Object.keys(state.apiModel.AppTable)) {
+  if (Object.keys(model.apiModel.AppTable)) {
     // Code prior to XREF hack...
     // state.metaModel.AppTable = state.apiModel.AppTable;
     // state.metaModel.AppColumn = state.apiModel.AppColumn;
 
     // HACK: XREF ...
-    state.metaModel.AppTable = 
+    model.metaModel.AppTable = 
       Object.assign(                          
-        state.apiModel.AppTable
+        model.apiModel.AppTable
         ,{        
           'Project Sprint': {
             AppTable_id : 'Project Sprint',
@@ -129,9 +129,9 @@ export function loadData(state:Model,data:Records<any>)
             AppTable_table_name: 'Project Sprint'
           }                                     
         });                        
-    state.metaModel.AppColumn = 
+    model.metaModel.AppColumn = 
       Object.assign(                          
-        state.apiModel.AppColumn
+        model.apiModel.AppColumn
         ,{                            
           //
           // Use Object.assign() below to convert back to POJOs
@@ -150,18 +150,18 @@ export function loadData(state:Model,data:Records<any>)
               AppColumnRow('story_Project Sprint_id','story','Project Sprint_id'))
         });
     // Copy column metadata from 'project' to virtual xref copy of project
-    const reAliasedProjectAppCols = Object.entries(state.metaModel.AppColumn)
+    const reAliasedProjectAppCols = Object.entries(model.metaModel.AppColumn)
       .filter( ([,value]) => ( value.AppColumn_AppTable_id === 'project' ))
       .reduce( (prev : any, [key,value]) => {
         prev[key.replace('project_','Project Sprint_')] = 
           { ...value, AppColumn_AppTable_id: 'Project Sprint' };     
         return prev;  
       }, {} as any );
-    state.metaModel.AppColumn = 
-      Object.assign(state.metaModel.AppColumn,reAliasedProjectAppCols);
+    model.metaModel.AppColumn = 
+      Object.assign(model.metaModel.AppColumn,reAliasedProjectAppCols);
     // ... HACK: XREF
   }
 
   // Computed derived model data...
-  buildDerived(state);
+  buildDerived(model);
 }
