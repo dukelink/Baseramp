@@ -31,7 +31,8 @@ interface UserState   // Info about current auth user
   user_title  :  string,
   user_login  :  string,
   user_active :  boolean,
-  user_role_id : number
+  user_role_id : number,
+  role_title : string
 }
 
 export type AccountState = 
@@ -45,7 +46,7 @@ const accountSlice = createSlice({
     setAccountState(state, action: PayloadAction<AccountState>) {
       Object.assign(state, action.payload 
         // trigger state change on logout (payload of undefined)
-        || { user_id : undefined } 
+        || { user_id : undefined }
       );
     }
   }

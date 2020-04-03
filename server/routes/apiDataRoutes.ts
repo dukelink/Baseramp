@@ -210,7 +210,7 @@ export const addApiDataRoutes = (router : Router ) =>
     {
         let record = req.body;
 
-        await roleAuthorizedRoute(req,res).then((authorized)=>{
+        await roleAuthorizedRoute(req,res,tableName).then((authorized)=>{
             // roleAuthorizedRoute handles error response, 
             // so just return if not authorized...
             if (!authorized) return;    
@@ -363,9 +363,9 @@ export const addApiDataRoutes = (router : Router ) =>
         }
     });
 
-    const roleAuthorizedRoute = async (req : Request, res : Response) =>
+    const roleAuthorizedRoute = async (req : Request, res : Response, _tableName ?: string) =>
     {
-        const tableName = req.params.table;
+        const tableName = _tableName || req.params.table;
         const method = req.method;
 
         if (!tableName) {

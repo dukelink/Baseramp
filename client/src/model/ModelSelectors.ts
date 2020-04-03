@@ -60,6 +60,7 @@ export const useFieldMetadata = (fieldName:string) => {
       referenceTableName = state.model.metaModel.AppTable
         [state.model.metaModel.AppColumn[_related_pk_id].AppColumn_AppTable_id]
           .AppTable_table_name;
+    if (state.model.apiModel[referenceTableName]) // TODO: Only needed pre-login when 'role' not found for new user setup
       referenceTable = Object.values(state.model.apiModel[referenceTableName])
         .filter((rec:RecordOfAnyType) => (
           // Don't filter out any foreign keys if Active record only filter is OFF...

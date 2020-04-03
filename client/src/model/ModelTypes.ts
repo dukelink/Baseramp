@@ -37,6 +37,7 @@ export interface AppTableRow {
   AppTable_description?: string;
   AppTable_rank?: number;
   AppTable_table_name: string;
+  role_title:string;
 }
 
 type AppColumnTypes = 

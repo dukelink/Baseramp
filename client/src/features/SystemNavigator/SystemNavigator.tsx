@@ -60,11 +60,17 @@ export const SystemNavigator = () => {
   );
   const { record, isFormValid, originalRecord } = latestNodeformState;
 
-  const { outline } = state.model; 
+  let { outline } = state.model; 
   const [ mode, setMode ] = useState<EditMode>('Both');
   const [ width ] = useWindowSize();
   const otherMode = mode==='Outline' ? 'Edit' : 'Outline';
   const otherLabel = mode==='Outline' ? 'Form' : 'Outline';
+
+  // If not Admin mode, filter out top level tables that are
+  // not present for non-admin users...
+  if (state.userLogin?.role_title !== 'Admin')
+    outline = outline.filter((outlineNode)=>(outlineNode.table 
+      && state.model.metaModel['AppTable'][outlineNode.table].role_title==='User'))
 
   // Does navTable physically exist in apiModel?
   // if not then we'll suppress CRUD buttons for virtually created xref tables
