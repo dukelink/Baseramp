@@ -138,12 +138,10 @@ export const setTestDataMode = (testDataMode:boolean)
   dispatch(clearModelReducer());
   dispatch(setTestDataModeReducer({testDataMode}));
 
-  // COMMENT OUT TO GET FRESH TEST MODEL...
   if (testDataMode)
     dispatch(load(testModelData.apiModel)); 
   else {
-  // ...COMMENT OUT
-    initialLoad(testDataMode?"test":"all"); 
+    initialLoad("all"); 
   }
   //
   // TODO: Clear current navigation focus

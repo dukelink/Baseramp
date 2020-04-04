@@ -25,178 +25,200 @@ import { development } from '../knexfile';
 import { knexErrorHandler } from './util';
 const knex = Knex(development);
 
-type AuthenticatedRequest = Request & { user: any };
+const userTables = [
+    'category',
+    'sprint',
+    'story',
+    //,'task'
+    'project',
+    'problem',
+    'quiz',
+    'response'
+];
 
-export const addApiReadDataRoutes = (router : Router ) => 
-{
-    const tables = [
-        'category','sprint','project','story',
-        'problem','quiz','response','AppTable',
-        'AppColumn','status','user', 'role'/*,'task'*/];
+const adminTables = [
+    'AppTable',
+    'AppColumn',
+    'status',
+    'user', 
+    'role'
+];
 
-    // Authentication Middleware
-    const loggedInOnly = (req, res, next) => {
-        if (req.isAuthenticated()) 
-            next();
-        else 
-            res.status(401).end();
-    };
+// Authentication Middleware
+const loggedInOnly = (req, res, next) => {
+    if (req.isAuthenticated()) 
+        next();
+    else 
+        res.status(401).end();
+};
 
-    const loggedOutOnly = (req, res, next) => {
-        if (req.isUnauthenticated()) 
-            next();
-        else 
-            res.end();
-    };
+const loggedOutOnly = (req, res, next) => {
+    if (req.isUnauthenticated()) 
+        next();
+    else 
+        res.end();
+};
 
-    class apiRoute {
-        path : string;
-        method : string;
-        queries : Array<{name:string,query:QueryBuilder}>;
-        authProtected : boolean;
-        constructor(path = '',method = '',queries : Array<{name:string,query:QueryBuilder}> = [], authProtected=true)
-        {
-            this.path = path;
-            this.method = method;
-            this.queries = queries;
-            this.authProtected = authProtected;
-        }
-    }
-
-    let getRoutes = [
-        (new apiRoute('/all','get',
-            tables.map((tableName)=>{
-            console.log(`Route 'all' includes table: ${tableName}.`)
-            return ({
-                name: tableName,
-                query: tableSelect(tableName)
-            } as any) })
-        ))
-    ];
-
-    getRoutes.push(    
-        (new apiRoute('/meta','get',
-            ['AppTable','AppColumn'].map((tableName)=>({
-                name: tableName,
-                query: tableSelect(tableName,true)
-            } as any)), false
-        ))
-    )
-
-    getRoutes.push(    
-        (new apiRoute('/test','get',
-            tables.map((tableName)=>({
-                name: tableName,
-                query: tableSelect(tableName,true)
-            } as any)), false
-        ))
-    )
-
-    function tableSelect(tableName="",testFilter=false) 
+class apiRoute {
+    path : string;
+    method : string;
+    queries : Array<{name:string,query:QueryBuilder}>;
+    authProtected : boolean;
+    constructor(
+        path : string,
+        method : string,
+        queries : Array<{name:string,query:QueryBuilder}>, 
+        authProtected : boolean = true)
     {
-        let query = knex.select('*').from(tableName);
-        const testStoryIDs = knex.select('story_id').from('story').whereIn('story_id',[210,215,217,220,225]);
-        const testProjectIDs = knex.select('story_project_id').from('story').whereIn('story_id',testStoryIDs).distinct();
-        const testSprintIDs = knex.select('story_sprint_id').from('story').whereIn('story_id',testStoryIDs).distinct();
-        const testCategoryIDs = knex.select('project_category_id').from('project').whereIn('project_id',testProjectIDs).distinct();
-
-        switch (tableName) {
-
-            //
-            // TODO: Metadata has been reshaped to use table names instead of surrogate keys
-            //       as a likely new convention to afford the greatest simplicity to consume
-            //       this data within the client application.  Consider changing the physical
-            //       metadata tables to reflect this change.
-            //
-            case 'AppTable':
-                return knex.select(
-                    'AppTable_table_name as AppTable_id',
-                    'AppTable_title',
-                    'AppTable_description',
-                    'AppTable_rank',
-                    'AppTable_table_name',
-                    "role.role_title"
-                ).from('AppTable')
-                .leftJoin('role','AppTable_role_id','role_id');
-            case 'AppColumn':
-                return knex.select(
-                    'AppColumn.AppColumn_column_name as AppColumn_id',
-                    'AppColumn.AppColumn_title',
-                    'AppColumn.AppColumn_description',
-                    'AppColumn.AppColumn_rank',
-                    'AppTable.AppTable_table_name as AppColumn_AppTable_id',
-                    'AppColumn.AppColumn_ui_hidden',
-                    'AppColumn.AppColumn_ui_minwidth',
-                    'AppColumn.AppColumn_read_only',
-                    'AppColumn.AppColumn_column_name',
-                    'AppColumn.AppColumn_is_nullable',
-                    'AppColumn.AppColumn_data_type',
-                    'AppColumn.AppColumn_character_maximum_length',
-                    'AppColumn.AppColumn_column_default',
-                    'AppColumn_related.AppColumn_column_name as AppColumn_related_pk_id'
-                ).from('AppColumn')
-                    .innerJoin('AppTable','AppColumn_AppTable_id','AppTable_id')
-                    .leftJoin('AppColumn as AppColumn_related','AppColumn.AppColumn_related_pk_id','AppColumn_related.AppColumn_id');
-            //
-            // ...TODO END
-            //
-
-            case 'user':
-            {
-                query = query.whereNot('user_login','like','delete-%');                
-            }
-            case 'story': 
-            {
-                if (testFilter)
-                    query = query.whereIn('story_id',testStoryIDs);
-                return query;
-            }
-            case 'project':
-            {
-                if (testFilter)
-                    query = query.whereIn('project_id',testProjectIDs);
-                return query;
-            }
-            case 'sprint':
-            {
-                if (testFilter)
-                    query = query.whereIn('sprint_id',testSprintIDs);
-                return query;
-            }
-            case 'category':
-            {
-                if (testFilter)
-                    query = query.whereIn('category_id',testCategoryIDs);
-                return query;
-            }
-            default:
-                return query;
-        }
+        this.path = path;
+        this.method = method;
+        this.queries = queries;
+        this.authProtected = authProtected;
     }
+}
 
+let getRoutes = [
+    ( new apiRoute('/all', 'get',
+        [ ...userTables, ...adminTables ]
+            .map( (tableName) => {
+                return {
+                    name: tableName,
+                    query: tableSelect(tableName)
+                } } )
+    ) ) ];
+
+getRoutes.push(    
+    (new apiRoute('/meta','get',
+        ['AppTable','AppColumn']
+            .map( (tableName) => {
+                return {
+                    name: tableName,
+                    query: tableSelect(tableName)
+                }}), false
+    ))
+)
+
+function tableSelect(tableName : string) 
+{
+    let query = knex.select('*').from(tableName);
+
+    switch (tableName) {
+
+        //
+        // TODO: Metadata has been reshaped to use table names instead of surrogate keys
+        //       as a likely new convention to afford the greatest simplicity to consume
+        //       this data within the client application.  Consider changing the physical
+        //       metadata tables to reflect this change.
+        //
+        case 'AppTable':
+            return knex.select(
+                'AppTable_table_name as AppTable_id',
+                'AppTable_title',
+                'AppTable_description',
+                'AppTable_rank',
+                'AppTable_table_name',
+                "role.role_title"
+            ).from('AppTable')
+            .leftJoin('role','AppTable_role_id','role_id');
+        case 'AppColumn':
+            return knex.select(
+                'AppColumn.AppColumn_column_name as AppColumn_id',
+                'AppColumn.AppColumn_title',
+                'AppColumn.AppColumn_description',
+                'AppColumn.AppColumn_rank',
+                'AppTable.AppTable_table_name as AppColumn_AppTable_id',
+                'AppColumn.AppColumn_ui_hidden',
+                'AppColumn.AppColumn_ui_minwidth',
+                'AppColumn.AppColumn_read_only',
+                'AppColumn.AppColumn_column_name',
+                'AppColumn.AppColumn_is_nullable',
+                'AppColumn.AppColumn_data_type',
+                'AppColumn.AppColumn_character_maximum_length',
+                'AppColumn.AppColumn_column_default',
+                'AppColumn_related.AppColumn_column_name as AppColumn_related_pk_id'
+            ).from('AppColumn')
+                .innerJoin('AppTable','AppColumn_AppTable_id','AppTable_id')
+                .leftJoin('AppColumn as AppColumn_related','AppColumn.AppColumn_related_pk_id','AppColumn_related.AppColumn_id');
+        //
+        // ...TODO END
+        //
+
+        case 'user':
+        {
+            query = query.whereNot('user_login','like','delete-%');                
+        }
+        default:
+            return query;
+    }
+}
+
+export const addApiReadDataRoutes = async (router : Router ) => 
+{    
     for (let x of getRoutes) {
         const { path, queries, method, authProtected } = x;
         console.log(path);
         router[method](path, authProtected?loggedInOnly:[], async function(req,res) 
         {
             let results = {};
-            let promises : Array<QueryBuilder> = [];
-            // use procedural loop and 'await' to avoid more complex Knex promise processing 
-            for (let x of queries) { // STUDY: understand 'of' vs. 'in' loops
-                const { name, query } = x;
 
-                const user_id = (req.user as any).user_id;
-                console.log(`path=${path}, name=${name}, user=${user_id}`);
+//            const user_id = req?.paras?.table;
 
-                await query.then((data)=>{
-                    results[name] = data.reduce(
-                        (prevVal,currVal) => {
-                            //console.log('***'+name)
-                            prevVal[currVal[name+'_id']] = currVal;
-                            return prevVal;
-                        }, {});
-                })
-                .catch((error)=>{knexErrorHandler(req,res,error)}); 
+            // Use procedural loop and 'await' to confirm potential performance
+            // benefit is worth the additional work for parallel processing...
+            for (let x of queries) { 
+                const { name: tableName, query } = x; 
+                
+
+                const user_id = (req.user as any)?.user_id;
+
+
+
+                // User tables filter rows by user 'ownership'
+                if (userTables.includes(tableName)) {
+
+const query2 =  knex.select('*').from(tableName);
+
+                            console.log(`PATH ${path}, user_id ${/*req?.user?.user_id*/user_id}`)
+
+                            const ownedRows = 
+                            knex.select('audit_table_id')
+                                .from('audit')
+                                .innerJoin('AppTable','audit_AppTable_id','AppTable_id')
+                                .where('AppTable_title','=',tableName)
+                                .where('audit_user_id','=',/*req?.user?.user_id*/user_id);
+        
+
+                    console.log(`NOT ADMIN - filtered, tableName=${tableName}, user_id=${user_id}`)
+                    await query2
+                        .whereIn(tableName+'_id',ownedRows)
+                        .then( (data) => {
+                            console.log(`${tableName} rows read = ${data.length}`)
+                            results[tableName] = data.reduce(
+                                (prevVal,currVal) => {
+                                    prevVal[currVal[tableName+'_id']] = currVal;
+                                    return prevVal;
+                                }, {});
+                        })
+                        .catch((error)=>{knexErrorHandler(req,res,error)});                             
+                } else {
+                    console.log(`ADMIN - NOT filtered, tableName=${tableName}`)
+
+//
+// TODO: Refactory to build all queries locally; Move special Meta table refactor here...
+//
+
+                    await query
+                        .then((data)=>{
+                            console.log(`${tableName} rows read = ${data.length}`)
+                            results[tableName] = data.reduce(
+                                (prevVal,currVal) => {
+                                    prevVal[currVal[tableName+'_id']] = currVal;
+                                    return prevVal;
+                                }, {});
+                    })
+                    .catch((error)=>{knexErrorHandler(req,res,error)}); 
+
+                }
             }
             res.send(results);
         });

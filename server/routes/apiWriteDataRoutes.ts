@@ -227,9 +227,13 @@ export const addApiWriteDataRoutes = (router : Router ) =>
             return false;
         }            
 
-        const { user_role_id, user_id } = req.user;
+        let user_role_id, user_id;
 
-        if (!user_id) {
+        //{ user_role_id, user_id } = req.user;
+        user_role_id = req?.user?.user_role_id;
+        user_id = req?.user?.req_user;
+
+        if (tableName != 'user' && !user_id) {
             res.statusMessage 
                 = `Your session is closed; please login again.`;
             res.status(409).end();
@@ -241,7 +245,8 @@ export const addApiWriteDataRoutes = (router : Router ) =>
             cacheTable('AppTable').recall()
         ]).then((promises)=>{
             const [roles,appTables] = promises;
-            if ( roles[user_role_id]['role_title'] !== 'Admin'
+            if ( tableName != 'user'
+                && roles[user_role_id]['role_title'] !== 'Admin'
                 && appTables[tableName]['AppTable_role_id'] !== user_role_id
             ) {
                 res.statusMessage 
@@ -285,7 +290,7 @@ export const addApiWriteDataRoutes = (router : Router ) =>
                             // New user registration should not immediately grant access.
                             // Access will need to be approved by an existing.
                             // We can relax this once multi-tenancy is fully implemented...
-                            newUserRecord.user_active = false;
+                            newUserRecord.user_active = true // false; -- allow immediate new user signin for now (TODO 2 factory)
 
                         bcrypt.hash(
                             record.user_password_hash,
