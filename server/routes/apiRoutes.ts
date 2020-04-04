@@ -21,17 +21,15 @@
 
 import express from 'express';
 export const apiRoutes = express.Router();
-import { addApiDataRoutes } from './apiDataRoutes';
+import { addApiReadDataRoutes } from './apiReadDataRoutes';
+import { addApiWriteDataRoutes } from './apiWriteDataRoutes';
 import { addApiAuthRoutes } from './apiAuthRoutes';
 
 // auth routes must come before api routes because,
 // at present, the POST /login route is ambiguous and
 // also matches our POST /:table route....
-
-console.log(addApiAuthRoutes)
-
 addApiAuthRoutes(apiRoutes);
-
-addApiDataRoutes(apiRoutes);
+addApiReadDataRoutes(apiRoutes);
+addApiWriteDataRoutes(apiRoutes);
 
 
