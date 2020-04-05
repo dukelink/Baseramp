@@ -7,7 +7,7 @@ Version 1.0 and a contributor guide will be forthcoming. Here are some slide, an
 <!--a href=""-->
   <img 
   src="./docs/Baseramp%20Project%20Manager.svg" 
-  width="1024px" 
+  width="1024px" raw=true
   alt="Baseramp Project Manager Into Slide">
 <!--/a-->
 

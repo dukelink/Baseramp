@@ -54,11 +54,7 @@ export const addApiWriteDataRoutes = (router : Router ) =>
     {
         let record = req.body;
 
-        await roleAuthorizedRoute(req,res,tableName).then((authorized)=>{
-            // roleAuthorizedRoute handles error response, 
-            // so just return if not authorized...
-            if (!authorized) return;    
-        });
+        await throwIfNotAuthorizedRoute(req,res,tableName);
 
         const primaryKeyField = tableName+'_id';
         let primaryKeyID;
@@ -106,11 +102,7 @@ export const addApiWriteDataRoutes = (router : Router ) =>
     {
         const tableName = req.params.table;
 
-        await roleAuthorizedRoute(req,res).then((authorized)=>{
-            // roleAuthorizedRoute handles error response, 
-            // so just return if not authorized...
-            if (!authorized) return;    
-        });
+        await throwIfNotAuthorizedRoute(req,res,tableName);
 
         const primaryKeyField = tableName+'_id';
         let primaryKeyID = req.params.id;
@@ -153,11 +145,8 @@ export const addApiWriteDataRoutes = (router : Router ) =>
         const primaryKeyField = tableName+'_id';
         const primaryKeyID = req.params.id;
 
-        await roleAuthorizedRoute(req,res).then((authorized)=>{
-            // roleAuthorizedRoute handles error response, 
-            // so just return if not authorized...
-            if (!authorized) return;    
-        })
+        await throwIfNotAuthorizedRoute(req,res,tableName);
+
 
         if (tableName==='user') {
             // Deprecate by 'renaming' user; this preserves audit trail
@@ -207,8 +196,13 @@ export const addApiWriteDataRoutes = (router : Router ) =>
         }
     });
 
-    const roleAuthorizedRoute = async (req : Request, res : Response, _tableName ?: string) =>
+    const throwIfNotAuthorizedRoute = async (req : Request, res : Response, _tableName ?: string) =>
     {
+        //
+        // Consider replacing route auth middleware with a version of this.
+        // RESEARCH: throw <string|string|??> vs. throw new Error(<string>):
+        //  https://stackoverflow.com/questions/42453683/how-to-reject-in-async-await-syntax
+        //
         const tableName = _tableName || req.params.table;
         const method = req.method;
 
@@ -216,7 +210,7 @@ export const addApiWriteDataRoutes = (router : Router ) =>
             res.statusMessage 
                 = `${method} method routes need a table name.`;
             res.status(400).end();
-            return false;
+            throw 400;
         }
 
         if (['POST','PUT'].includes(method) 
@@ -224,20 +218,18 @@ export const addApiWriteDataRoutes = (router : Router ) =>
             res.statusMessage 
                 = `${method} method routes need at least one field within the JSON body.`;
             res.status(400).end();
-            return false;
+            throw 400;
         }            
 
-        let user_role_id, user_id;
-
-        //{ user_role_id, user_id } = req.user;
-        user_role_id = req?.user?.user_role_id;
-        user_id = req?.user?.req_user;
+        const user_role_id = req?.user?.user_role_id;
+        const user_id = req?.user?.user_id;
 
         if (tableName != 'user' && !user_id) {
+            console.log(`NO USER INFO: ${JSON.stringify(req?.user)}`);
             res.statusMessage 
                 = `Your session is closed; please login again.`;
             res.status(409).end();
-            return false;
+            throw 409;
         }
 
         await Promise.all([
@@ -252,11 +244,11 @@ export const addApiWriteDataRoutes = (router : Router ) =>
                 res.statusMessage 
                     = `You are not authorized to modify the '${tableName}' table.`;
                 res.status(409).end();
-                return false;
+                throw 409;
             }
         });
 
-        return true;
+        return;
     }
 
     const businessRules = (tableName:string, req: Request, res: Response, record:any={}) => 
