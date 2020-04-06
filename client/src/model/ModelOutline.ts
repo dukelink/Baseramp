@@ -38,8 +38,8 @@ export interface OutlineNode {
 const parentChildTables: any = { 
     category: ['project'],
     project: ['story', 'project'  /* Cyclic relationship */ ],
-    quiz: ['problem','quiz'],
-    problem: ['response'],
+    competency: ['challenge','competency'],
+    challenge: ['response'],
 //    story: ['task'], // pending...
     user: [],
     sprint: [
@@ -57,7 +57,7 @@ const parentChildTables: any = {
 // Get set of all 'child' tables, used to exclude them from top levels of outline...
 const childTableSet = new Set(Object.values(parentChildTables)
     .flat()
-    .filter( (tbl) => (tbl !== 'quiz') )  // HACK: CYCLIC; TODO: Generalize
+    .filter( (tbl) => (tbl !== 'competency') )  // HACK: CYCLIC; TODO: Generalize
 );
 
 export function buildOutline(derivedModel: ViewModelDerived, navActiveFilter: boolean) {
@@ -168,7 +168,7 @@ export function buildOutline(derivedModel: ViewModelDerived, navActiveFilter: bo
 
                 if (tableHeading===parentTable)
                     // HACK: CYCLIC RELATIONSHIPS - format outline title "Sub <Table>"
-                    itemTitle = 'Sub ' + properCasePluralize(tableHeading);
+                    itemTitle = 'Sub-' + properCasePluralize(tableHeading);
                 else if (tableHeading.includes(" "))
                     // HACK: XREF - compound headings, temp hack - split at space
                     itemTitle = properCasePluralize(tableHeading.split(" ")[0])

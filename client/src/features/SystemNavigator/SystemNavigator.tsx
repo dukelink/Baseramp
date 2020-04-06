@@ -126,7 +126,7 @@ export const SystemNavigator = () => {
                           setMode(mode==='Both'?mode:'Edit'); 
                       } } >
                       Add 
-                      { (navTable===navParentTable ? ' Sub ' : ' ') // HACK: CYCLIC RELATIONSHIPS
+                      { (navTable===navParentTable ? ' Sub-' : ' ') // HACK: CYCLIC RELATIONSHIPS
                         + navTable 
                       }
                   </Button> 

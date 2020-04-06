@@ -29,43 +29,50 @@ const baseFieldsBuilder = (table,field_root_name) => {
 }
 
 exports.up = async (knex) => {
-    await knex.schema.createTable('quiz', (table) => {
-        baseFieldsBuilder(table,'quiz');
+    await knex.schema.createTable('competency', (table) => {
+        baseFieldsBuilder(table,'competency');
         // Additional fields beyond 'base class'...        
-        table.integer('quiz_quiz_id').nullable()
-            .references('quiz_id')
-            .inTable('quiz');
-        table.text('quiz_description').nullable();
-        table.integer('quiz_status_id').notNullable()
+        table.integer('competency_competency_id').nullable()
+            .references('competency_id')
+            .inTable('competency');
+        table.text('competency_description').nullable();
+        table.integer('competency_status_id').notNullable()
             .references('status_id')
             .inTable('status');        
     });
 
-    await knex.schema.createTable('problem', (table) => {
-        baseFieldsBuilder(table,'problem');
+    await knex.schema.createTable('challenge', (table) => {
+        baseFieldsBuilder(table,'challenge');
         // Additional fields beyond 'base class'...
-        table.integer('problem_quiz_id').notNullable()
-            .references('quiz_id')
-            .inTable('quiz');
-        table.text('problem_prompt').notNullable();
-        table.text('problem_hints').nullable();
-        table.text('problem_solution').notNullable();
-        table.integer('problem_status_id').notNullable()
+        table.integer('challenge_competency_id').notNullable()
+            .references('competency_id')
+            .inTable('competency');
+        table.text('challenge_prompt').notNullable();
+        table.text('challenge_hints').nullable();
+        table.text('challenge_solution').notNullable();
+        table.integer('challenge_status_id').notNullable()
             .references('status_id')
             .inTable('status');        
     });
 
     await knex.schema.createTable('response', (table) => {
         table.increments('response_id').notNullable().primary();
-        table.integer('response_problem_id').nullable()
-            .references('problem_id')
-            .inTable('problem');
+        table.integer('response_challenge_id').nullable()
+            .references('challenge_id')
+            .inTable('challenge');
         table.text('response_answer').notNullable();
         table.timestamp('response_answer_timestamp', {useTz: true})
             .defaultTo(knex.raw('sysdatetimeoffset()'));
         table.integer('response_score_percent').notNullable();
         table.text('response_score_notes').nullable();
     });
+
+    // Not sure how to compose a custom field in Knex Schema, so apply
+    // this custom script to migration 005_competency_challenge_response.js...
+    let sqlComputedColumn = fs.readFileSync(
+        path.join(__dirname, '..', 'sql', 'response_title_calculated_field.sql')
+    ).toString();
+    await knex.raw(sqlComputedColumn);
 
     // Drop and recreate all foreign key relationship metadata.
     // Nothing here is user-configurable, so no settings are lost.
@@ -81,7 +88,7 @@ exports.up = async (knex) => {
     let sqlMetaColumns = fs.readFileSync(
         path.join(__dirname, '..', 'sql', 'schema_table_columns.sql')
     ).toString();
-    await knex.raw(sqlMetaColumns,'[quiz][problem][response]');
+    await knex.raw(sqlMetaColumns,'[competency][challenge][response]');
 };
 
 exports.down = function(knex) {

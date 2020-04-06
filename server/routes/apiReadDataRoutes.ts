@@ -31,8 +31,8 @@ const userTables = [
     'story',
     //,'task'
     'project',
-    'problem',
-    'quiz',
+    'challenge',
+    'competency',
     'response'
 ];
 
