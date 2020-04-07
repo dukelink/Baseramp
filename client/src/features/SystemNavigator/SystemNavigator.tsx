@@ -143,9 +143,9 @@ export const SystemNavigator = () => {
                                 return;
                             }
                             if (navTableID==="-1") 
-                                dispatch(insertRecord(navTable, record));
+                                dispatch(insertRecord(state.navigate, record));
                             else
-                                dispatch(updateRecord(navTable, navTableID,
+                                dispatch(updateRecord(state.navigate,
                                     recordDelta(record, originalRecord)));                 
                     }}> Save </Button> 
                     <Button 
@@ -177,7 +177,7 @@ export const SystemNavigator = () => {
                       variant='contained' 
                       disabled={ !navTable || !navTableID || navTableID==='-1' }
                       onClick={ () => {
-                        dispatch(deleteRecord(navTable, navTableID));
+                        dispatch(deleteRecord(state.navigate));
                         setMode(mode==='Both'?mode:'Outline');
                       } }
                   > Delete </Button>

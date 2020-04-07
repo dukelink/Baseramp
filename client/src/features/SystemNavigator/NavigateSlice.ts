@@ -22,12 +22,13 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { OutlineNode } from '../../model/ModelOutline';
 
-interface INavigateState {
+export interface INavigateState {
   navTable: string;
   navTableID: string;
   navParentTable: string;
   navStrParentID: string;
   navActiveFilter : boolean;
+  navShowAdminTables : boolean;
   testDataMode: boolean;
 };
 
@@ -37,6 +38,7 @@ let initialState : INavigateState = {
     navParentTable: "",
     navStrParentID: "",
     navActiveFilter: true,
+    navShowAdminTables: false,
     testDataMode: false
 };
 
@@ -66,17 +68,18 @@ const model = createSlice({
       state.navTableID = '-1';
       console.log('ADD NEW BLANK RECORD');
     },
-    addRecordToVM(state,action:PayloadAction<{navTable:string,navActiveFilter:boolean,record:any}>) {
-      const { navTable, record } = action.payload;
+    addRecordToVM(state,action:PayloadAction<{navigate:INavigateState, record:any}>) {
+      const { navigate: { navTable }, record } = action.payload;
       state.navTableID = record[navTable+'_id'];
     }, 
-    setActiveItemDisplay(state,action:PayloadAction<{navActiveFilter:boolean}>) {
-      state.navActiveFilter = action.payload.navActiveFilter;
+    setActiveItemDisplay(state,action:PayloadAction<{navigate : INavigateState}>) {
+      console.log(`set acvtive item display: ${JSON.stringify(action.payload)}`)
+      Object.assign(state, action.payload.navigate);
     },
-    setTestDataModeReducer(state,action:PayloadAction<{testDataMode:boolean}>) {
-      state.testDataMode = action.payload.testDataMode; 
+    setTestDataModeReducer(state,action:PayloadAction<{navigate: INavigateState}>) {
+      Object.assign(state, action.payload.navigate);
     },
-    deleteRecordFromVM(state,action:PayloadAction<{navTable:string,navTableID:string,navActiveFilter:boolean}>) {
+    deleteRecordFromVM(state,action:PayloadAction) { 
       state.navTableID = '';
     },
     clearModelReducer(state) {

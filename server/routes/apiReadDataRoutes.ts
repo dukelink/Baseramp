@@ -28,9 +28,10 @@ const knex = Knex(development);
 const userTables = [
     'category',
     'sprint',
+    'project',
     'story',
     //,'task'
-    'project',
+    'requirement',
     'challenge',
     'competency',
     'response'

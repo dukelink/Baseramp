@@ -20,7 +20,7 @@
 */
  
 import { ViewModelDerived, RecordDerived } from './ModelTypes';
-
+import { INavigateState } from '../features/SystemNavigator/NavigateSlice';
 import { properCasePluralize } from '../utils/utils';
 
 export interface OutlineNode {
@@ -37,8 +37,9 @@ export interface OutlineNode {
 
 const parentChildTables: any = { 
     category: ['project'],
-    project: ['story', 'project'  /* Cyclic relationship */ ],
-    competency: ['challenge','competency'],
+    project: ['project', 'story', 'requirement'],
+    requirement: ['requirement'],
+    competency: ['competency','challenge'],
     challenge: ['response'],
 //    story: ['task'], // pending...
     user: [],
@@ -60,8 +61,12 @@ const childTableSet = new Set(Object.values(parentChildTables)
     .filter( (tbl) => (tbl !== 'competency') )  // HACK: CYCLIC; TODO: Generalize
 );
 
-export function buildOutline(derivedModel: ViewModelDerived, navActiveFilter: boolean) {
-
+export function buildOutline(
+        derivedModel: ViewModelDerived, 
+        navigate: INavigateState | ( 
+            Pick<INavigateState,'navActiveFilter'> 
+            & Pick<INavigateState,'navShowAdminTables'> ) ) {
+    const { navActiveFilter } = navigate;
     let outline = buildTableHeadingsOutline(Object.keys(derivedModel));
 
     outline = sequenceOutline(outline) as OutlineNode[];
@@ -149,7 +154,6 @@ export function buildOutline(derivedModel: ViewModelDerived, navActiveFilter: bo
                     secondOrd = secondStarted*1000000 + (secondID||0);
             return  firstOrd - secondOrd;
         });
-
     }
 
     function buildTableHeadingsOutline(
@@ -159,10 +163,11 @@ export function buildOutline(derivedModel: ViewModelDerived, navActiveFilter: bo
         ) {
         let outline: OutlineNode[];
         outline = tableHeadings
-            .filter((TableHeading) => (
+            .filter((TableHeading) => ((
                 parentTable ||                     // Tables w/ parents are filtered by parentIDs in buildRowsOutline()
                 !childTableSet.has(TableHeading))  // Otherwise top level of outine only presents tables that are never children
-            )
+                &&  ( navigate.navShowAdminTables || derivedModel['AppTable']
+                        [TableHeading].record.role_title!=='Admin' )))
             .map((tableHeading): OutlineNode => { 
                 let itemTitle : string;
 

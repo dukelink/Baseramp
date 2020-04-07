@@ -30,7 +30,7 @@ import  { metaload, load,
           setTestDataModeReducer, 
           clearModelReducer 
         } from './ModelSlice';
-    
+import { INavigateState } from '../features/SystemNavigator/NavigateSlice';
 import { testModelData } from './testModel';
 import { RecordOfAnyType } from './ModelTypes';
 
@@ -56,11 +56,11 @@ export const loadMetadata = () =>
   .catch((error) =>{});
 }
 
-export const updateRecord = (navTable:string,navTableID:string,recordDelta:any) 
+export const updateRecord = (navigate:INavigateState, recordDelta:any) 
   : AppThunk => async dispatch => 
 {
+  const { navTable, navTableID } = navigate;
   const state = store.getState(); // TODO: not SSR compatible; consider changing
-  const navActiveFilter = state.navigate.navActiveFilter;
   let err = false;
 
   if (Object.keys(recordDelta).length) {
@@ -73,15 +73,14 @@ export const updateRecord = (navTable:string,navTableID:string,recordDelta:any)
     }
 
     if (!err)
-      dispatch(refreshRecordInVM({navTable,navTableID,navActiveFilter,recordDelta}));
+      dispatch(refreshRecordInVM({navigate,recordDelta}));
   }
 }
 
-export const insertRecord = (navTable:string, _record:RecordOfAnyType) 
+export const insertRecord = (navigate:INavigateState, _record:RecordOfAnyType) 
   : AppThunk => async dispatch => 
 {
-  const state = store.getState(); // TODO: not SSR compatible; consider changing
-  const navActiveFilter = state.navigate.navActiveFilter;
+  const { navTable } = navigate;
   let err = false;
 
   // HACK: XREF - I have a business rule in recordDelta that filters out 
@@ -89,7 +88,7 @@ export const insertRecord = (navTable:string, _record:RecordOfAnyType)
   let record = recordDelta(_record,{}); 
 
   if (Object.keys(record).length) {
-    if (!state.navigate.testDataMode) 
+    if (!navigate.testDataMode) 
     {
       await Fetch(Environment.serverURL + navTable, { 
         method: 'POST', 
@@ -104,41 +103,34 @@ export const insertRecord = (navTable:string, _record:RecordOfAnyType)
       })
       .catch((error) =>{ err = true; }) 
     } 
-    else // test mode: compute temporary/mock primary key...
-    {
-      const newTempPKID = Math.min(-1,...Object.keys(state.model.apiModel[navTable]).map((id:string)=>Number.parseInt(id))) - 1;
-      console.log(`New temp PKID = ${newTempPKID}`);
-      record[navTable+'_id'] = newTempPKID.toString();
-    }
 
     if (!err)
-      dispatch(addRecordToVM({navTable,navActiveFilter,record}))
+      dispatch(addRecordToVM({navigate,record})) 
   }
 }
 
-export const deleteRecord = (navTable:string, navTableID:string)
+export const deleteRecord = (navigate: INavigateState)
   : AppThunk => async dispatch => 
 {
-  const state = store.getState(); // TODO: not SSR compatible; consider changing
-  const navActiveFilter = state.navigate.navActiveFilter;
+  const { navTable, navTableID, testDataMode } = navigate;
   let err = false;
 
-  if (!state.navigate.testDataMode)   
+  if (!testDataMode)   
     await Fetch( Environment.serverURL + navTable + '/' + navTableID,
         { method: 'DELETE' }
     ).then().catch((error) =>{ err = true; });
 
   if (!err)
-    dispatch(deleteRecordFromVM({navTable,navTableID,navActiveFilter}))
+    dispatch(deleteRecordFromVM({navigate}))
 }
 
-export const setTestDataMode = (testDataMode:boolean) 
+export const setTestDataMode = (navigate: INavigateState) 
     : AppThunk => dispatch => 
 {
   dispatch(clearModelReducer());
-  dispatch(setTestDataModeReducer({testDataMode}));
+  dispatch(setTestDataModeReducer({navigate}));
 
-  if (testDataMode)
+  if (navigate.testDataMode)
     dispatch(load(testModelData.apiModel)); 
   else {
     initialLoad("all"); 

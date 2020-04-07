@@ -24,11 +24,12 @@ import { buildOutline } from './ModelOutline';
 import { testModelData } from './testModel';
 import { buildDerived, loadData } from './ModelDerived';
 import { Model, Records, RecordOfAnyType } from './ModelTypes';
+import { INavigateState } from '../features/SystemNavigator/NavigateSlice';
 
 let initialState : Model = {
   apiModel: {},
   derivedModel: {},
-  metaModel: { // TODO: temporarily duplicated from apiModel for now
+  metaModel: { // TODO: temporarily duplicated from apiModel for now 
     AppTable : {},
     AppColumn : {}
   },
@@ -46,11 +47,15 @@ const model = createSlice({
     },
     load(model, action:PayloadAction<Records<any>>) { 
       loadData(model,action.payload);
-      model.outline = buildOutline(model.derivedModel,true/*we always load with filter on for now*/); 
+      model.outline = buildOutline(model.derivedModel, 
+        {navActiveFilter:true, navShowAdminTables: false}); 
     },
-    refreshRecordInVM(model : Model, action:PayloadAction<{
-        navTable:string,navTableID:string,navActiveFilter:boolean,recordDelta:RecordOfAnyType}>) {
-      const { navTable, navTableID, navActiveFilter, recordDelta } = action.payload;
+    refreshRecordInVM(
+        model : Model, 
+        action:PayloadAction<{navigate:INavigateState,recordDelta:RecordOfAnyType}>) 
+    {
+      const { navigate, recordDelta } = action.payload;
+      const { navTable, navTableID } = navigate;
       Object.assign(model.apiModel[navTable][navTableID], recordDelta); 
       buildDerived(model);
       switch (navTable) {
@@ -61,32 +66,37 @@ const model = createSlice({
           Object.assign(model.metaModel.AppColumn[navTableID], recordDelta);
           break;
       } 
-      model.outline = buildOutline(model.derivedModel,navActiveFilter);
+      model.outline = buildOutline(model.derivedModel,navigate);
     },
     addRecordToVM(model, action : 
-        PayloadAction<{navTable:string,navActiveFilter:boolean,record:RecordOfAnyType}>) {
-      const { navTable, navActiveFilter, record } = action.payload;
+        PayloadAction<{navigate:INavigateState,record:RecordOfAnyType}>) { 
+      const { navigate, record } = action.payload;
+      const { navTable } = navigate;
       const navTableID = record[navTable+'_id'];
       model.apiModel[navTable][navTableID] = record;
       buildDerived(model);
-      model.outline = buildOutline(model.derivedModel,navActiveFilter);
+      model.outline = buildOutline(model.derivedModel, navigate);
     }, 
-    deleteRecordFromVM(model, action : 
-        PayloadAction<{navTable:string,navTableID:string,navActiveFilter:boolean}>) {
-      const { navTable, navTableID, navActiveFilter } = action.payload;
+    deleteRecordFromVM(model, action : PayloadAction<{navigate:INavigateState}>) 
+    {
+      const { navTable, navTableID } = action.payload.navigate;
       delete model.apiModel[navTable][navTableID];
       buildDerived(model);
-      model.outline = buildOutline(model.derivedModel,navActiveFilter);
+      model.outline = buildOutline(model.derivedModel, action.payload.navigate);
     },
     setActiveItemDisplay(model, action : 
-        PayloadAction<{navActiveFilter:boolean}>) {
-      model.outline = buildOutline(model.derivedModel,action.payload.navActiveFilter);
+        PayloadAction<{navigate:INavigateState}>) {
+      model.outline = buildOutline(model.derivedModel, action.payload.navigate);
     },
     setTestDataModeReducer(model, action : 
-        PayloadAction<{testDataMode:boolean}>) {
-      if (action.payload.testDataMode) {
+        PayloadAction<{navigate:INavigateState}>) {
+
+        // console.log(`setTestDataModeReducer() payload = ${JSON.stringify(action.payload)}`)
+
+      if (action.payload.navigate.testDataMode) {
         loadData(model,testModelData.apiModel); 
-        model.outline = buildOutline(model.derivedModel,true/*we always load with filter on for now*/); 
+        model.outline = buildOutline(model.derivedModel,
+          {navActiveFilter:true, navShowAdminTables: true}); 
       }
     },
     clearModelReducer(model) {
