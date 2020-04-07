@@ -19,7 +19,7 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useLayoutEffect, useRef } from 'react';
 import { RecordOfAnyType, AppColumnRow } from '../../model/ModelTypes';
 import { useTableAppCols } from '../../model/ModelSelectors';
 import { usePrevious } from '../../utils/utils';
@@ -50,26 +50,38 @@ export const NodeForm =
   const priorRecord = usePrevious(record);
   let tableAppCols = useTableAppCols(navTable); 
   const [ state, setState ] = useState<RecordOfAnyType>(); 
+  const firstFieldRef = useRef<HTMLSpanElement>();
+  const dummyRef = useRef<HTMLSpanElement>();
 
   // Initialize state to the 'record' property
   // HACK: This seems like a hack compared to the straightforward
   //       props to state mapping (and built-in "memoization")
   //       of PureComponent, or making this a controlled/redux-connected
   //       component, but perhaps it is a small price to pay to for standardizing 
-  //       on all Function Components, which allows me to add hooks at any time.
+  //       on all Function Components, which allows me to compose behaviors with
+  //       hooks at any time.
   useEffect(() => { 
     setState(record); 
     if (props.onChange)
-      props.onChange({ record, isFormValid: false, originalRecord : record});
+      props.onChange({ record, isFormValid: false, originalRecord : record });
   }, [record,props]); 
+
+  useLayoutEffect(() => {
+    if (navTableID==='-1' && firstFieldRef.current) {
+      // Focus on first form field after Add New...
+      firstFieldRef.current.getElementsByTagName('input')[0]?.focus();
+    } 
+  }, [record,navTableID,priorRecord])
 
   console.log(`<NodeForm navTable=${navTable} navTableID=${navTableID} record=${JSON.stringify(record)} />`);
 
-  // TODO: Are all of the following tests still needed????
   if  // Just return a blank fragment if state is empty or is in the process of changing...
-      (!state || ((!Object.keys(state).length || priorRecord!==record) // Test related to "hack" not above
-      // -1 is 'key' for a new record, so continue through to else case and display empty form....
-      && navTableID!=='-1'))
+      ( !state || ( 
+            ( !Object.keys(state).length
+              // Test needed & related to hack above; TODO: Explain fully
+              || priorRecord !== record )
+        // But -1 is key for a new record, so continue to render the blank form below
+        && navTableID!=='-1' ) )
     return <></>;
   else {
     return (
@@ -77,12 +89,13 @@ export const NodeForm =
       {
         tableAppCols
           .filter((appCol:AppColumnRow) => !appCol.AppColumn_ui_hidden)
-          .map((appCol:any) => {
+          .map((appCol:any, index:number) => {
             const fieldName = appCol.AppColumn_column_name;
             return (
               <span  
                   id = { 'AppField_'+fieldName } // useful reference for unit tests
-                  key = { fieldName } >
+                  key = { fieldName } 
+                  ref ={ (index===0 ? firstFieldRef : dummyRef) as any } > 
                 <AppField                      
                   fieldName = { fieldName } 
                   field     = { state[fieldName]} 

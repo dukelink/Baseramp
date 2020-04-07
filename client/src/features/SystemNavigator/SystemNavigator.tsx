@@ -112,76 +112,80 @@ export const SystemNavigator = () => {
                   <div>
                     { otherLabel }&nbsp;
                   </div> 
-                  <PlayCircleFilledIcon 
-                    className = { otherMode==='Outline' ? classes.rotate80 : '' } />
+                  <PlayCircleFilledIcon className = { 
+                    otherMode==='Outline' ? classes.rotate80 : '' 
+                  } />
                 </IconButton>
             }
-            <div style={{ display: 'inline-block', float: 'right' }} className={classes.buttonBar}>
-                { !navTableID ? 
-                  <Button 
-                      variant='contained' 
-                      onClick = { () => {
-                          dispatch(addNewBlankRecordForm({navTable}));
-                          console.log(mode);
-                          setMode(mode==='Both'?mode:'Edit'); 
-                      } } >
-                      Add 
-                      { (navTable===navParentTable ? ' Sub-' : ' ') // HACK: CYCLIC RELATIONSHIPS
-                        + navTable 
-                      }
-                  </Button> 
-                : <>
-                  { (JSON.stringify(originalRecord)!==JSON.stringify(record)
-                      || navTableID==='-1') && <>
-                    <Button
-                        id="crudSave" 
-                        variant='contained' 
-                        disabled={ !isFormValid }
-                        onClick={ () => {
-                            if (!isFormValid) {
-                                alert('Please fill in all required fields before saving');
-                                return;
-                            }
-                            if (navTableID==="-1") 
-                                dispatch(insertRecord(state.navigate, record));
-                            else
-                                dispatch(updateRecord(state.navigate,
-                                    recordDelta(record, originalRecord)));                 
-                    }}> Save </Button> 
-                    <Button 
-                        id="crudCancel" variant='contained'
-                        onClick={ ()=> { 
-                          // Trigger rerender of NodeForm
-                          // (requires props to change, so a clear and restore ID)
-                          dispatch(setFocus({ 
-                            table:navTable, 
-                            tableID: '', 
-                            parentTable: navParentTable,
-                            parentID: navStrParentID 
-                          }));
-                          if (navTableID === '-1')
-                            setMode(mode==='Both'?mode:'Outline');
-                          else
-                            dispatch(setFocus({ 
-                              table: navTable, 
-                              tableID: navTableID,
-                              parentTable: navParentTable,
-                              parentID: navStrParentID 
-                            }));
-                        }
-                    }> Cancel </Button>
-                  </>}
+            <div  className = { classes.buttonBar }
+                  style = {{ display: 'inline-block', float: 'right' }} >
+              { ( ( !navTableID 
+                    || JSON.stringify(originalRecord)===JSON.stringify(record) )
+                  && navTableID!=='-1') ? <>
+                <Button 
+                    variant='contained' 
+                    onClick = { () => {
+                        dispatch(addNewBlankRecordForm({navTable}));
+                        console.log(mode);
+                        setMode(mode==='Both'?mode:'Edit'); 
+                    } } >
+                    Add New
+                    { (navTable===navParentTable ? ' Sub-' : ' ') // HACK: CYCLIC RELATIONSHIPS
+                      + navTable 
+                    }
+                </Button> 
 
+                { navTableID &&
                   <Button 
-                      id="crudDelete" 
-                      variant='contained' 
-                      disabled={ !navTable || !navTableID || navTableID==='-1' }
-                      onClick={ () => {
-                        dispatch(deleteRecord(state.navigate));
+                    id="crudDelete" 
+                    variant='contained' 
+                    onClick={ () => {
+                      dispatch(deleteRecord(state.navigate));
+                      setMode(mode==='Both'?mode:'Outline');
+                    } } > 
+                    Delete 
+                  </Button>                
+                }
+              </> : 
+              navTableID && <>
+                <Button
+                    id="crudSave" 
+                    variant='contained' 
+                    disabled={ !isFormValid }
+                    onClick={ () => {
+                        if (!isFormValid) {
+                            alert('Please fill in all required fields before saving');
+                            return;
+                        }
+                        if (navTableID==="-1") 
+                            dispatch(insertRecord(state.navigate, record));
+                        else
+                            dispatch(updateRecord(state.navigate,
+                                recordDelta(record, originalRecord)));                 
+                }}> Save </Button> 
+                <Button 
+                    id="crudCancel" variant='contained'
+                    onClick={ ()=> { 
+                      // Trigger rerender of NodeForm
+                      // (requires props to change, so a clear and restore ID)
+                      dispatch(setFocus({ 
+                        table:navTable, 
+                        tableID: '', 
+                        parentTable: navParentTable,
+                        parentID: navStrParentID 
+                      }));
+                      if (navTableID === '-1')
                         setMode(mode==='Both'?mode:'Outline');
-                      } }
-                  > Delete </Button>
-                </>}
+                      else
+                        dispatch(setFocus({ 
+                          table: navTable, 
+                          tableID: navTableID,
+                          parentTable: navParentTable,
+                          parentID: navStrParentID 
+                        }));
+                    }
+                }> Cancel </Button>
+              </>}
             </div>
           </div>
         }

@@ -27,7 +27,7 @@ import { NodeForm } from './NodeForm';
 import { CrudButtons } from '../SystemNavigator/CrudButtons';
 
 import Button from '@material-ui/core/Button';
-import { setFocus } from '../SystemNavigator/NavigateSlice'; 
+import { setFocus, INavigateState } from '../SystemNavigator/NavigateSlice'; 
 import  Adapter from 'enzyme-adapter-react-16';
 import { configure, mount } from 'enzyme';
 import { FormControl, TextField, Select, MenuItem, InputLabel }
@@ -58,7 +58,7 @@ function renderWithRedux(
 }
 
 const tableToTest = 'AppColumn';
-store.dispatch(setTestDataMode(true));
+store.dispatch(setTestDataMode({testDataMode:true,navShowAdminTables:true} as INavigateState));
 store.dispatch(setFocus({table: tableToTest, tableID: ''}));  
 
 describe("NodeFormView - adding new records", ()=>{
@@ -70,7 +70,7 @@ describe("NodeFormView - adding new records", ()=>{
         expect(wrapper.find(Button)).toHaveLength(1); 
     });
     it(`"Add ${tableToTest}" button contains the expected label text`,()=>{ 
-        expect(wrapper.find(Button).text()).toEqual('Add '+tableToTest); 
+        expect(wrapper.find(Button).text()).toEqual('Add New '+tableToTest); 
     });
     it('Depressing Add New renders a blank form with the expected number and type of controls',()=>{ 
         wrapper.find(Button).simulate('click');
