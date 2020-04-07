@@ -4,6 +4,6 @@
 --
 alter table requirement
 add requirement_title 
-	as left(requirement_identifier + ' - ' + requirement_description, 50)
-		+ case when len(requirement_identifier + ' - ' + requirement_description) + 3 >= 50 
+	as left(requirement_identifier + ' - ' + requirement_description, 70)
+		+ case when len(requirement_identifier + ' - ' + requirement_description) + 3 >= 70 
 		then '...' else '' end 

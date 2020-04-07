@@ -26,6 +26,7 @@ exports.up = async (knex) => {
     await knex.schema.createTable('requirement', (table) => {
         table.increments('requirement_id').notNullable().primary();
         table.string('requirement_identifier',12).notNullable();
+        table.string('requirement_category',24).nullable();
         table.text('requirement_description').notNullable();
         table.integer('requirement_priority').nullable()
 
