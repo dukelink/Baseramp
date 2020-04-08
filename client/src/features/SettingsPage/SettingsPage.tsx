@@ -66,13 +66,13 @@ const Settings: React.FC = () => {
         <FormControlLabel
             control={
               <Switch
-                checked={ navActiveFilter }
+                checked={ !navActiveFilter }
                 onChange = { toggleActiveDisplay }
                 value="ignore"
                 color="primary"
               />
             }
-            label="Show only active items" 
+            label="Show archived items" 
           />
       </div>
       <br/>

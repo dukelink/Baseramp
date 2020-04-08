@@ -36,10 +36,10 @@ export interface OutlineNode {
 }
 
 const parentChildTables: any = { 
-    category: ['project'],
+    category: ['project', 'chore'],
     project: ['project', 'story', 'requirement'],
     requirement: ['requirement'],
-    competency: ['competency','challenge'],
+    competency: ['competency','resource','challenge'],
     challenge: ['response'],
 //    story: ['task'], // pending...
     user: [],
@@ -51,14 +51,17 @@ const parentChildTables: any = {
         'Project Sprint'  // HACK: XREF
     ],
     'Project Sprint': [ 'story' ],
-    AppTable: ['AppColumn']
-
+    AppTable: ['AppColumn'],
+    status: ['lead'],
+    account: ['account'],
+    chore: ['checkoff'] 
 }
 
 // Get set of all 'child' tables, used to exclude them from top levels of outline...
-const childTableSet = new Set(Object.values(parentChildTables)
+const childTableSet = new Set(
+    Object.values(parentChildTables)
     .flat()
-    .filter( (tbl) => (tbl !== 'competency') )  // HACK: CYCLIC; TODO: Generalize
+    .filter( (tbl) => (!['lead','account','competency'].includes(tbl)) )  // HACK: CYCLIC; TODO: Generalize
 );
 
 export function buildOutline(
@@ -161,16 +164,16 @@ export function buildOutline(
                 parentTable?: string,
                 parentID?: number
         ) {
-        let outline: OutlineNode[];
-        outline = tableHeadings
-            .filter((TableHeading) => ((
-                parentTable ||                     // Tables w/ parents are filtered by parentIDs in buildRowsOutline()
-                !childTableSet.has(TableHeading))  // Otherwise top level of outine only presents tables that are never children
-                &&  ( navigate.navShowAdminTables || derivedModel['AppTable']
-                        [TableHeading].record.role_title!=='Admin' )))
-            .map((tableHeading): OutlineNode => { 
-                let itemTitle : string;
-
+            let outline: OutlineNode[];
+            outline = tableHeadings
+                .filter((TableHeading) => ((
+                    parentTable ||                     // Tables w/ parents are filtered by parentIDs in buildRowsOutline()
+                    !childTableSet.has(TableHeading))  // Otherwise top level of outine only presents tables that are never children
+                    &&  ( navigate.navShowAdminTables || derivedModel['AppTable']
+                            [TableHeading].record.role_title!=='Admin' )))
+                .map((tableHeading): OutlineNode => { 
+                    let itemTitle : string;
+        
                 if (tableHeading===parentTable)
                     // HACK: CYCLIC RELATIONSHIPS - format outline title "Sub <Table>"
                     itemTitle = 'Sub-' + properCasePluralize(tableHeading);

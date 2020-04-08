@@ -117,15 +117,10 @@ export const AppField = ( props : {
       break;
 
     case 'integer' :
-      switch (fieldName) {
-        case 'story_points':
-          InputProps = { inputComponent: NumberFormatPoints };
-          break;
-        case 'story_hours_planned':
-        case 'story_hours_spent':
-          InputProps = { inputComponent: NumberFormatHours };
-          break;
-      }
+      if (fieldName.indexOf('_points')!==-1)
+        InputProps = { inputComponent: NumberFormatPoints };
+      else if (fieldName.indexOf('_hours')!==-1)
+        InputProps = { inputComponent: NumberFormatHours };
       // Yes, fall through to 'character varying' code...
 
     case 'character varying' :

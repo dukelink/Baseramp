@@ -33,8 +33,13 @@ const userTables = [
     //,'task'
     'requirement',
     'challenge',
+    'resource',
     'competency',
-    'response'
+    'response',
+    'account',
+    'lead',
+    'chore',
+    'checkoff'
 ];
 
 const adminTables = [
