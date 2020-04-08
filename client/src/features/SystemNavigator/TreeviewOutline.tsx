@@ -73,7 +73,7 @@ const OutlineItem = memo((props:{item:OutlineNode, key : any, children?:any}) =>
         key = { item.itemKey } 
         nodeId = { item.itemKey as string } 
         className = 'customItem' 
-        label = { OutlineItemLabel( { item }) }  
+        label = { OutlineItemLabel({ item }) }  
         onClick={ (e:any) => { outlineItemClick(item) }}>
       { item.children.map((item)=><OutlineItem item={item} key={item.itemKey}/>) }
     </TreeItem>);

@@ -125,8 +125,17 @@ export const AppField = ( props : {
 
     case 'character varying' :
       // TODO: Eventually the following will be represented in meta-data...
-      if (fieldType==='character varying' && !AppColumn_character_maximum_length)
+      if (// 'character varying' criteria repeated, since we fall through
+          // from the integer data type case too...
+          fieldType==='character varying' 
+          // Character fields w/o length are assumed to be large variable-
+          // length fields that should receive textarea style controls...
+          && !AppColumn_character_maximum_length)
         InputProps = { rows: "5", rowsMin: "5", rowsMax: "10", multiline: true };
+
+      if (fieldName === 'user_password_hash')
+        InputProps = { type: "password" };
+
       rv = (
         <TextField
           variant="outlined" 

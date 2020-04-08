@@ -1,0 +1,7 @@
+If this historical migration (that I applied manually)
+is required to be scripted, then implement merely by 
+calling:
+
+make_role_foreign_keys_required.sql
+
+(MS SQL support only at this time)

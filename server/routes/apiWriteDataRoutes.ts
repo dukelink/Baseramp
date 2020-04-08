@@ -300,7 +300,12 @@ export const addApiWriteDataRoutes = (router : Router ) =>
                                 if (err) 
                                     reject(err);
                                 else
-                                    resolve({...newUserRecord,user_password_hash:passwordHash});
+                                    resolve({
+                                        ...newUserRecord,
+                                        user_password_hash:passwordHash,
+                                        // Default new users to 'User' role...
+                                        user_role_id: record.user_role_id || 2 
+                                    });
                             })
                     } else
                         resolve(record);
