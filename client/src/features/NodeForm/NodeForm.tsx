@@ -23,7 +23,7 @@ import React, { useState, useEffect, useLayoutEffect, useRef } from 'react';
 import { RecordOfAnyType, AppColumnRow } from '../../model/ModelTypes';
 import { useTableAppCols } from '../../model/ModelSelectors';
 import { usePrevious } from '../../utils/utils';
-import { AppField } from './FieldFactory';  
+import { AppField } from '../FieldFactory/FieldFactory';  
 
 export class NodeFormEditState {
   constructor(isFormValidDefault?:boolean) {
@@ -99,14 +99,14 @@ export const NodeForm =
                 <AppField                      
                   fieldName = { fieldName } 
                   field     = { state[fieldName]} 
-                  onChange  = { (newVal) => onChange(fieldName,newVal,record) } /> 
+                  onChange  = { onChange } /> 
               </span> )
         })
       }
     </div>
   )}
 
-  function onChange(fieldName: string, newVal: RecordOfAnyType, originalRecord: RecordOfAnyType)
+  function onChange(fieldName: string, newVal: RecordOfAnyType)
   {
     const newState : RecordOfAnyType = {...state, [fieldName]: newVal };
     setState(newState);
@@ -128,7 +128,7 @@ export const NodeForm =
         { 
           record: newState, 
           isFormValid: !uncompletedRequiredFields.length,
-          originalRecord 
+          originalRecord : record
         });
     }
   }
