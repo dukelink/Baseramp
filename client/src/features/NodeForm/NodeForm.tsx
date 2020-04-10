@@ -19,7 +19,9 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import React, { useState, useEffect, useLayoutEffect, useRef } from 'react';
+import React, { 
+  useState, useEffect, useLayoutEffect, useRef, Dispatch, SetStateAction 
+} from 'react';
 import { RecordOfAnyType, AppColumnRow } from '../../model/ModelTypes';
 import { useTableAppCols } from '../../model/ModelSelectors';
 import { usePrevious } from '../../utils/utils';
@@ -41,12 +43,13 @@ export interface NodeFormProps {
   navTable   : string, 
   navTableID : string, 
   record     : RecordOfAnyType,
-  onChange   ?: NodeFormEditState_OnChange
+  dispatch   : Dispatch<SetStateAction<NodeFormEditState>>
 }
 
 export const NodeForm =  
 (props : NodeFormProps) => {
-  const { navTable, navTableID, record } = props;
+  const { navTable, navTableID, record, dispatch } = props;
+//  const dispatch = useContext(NodeFormDispatch);
   const priorRecord = usePrevious(record);
   let tableAppCols = useTableAppCols(navTable); 
   const [ state, setState ] = useState<RecordOfAnyType>(); 
@@ -62,9 +65,8 @@ export const NodeForm =
   //       hooks at any time.
   useEffect(() => { 
     setState(record); 
-    if (props.onChange)
-      props.onChange({ record, isFormValid: false, originalRecord : record });
-  }, [record,props]); 
+    dispatch({ record, isFormValid: false, originalRecord : record });
+  }, [record,props,dispatch]); 
 
   useLayoutEffect(() => {
     if (navTableID==='-1' && firstFieldRef.current) {
@@ -109,27 +111,26 @@ export const NodeForm =
   function onChange(fieldName: string, newVal: RecordOfAnyType)
   {
     const newState : RecordOfAnyType = {...state, [fieldName]: newVal };
+
     setState(newState);
-    if (props.onChange) {
-      const uncompletedRequiredFields 
-        // Form considered complete (and correct for now) if there are no unfilled required fields...
-        = tableAppCols.filter( (col) => (
-          col.AppColumn_is_nullable==="NO"                  // A required field
-          && !col.AppColumn_ui_hidden                       // That is in the UI and able to be completed
-          && !newState[col.AppColumn_column_name]           // And that is empty at the moment!
-          && (col.AppColumn_data_type!=='bit' ||            // bit fields cannot be considered empty if falsy
-              typeof newState[col.AppColumn_column_name]
-                !== 'boolean') 
-          ) );
+
+    const uncompletedRequiredFields 
+      // Form considered complete (and correct for now) if there are no unfilled required fields...
+      = tableAppCols.filter( (col) => (
+        col.AppColumn_is_nullable==="NO"                  // A required field
+        && !col.AppColumn_ui_hidden                       // That is in the UI and able to be completed
+        && !newState[col.AppColumn_column_name]           // And that is empty at the moment!
+        && (col.AppColumn_data_type!=='bit' ||            // bit fields cannot be considered empty if falsy
+            typeof newState[col.AppColumn_column_name]
+              !== 'boolean') 
+        ) );
 
 //    console.log(`uncompletedRequiredFields = ${JSON.stringify(uncompletedRequiredFields)}`)
+    dispatch({ 
+      record: newState, 
+      isFormValid: !uncompletedRequiredFields.length,
+      originalRecord : record
+    });
 
-      props.onChange(
-        { 
-          record: newState, 
-          isFormValid: !uncompletedRequiredFields.length,
-          originalRecord : record
-        });
-    }
   }
 };

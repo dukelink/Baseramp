@@ -19,10 +19,10 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import React, { useState, useRef, MutableRefObject } from 'react';
+import React, { useState, memo } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { Button } from '@material-ui/core';
-import { NodeForm, NodeFormEditState, NodeFormEditState_OnChange } from '../NodeForm/NodeForm';
+import { NodeForm, NodeFormEditState, NodeFormProps } from '../NodeForm/NodeForm';
 import { INavigateState } from '../SystemNavigator/NavigateSlice';
 import { useInitializedRecord } from '../../model/ModelSelectors';
 import { insertRecord } from '../../model/ModelThunks';
@@ -48,44 +48,36 @@ const useStyles = makeStyles(theme => ({
     }
   }));
 
+// REVIEW: HOC memo() required to prevent recursive
+// setUserRecord calls from NodeForm init...
+const NodeFormView = memo((props:NodeFormProps) => <NodeForm {...props}/>,()=>true);
+
 export const NewUser = (props:{ onDone: Login_OnDone }) => 
 {
     const record = useInitializedRecord('user');
-    // STUDY: Does the following scheme even need a 'ref' type?
-    // Is this the best way????
-    let nodeFormCallbackRef = useRef<NodeFormEditState_OnChange>(
-      // dummy callback until crudButtons renders
-      ()=>{}
-    ); 
+    const [ userRecord, setUserRecord ] = useState(new NodeFormEditState());
+
     console.log(`<NewUser/> initial record = ${JSON.stringify(record)}`);
     return <>
-      <NodeForm 
+      <NodeFormView 
         navTable = 'user' 
         navTableID = '-1' 
         record = { record } 
-        onChange = { (rec)=>nodeFormCallbackRef.current(rec) } 
+        dispatch = { setUserRecord }
         /> 
       <CancelRegisterButtons 
-        callbackRef = { nodeFormCallbackRef }
         onDone = { props.onDone } />
     </>;
-  }
   
-  const CancelRegisterButtons = (
+  function CancelRegisterButtons(
       props: { 
-        callbackRef : MutableRefObject<NodeFormEditState_OnChange>,
         onDone : Login_OnDone
       }
-  ) => {
+  ) {
     const classes = useStyles();
-    const { callbackRef, onDone } = props;
-    const [ userRecord, setUserRecord ] = useState(new NodeFormEditState());
+    const { onDone } = props;
     const dispatch = useDispatch();
     console.log('CancelRegisterButtons');
-
-    callbackRef.current = (newState:NodeFormEditState) => { 
-      /* if (newState) */ setUserRecord(newState); 
-    }
 
     return (
       <div style={{marginTop: "4em"}}>
@@ -112,3 +104,4 @@ export const NewUser = (props:{ onDone: Login_OnDone }) =>
       </div>  
     );
   }
+}

@@ -89,7 +89,6 @@ export function buildDerived(model: Model)
         closedItem : closedItem,
         inProgress : inProgress,
         record : {
-          // TODO: STUDY: A blank object here, clears all RecordDerived members
           'Project Sprint_id' : newKey,
           'Project Sprint_sprint_id' : story_sprint_id,
           'Project Sprint_project_id' : story_project_id,

@@ -19,7 +19,7 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
 import { Paper, Grid, IconButton } from '@material-ui/core';
 import { NodeFormView } from '../NodeForm/NodeFormView';
 import { useNavPanelStyles } from './SystemNavigatorStyles';
@@ -28,7 +28,7 @@ import { useWindowSize } from '../../utils/utils';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../rootReducer'; 
 
-import { NodeFormEditState, NodeFormEditState_OnChange } from '../NodeForm/NodeForm';
+import { NodeFormEditState } from '../NodeForm/NodeForm';
 
 import { updateRecord, insertRecord, deleteRecord } from '../../model/ModelThunks';
 import { recordDelta } from '../../utils/utils';
@@ -58,6 +58,7 @@ export const SystemNavigator = () => {
   const [latestNodeformState, setLatestNodeformState] = useState<NodeFormEditState>(
       new NodeFormEditState(navTableID!=="-1") // init dummy value of correct type
   );
+
   const { record, isFormValid, originalRecord } = latestNodeformState;
 
   let { outline } = state.model; 
@@ -79,14 +80,9 @@ export const SystemNavigator = () => {
 
   console.log(`SystemNavigator:: navTable: ${navTable}, navTableID: ${navTableID}`);
 
-  // The following callback reference is designed to be set within
-  // the block of controls that operate on the NodeForm, i.e. CrudButtons...
-  let nodeFormCallbackRef = useRef<NodeFormEditState_OnChange>(
-    (newState:NodeFormEditState) => { setLatestNodeformState(newState); } ); 
-
   if (width >= 960 && mode!=="Both") 
     // NOTE: 960 must exactly match Material-UI 'md' breakpoint
-    // STUDY: Does this md=960px apply for all device types?
+    // REVIEW: Does this md=960px apply for all device types?
     setMode("Both");
   else if (width < 960 && mode==="Both")
     setMode("Outline");
@@ -209,7 +205,7 @@ export const SystemNavigator = () => {
               style={{  
                 display: mode!=='Outline' && navTable
                   ? 'inline-block' : 'none'}}> 
-            <NodeFormView nodeFormCallbackRef={ nodeFormCallbackRef } /> 
+            <NodeFormView dispatch = {setLatestNodeformState} /> 
             <VerticalSpace pixels={80}/>
         </Paper>
       </Grid>

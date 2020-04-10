@@ -19,20 +19,21 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import React, { MutableRefObject, memo } from 'react';
-import { NodeForm, NodeFormEditState_OnChange } from './NodeForm';
+import React, { memo, Dispatch, SetStateAction } from 'react';
+import { NodeForm, NodeFormEditState } from './NodeForm';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../rootReducer'; 
 import { RecordOfAnyType } from '../../model/ModelTypes';
 import { useInitializedRecord } from '../../model/ModelSelectors';
 
-export const NodeFormView = 
+export const NodeFormView = memo( 
+// REVIEW: HOC memo() required to prevent recursive
+// setUserRecord calls from NodeForm init...    
+    (props: {dispatch   : Dispatch<SetStateAction<NodeFormEditState>>}) => {
 // NOTE: Memoization is required to prevent loss of state (edits) 
 //       when switching between Outline and Edit modes 
 //       (modes used on mobile form factors).
-memo( 
-    (props:{nodeFormCallbackRef ?: MutableRefObject<NodeFormEditState_OnChange>}) => {
-    const { nodeFormCallbackRef } = props;
+    const { dispatch } = props;
     const state = useSelector<RootState,RootState>(state=>state);
     let { navTable, navTableID, navParentTable, navStrParentID } = state.navigate;
     const derivedModel = state.model.derivedModel;
@@ -55,8 +56,8 @@ memo(
         return <NodeForm 
             navTable = { navTable } 
             navTableID = { navTableID }
-            record = { record } 
-            onChange = { (rec)=>nodeFormCallbackRef?.current(rec) } />
+            record = { record }
+            dispatch = { dispatch } />
     }
 
     return <></>;
