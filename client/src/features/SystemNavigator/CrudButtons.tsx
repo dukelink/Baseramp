@@ -58,102 +58,96 @@ export const CrudButtons = ( props: {
 
   return (
     <Grid item xs = {12} 
-          className = { classes.OutlineEditButton } 
-          style = {{ display: navTable ? 'inline-block' : 'none'  }}> 
-      <Grid item xs = {12} 
-          className = { classes.OutlineEditButton } 
-          style = {{ display: navTable ? 'inline-block' : 'none'  }}> 
-        <div 
-              color='secondary'
-              style = {{ 
+        className = { classes.OutlineEditButton } 
+        style = {{ display: navTable ? 'inline-block' : 'none'  }}> 
+        <div    color='secondary'
+                style = {{ 
                 width: '100%', 
                 visibility: navTable ? 'visible' : 'hidden' }}>
-          { 
+            { 
             (mode !== "Both" && navTableID ) &&
-              <IconButton area-label="Navigation Outline"
-                  style = {{ padding: 6 }} 
-                  onClick = { () => { setMode(otherMode) } }>
+                <IconButton area-label="Navigation Outline"
+                    style = {{ padding: 6 }} 
+                    onClick = { () => { setMode(otherMode) } }>
                 <div>
-                  { otherLabel }&nbsp;
+                    { otherLabel }&nbsp;
                 </div> 
                 <PlayCircleFilledIcon className = { 
-                  otherMode==='Outline' ? classes.rotate80 : '' 
+                    otherMode==='Outline' ? classes.rotate80 : '' 
                 } />
-              </IconButton>
-          }
-          <div  className = { classes.buttonBar }
+                </IconButton>
+            }
+            <div  className = { classes.buttonBar }
                 style = {{ display: 'inline-block', float: 'right' }} >
             { ( ( !navTableID 
-                  || JSON.stringify(origRecord)===JSON.stringify(record) )
+                    || JSON.stringify(origRecord)===JSON.stringify(record) )
                 && navTableID!=='-1') ? <>
-              <Button 
-                  variant='contained' 
-                  onClick = { () => {
-                      dispatch(addNewBlankRecordForm({navTable}));
-                      console.log(mode);
-                      setMode(mode==='Both'?mode:'Edit'); 
-                  } } >
-                  Add New
-                  { (navTable===navParentTable ? ' Sub-' : ' ') // HACK: CYCLIC RELATIONSHIPS
-                    + navTable 
-                  }
-              </Button> 
-
-              { navTableID &&
                 <Button 
-                  id="crudDelete" 
-                  variant='contained' 
-                  onClick={ () => {
+                    variant='contained' 
+                    onClick = { () => {
+                        dispatch(addNewBlankRecordForm({navTable}));
+                        console.log(mode);
+                        setMode(mode==='Both'?mode:'Edit'); 
+                    } } >
+                    Add New
+                    { (navTable===navParentTable ? ' Sub-' : ' ') // HACK: CYCLIC RELATIONSHIPS
+                    + navTable 
+                    }
+                </Button> 
+
+                { navTableID &&
+                <Button 
+                    id="crudDelete" 
+                    variant='contained' 
+                    onClick={ () => {
                     dispatch(deleteRecord(state.navigate));
                     setMode(mode==='Both'?mode:'Outline');
-                  } } > 
-                  Delete 
+                    } } > 
+                    Delete 
                 </Button>                
-              }
+                }
             </> : 
             navTableID && <>
-              <Button
-                  id="crudSave" 
-                  variant='contained' 
-                  disabled={ !isFormValid }
-                  onClick={ () => {
-                      if (!isFormValid) {
-                          alert('Please fill in all required fields before saving');
-                          return;
-                      }
-                      if (navTableID==="-1") 
-                          dispatch(insertRecord(state.navigate, record));
-                      else
-                          dispatch(updateRecord(state.navigate,
-                              recordDelta(record, origRecord)));                 
-              }}> Save </Button> 
-              <Button 
-                  id="crudCancel" variant='contained'
-                  onClick={ ()=> { 
+                <Button
+                    id="crudSave" 
+                    variant='contained' 
+                    disabled={ !isFormValid }
+                    onClick={ () => {
+                        if (!isFormValid) {
+                            alert('Please fill in all required fields before saving');
+                            return;
+                        }
+                        if (navTableID==="-1") 
+                            dispatch(insertRecord(state.navigate, record));
+                        else
+                            dispatch(updateRecord(state.navigate,
+                                recordDelta(record, origRecord)));                 
+                }}> Save </Button> 
+                <Button 
+                    id="crudCancel" variant='contained'
+                    onClick={ ()=> { 
                     setLatestNodeformState({ 
-                      record: origRecord, 
-                      isFormValid: true
+                        record: origRecord, 
+                        isFormValid: true
                     });
                     // Remove form if Add New record form...
                     if (navTableID === '-1') {
-                      dispatch(setFocus({ 
+                        dispatch(setFocus({ 
                         table:navTable, 
                         tableID: '', 
                         parentTable: navParentTable,
                         parentID: navStrParentID 
-                      }));
-                      // Return to outline display only...
-                      setMode('Outline');
+                        }));
+                        // Return to outline display only...
+                        setMode('Outline');
                     } else
                     // If user was editing an existing record, flag rerender...
-                      setRerenderFlat(rerenderFlag+1);  
-                  }
-              }> Cancel </Button>
+                        setRerenderFlat(rerenderFlag+1);  
+                    }
+                }> Cancel </Button>
             </>}
-          </div>
+            </div>
         </div>
-      </Grid> 
-
     </Grid> 
   )
 }

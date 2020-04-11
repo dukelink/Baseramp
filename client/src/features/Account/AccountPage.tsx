@@ -77,7 +77,7 @@ export const AccountPage = () => {
   else if (!state.newUserForm)
     return (
       <div className={classes.container}>
-        <h2>Please login or register as a new user...</h2>
+        <h2>Login or Register</h2>
         <Login state={state} setState={setState}/> 
       </div>
     );
