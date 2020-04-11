@@ -1,5 +1,5 @@
 /*
-    Baseramp Project Manager - An open source Project Management software built
+    Baseramp Tracker - An open source Project Management software built
     as a Single Page Application (SPA) and Progressive Web Application (PWA) using
     Typescript, React, and an extensible SQL database model.
 
@@ -20,68 +20,48 @@
 */
 
 import React, { useState, useEffect } from 'react';
-import { Paper, Grid, IconButton } from '@material-ui/core';
+
+import { Paper, Grid } from '@material-ui/core';
 import { useNavPanelStyles } from './SystemNavigatorStyles';
-import { useWindowSize } from '../../utils/utils';
+import { useWindowSize, VerticalSpace } from '../../utils/utils';
 
-import { useDispatch, useSelector } from 'react-redux';
+import { CrudButtons } from './CrudButtons';
+import { useSelector } from 'react-redux';
 import { RootState } from '../../rootReducer'; 
-
 import { NodeFormEditState } from '../NodeForm/NodeForm';
 import { NodeForm } from '../NodeForm/NodeForm';
 import { useRecord } from '../../model/ModelSelectors';
-
-import { updateRecord, insertRecord, deleteRecord } from '../../model/ModelThunks';
-import { recordDelta } from '../../utils/utils';
-import { Button } from '@material-ui/core';
-import { addNewBlankRecordForm, setFocus } from './NavigateSlice';
-
-import PlayCircleFilledIcon from '@material-ui/icons/PlayCircleFilled';
-
 import { Outline } from './TreeviewOutline';
 
-type EditMode = 'Outline' | 'Edit' | 'Both';
-
-const VerticalSpace = (props:{pixels:number}) => (
-  <div style={{
-      display: 'inline-block', 
-      height: props.pixels, 
-      width: '100%' }}>
-    &nbsp; {/* Some browsers need content for spacer to work... */}
-  </div>);
+export type EditMode = 'Outline' | 'Edit' | 'Both';
 
 export const SystemNavigator = () => {
   const classes = useNavPanelStyles();
   const state = useSelector<RootState,RootState>(state=>state);
-  const dispatch = useDispatch();
 
   const { navTable, navTableID, navParentTable, navStrParentID } = state.navigate;
 
-  // The userRecord selector is good for now, but we may need async support latter...
+  // REVIEW: Memoize? Use Reslect? Or just cache within this component...
   const origRecord = useRecord(navTable,navTableID,navParentTable,navStrParentID);
 
   const initState = new NodeFormEditState(navTableID!=="-1", origRecord);
 
-  const [latestNodeformState, setLatestNodeformState] = useState<NodeFormEditState>(
-    initState
-  );
+  const [latestNodeformState, setLatestNodeformState] 
+    = useState<NodeFormEditState>(initState);
 
-  let { record, isFormValid, originalRecord } = latestNodeformState;
+  let { record } = latestNodeformState;
 
   useEffect(()=>{
     setLatestNodeformState(initState)    
-  },[navTable,navTableID])
-
-  console.log(`ORIG RECORD: record = ${JSON.stringify(origRecord)}`);
-  console.log(`RECORD: record = ${JSON.stringify(record)}`);
-  console.log(`ORIGINAL RECORD: record = ${JSON.stringify(originalRecord)}`);
+  },
+  // TODO: Resolve warning about code which works perfectly as-is and only as-is
+  // "React Hook useEffect has a missing dependency: 'initState'. Either
+  //  include it or remove the dependency array  react-hooks/exhaustive-deps."
+  [navTable,navTableID])
 
   let { outline } = state.model; 
   const [ mode, setMode ] = useState<EditMode>('Both');
-  const [ rerenderFlag, setRerenderFlat ] = useState(1);
   const [ width ] = useWindowSize();
-  const otherMode = mode==='Outline' ? 'Edit' : 'Outline';
-  const otherLabel = mode==='Outline' ? 'Form' : 'Outline';
 
   // If not Admin mode, filter out top level tables that are
   // not present for non-admin users...
@@ -89,12 +69,7 @@ export const SystemNavigator = () => {
     outline = outline.filter((outlineNode)=>(outlineNode.table 
       && state.model.metaModel['AppTable'][outlineNode.table].role_title==='User'))
 
-  // Does navTable physically exist in apiModel?
-  // if not then we'll suppress CRUD buttons for virtually created xref tables
-  // HACK XREF...
-  const notVirtualXrefTable = state.model.apiModel[navTable] !== undefined; 
-
-  console.log(`SystemNavigator:: navTable: ${navTable}, navTableID: ${navTableID}`);
+  console.log(`SystemNavigator:: navTable: ${navTable}, navTableID: ${navTableID}`); 
 
   if (width >= 960 && mode!=="Both") 
     // NOTE: 960 must exactly match Material-UI 'md' breakpoint
@@ -106,103 +81,10 @@ export const SystemNavigator = () => {
   return ( 
     <Grid container spacing={0}>
 
-      {/* Outline/Edit Navigation Bar */}
-      <Grid item xs = {12} 
-            className = { classes.OutlineEditButton } 
-            style = {{ display: navTable ? 'inline-block' : 'none'  }}> 
-        { notVirtualXrefTable &&
-          <div 
-                color='secondary'
-                style = {{ 
-                  width: '100%', 
-                  visibility: navTable ? 'visible' : 'hidden' }}>
-            { 
-              (mode !== "Both" && navTableID ) &&
-                <IconButton area-label="Navigation Outline"
-                    style = {{ padding: 6 }} 
-                    onClick = { () => { setMode(otherMode) } }>
-                  <div>
-                    { otherLabel }&nbsp;
-                  </div> 
-                  <PlayCircleFilledIcon className = { 
-                    otherMode==='Outline' ? classes.rotate80 : '' 
-                  } />
-                </IconButton>
-            }
-            <div  className = { classes.buttonBar }
-                  style = {{ display: 'inline-block', float: 'right' }} >
-              { ( ( !navTableID 
-                    || JSON.stringify(originalRecord)===JSON.stringify(record) )
-                  && navTableID!=='-1') ? <>
-                <Button 
-                    variant='contained' 
-                    onClick = { () => {
-                        dispatch(addNewBlankRecordForm({navTable}));
-                        console.log(mode);
-                        setMode(mode==='Both'?mode:'Edit'); 
-                    } } >
-                    Add New
-                    { (navTable===navParentTable ? ' Sub-' : ' ') // HACK: CYCLIC RELATIONSHIPS
-                      + navTable 
-                    }
-                </Button> 
-
-                { navTableID &&
-                  <Button 
-                    id="crudDelete" 
-                    variant='contained' 
-                    onClick={ () => {
-                      dispatch(deleteRecord(state.navigate));
-                      setMode(mode==='Both'?mode:'Outline');
-                    } } > 
-                    Delete 
-                  </Button>                
-                }
-              </> : 
-              navTableID && <>
-                <Button
-                    id="crudSave" 
-                    variant='contained' 
-                    disabled={ !isFormValid }
-                    onClick={ () => {
-                        if (!isFormValid) {
-                            alert('Please fill in all required fields before saving');
-                            return;
-                        }
-                        if (navTableID==="-1") 
-                            dispatch(insertRecord(state.navigate, record));
-                        else
-                            dispatch(updateRecord(state.navigate,
-                                recordDelta(record, origRecord)));                 
-                }}> Save </Button> 
-                <Button 
-                    id="crudCancel" variant='contained'
-                    onClick={ ()=> { 
-                      setLatestNodeformState({ 
-                        record: originalRecord, 
-                        isFormValid: true,
-                        originalRecord 
-                      });
-                      // Remove form if Add New record form...
-                      if (navTableID === '-1') {
-                        dispatch(setFocus({ 
-                          table:navTable, 
-                          tableID: '', 
-                          parentTable: navParentTable,
-                          parentID: navStrParentID 
-                        }));
-                        // Return to outline display only...
-                        setMode('Outline');
-                      } else
-                      // If user was editing an existing record, flag rerender...
-                        setRerenderFlat(rerenderFlag+1);  
-                    }
-                }> Cancel </Button>
-              </>}
-            </div>
-          </div>
-        }
-      </Grid> 
+      {/* CRUD button bar & Outline vs. Form mode for small form factors... */}
+      <CrudButtons { ...{
+        latestNodeformState, setLatestNodeformState, mode, setMode, origRecord
+      } } />
 
       {/* Outline Panel/Form */}
       <Grid item xs={12} md={ navTableID ? 6 : 12 } 
@@ -223,8 +105,6 @@ export const SystemNavigator = () => {
                 display: mode!=='Outline' && navTable
                   ? 'inline-block' : 'none'}}> 
             {navTable && navTableID && <>
-            { JSON.stringify(record) }
-            <hr/>
               <NodeForm 
                 navTable = { navTable } 
                 navTableID = { navTableID }

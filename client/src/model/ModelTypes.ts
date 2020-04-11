@@ -1,5 +1,5 @@
 /*
-    Baseramp Project Manager - An open source Project Management software built
+    Baseramp Tracker - An open source Project Management software built
     as a Single Page Application (SPA) and Progressive Web Application (PWA) using
     Typescript, React, and an extensible SQL database model.
 

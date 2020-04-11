@@ -1,5 +1,5 @@
 /*
-    Baseramp Project Manager - An open source Project Management software built
+    Baseramp Tracker - An open source Project Management software built
     as a Single Page Application (SPA) and Progressive Web Application (PWA) using
     Typescript, React, and an extensible SQL database model.
 
@@ -27,7 +27,6 @@ import { useTableAppCols } from '../../model/ModelSelectors';
 import { AppField } from '../FieldFactory/FieldFactory';  
 
 export class NodeFormEditState {
-  public originalRecord : RecordOfAnyType = this.record;
   constructor(
     public isFormValid = false, 
     public record : RecordOfAnyType = {}
@@ -108,8 +107,7 @@ console.log(`CHANGE FIELD fieldName=${fieldName}, newVal=${JSON.stringify(newVal
         ) );
     dispatch({ 
       record: newState, 
-      isFormValid: !uncompletedRequiredFields.length,
-      originalRecord : record
+      isFormValid: !uncompletedRequiredFields.length
     });
   }
 });
