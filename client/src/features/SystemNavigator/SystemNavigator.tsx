@@ -19,7 +19,7 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import React, { memo, Dispatch, SetStateAction, useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Paper, Grid, IconButton } from '@material-ui/core';
 import { useNavPanelStyles } from './SystemNavigatorStyles';
 import { useWindowSize } from '../../utils/utils';
@@ -54,7 +54,10 @@ export const SystemNavigator = () => {
   const classes = useNavPanelStyles();
   const state = useSelector<RootState,RootState>(state=>state);
   const dispatch = useDispatch();
+
   const { navTable, navTableID, navParentTable, navStrParentID } = state.navigate;
+
+  // The userRecord selector is good for now, but we may need async support latter...
   const origRecord = useRecord(navTable,navTableID,navParentTable,navStrParentID);
 
   const initState = new NodeFormEditState(navTableID!=="-1", origRecord);
@@ -68,11 +71,6 @@ export const SystemNavigator = () => {
   useEffect(()=>{
     setLatestNodeformState(initState)    
   },[navTable,navTableID])
-
-  // REVIEW!!!
-  // if (JSON.stringify(origRecord)!==JSON.stringify(originalRecord))
-//  if (!Object.keys(record).length)
-//    record = origRecord;
 
   console.log(`ORIG RECORD: record = ${JSON.stringify(origRecord)}`);
   console.log(`RECORD: record = ${JSON.stringify(record)}`);
@@ -175,7 +173,7 @@ export const SystemNavigator = () => {
                             dispatch(insertRecord(state.navigate, record));
                         else
                             dispatch(updateRecord(state.navigate,
-                                recordDelta(record, originalRecord)));                 
+                                recordDelta(record, origRecord)));                 
                 }}> Save </Button> 
                 <Button 
                     id="crudCancel" variant='contained'
