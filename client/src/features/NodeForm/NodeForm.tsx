@@ -36,9 +36,7 @@ export class NodeFormEditState {
 
 export interface NodeFormProps {
   navTable   : string, 
-  navTableID : string, 
-  navParentTable ?: string,
-  navStrParentID ?: string,
+  navTableID : string
   record     : RecordOfAnyType,
   dispatch   : Dispatch<SetStateAction<NodeFormEditState>>
 }
@@ -55,7 +53,7 @@ export const NodeForm =  memo(
   useEffect(() => { 
     console.log('NodeForm initial setState....')
     setState(record); 
-  }, [record,props,dispatch]); 
+  }, [record,props,dispatch]); // REVIEW
 
   // Focus on first form field after Add New...
   useLayoutEffect(() => {

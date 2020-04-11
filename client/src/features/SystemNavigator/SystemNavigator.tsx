@@ -19,7 +19,7 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import React, { memo, Dispatch, SetStateAction, useState } from 'react';
+import React, { memo, Dispatch, SetStateAction, useState, useEffect } from 'react';
 import { Paper, Grid, IconButton } from '@material-ui/core';
 import { useNavPanelStyles } from './SystemNavigatorStyles';
 import { useWindowSize } from '../../utils/utils';
@@ -57,14 +57,26 @@ export const SystemNavigator = () => {
   const { navTable, navTableID, navParentTable, navStrParentID } = state.navigate;
   const origRecord = useRecord(navTable,navTableID,navParentTable,navStrParentID);
 
+  const initState = new NodeFormEditState(navTableID!=="-1", origRecord);
+
   const [latestNodeformState, setLatestNodeformState] = useState<NodeFormEditState>(
-      new NodeFormEditState(navTableID!=="-1", origRecord) // init dummy value of correct type
+    initState
   );
 
-  const { record, isFormValid, originalRecord } = latestNodeformState;
+  let { record, isFormValid, originalRecord } = latestNodeformState;
 
+  useEffect(()=>{
+    setLatestNodeformState(initState)    
+  },[navTable,navTableID])
+
+  // REVIEW!!!
+  // if (JSON.stringify(origRecord)!==JSON.stringify(originalRecord))
+//  if (!Object.keys(record).length)
+//    record = origRecord;
+
+  console.log(`ORIG RECORD: record = ${JSON.stringify(origRecord)}`);
   console.log(`RECORD: record = ${JSON.stringify(record)}`);
-  console.log(`ORIG RECORD: record = ${JSON.stringify(originalRecord)}`);
+  console.log(`ORIGINAL RECORD: record = ${JSON.stringify(originalRecord)}`);
 
   let { outline } = state.model; 
   const [ mode, setMode ] = useState<EditMode>('Both');
@@ -212,9 +224,16 @@ export const SystemNavigator = () => {
               style={{  
                 display: mode!=='Outline' && navTable
                   ? 'inline-block' : 'none'}}> 
-            <NodeFormView 
-              key = { rerenderFlag }
-              dispatch = { setLatestNodeformState } /> 
+            {navTable && navTableID && <>
+            { JSON.stringify(record) }
+            <hr/>
+              <NodeForm 
+                navTable = { navTable } 
+                navTableID = { navTableID }
+                record = { record }
+                dispatch = { setLatestNodeformState } />  
+              </>
+            }
             <VerticalSpace pixels={80}/>
         </Paper>
       </Grid>
@@ -222,29 +241,3 @@ export const SystemNavigator = () => {
     </Grid>
   );
 }
-
-
-const NodeFormView = memo( 
-// NOTE: Memoization is required to prevent loss of state (edits)     
-    (props: {dispatch   : Dispatch<SetStateAction<NodeFormEditState>>}) => {
-    const { dispatch } = props;
-    const state = useSelector<RootState,RootState>(state=>state);
-    let { navTable, navTableID, navParentTable, navStrParentID } = state.navigate;
-    const record = useRecord(navTable,navTableID,navParentTable,navStrParentID);
-
-    console.log( 
-        `<NodeFormView/> navTable: ${navTable},`
-        + ` navTableID: ${navTableID}`);
-
-    if (navTable && navTableID) { 
-        return <NodeForm 
-            navTable = { navTable } 
-            navTableID = { navTableID }
-            navParentTable = { navParentTable }
-            navStrParentID = { navStrParentID }
-            record = { record }
-            dispatch = { dispatch } />
-    }
-
-    return <></>;
-});
