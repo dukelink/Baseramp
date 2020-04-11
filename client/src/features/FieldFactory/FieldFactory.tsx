@@ -19,7 +19,7 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import React from 'react';
+import React, { ChangeEvent } from 'react';
 
 import { FormControl, Select, Switch, MenuItem, InputLabel } 
   from '@material-ui/core';
@@ -48,6 +48,14 @@ export const AppField =  ( props : {
   const flagEmptyRequiredField = AppColumn_is_nullable==="NO" && !field;
 
   console.log(`AppField(): fieldName=${fieldName}`);
+
+  function onSwitchChange(e:ChangeEvent<HTMLInputElement>) {
+    onChange(fieldName,e.target.checked);
+  }
+
+  function onDatepickerChange(dt:any, val:string|null|undefined) {
+    onChange(fieldName,val);
+  }
 
   if (referenceTableName) {
     return (
@@ -87,7 +95,6 @@ export const AppField =  ( props : {
         </Select>
       </FormControl>
     );
-
   }
   else 
   {
@@ -104,7 +111,7 @@ export const AppField =  ( props : {
           <InputLabel id = {"label"+fieldName}> 
             <Switch
               checked={field || false} 
-              onChange = { (e : any) => onChange(fieldName,e.target.value) }       
+              onChange = { onSwitchChange }       
               color="primary" />
             { appColTitle }
           </InputLabel>
@@ -141,7 +148,7 @@ export const AppField =  ( props : {
               label = { appColTitle }
               value = { field || null /* null works well for date fields */ }
               disabled = { AppColumn_read_only }
-              onChange = { (dt) => onChange(fieldName,dt) }        
+              onChange = { onDatepickerChange }     
               inputVariant = 'outlined'
               KeyboardButtonProps={{
                 'aria-label': 'change date',

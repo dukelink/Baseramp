@@ -19,9 +19,8 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import React, { useState } from 'react';
+import React, { memo, Dispatch, SetStateAction, useState } from 'react';
 import { Paper, Grid, IconButton } from '@material-ui/core';
-import { NodeFormView } from '../NodeForm/NodeFormView';
 import { useNavPanelStyles } from './SystemNavigatorStyles';
 import { useWindowSize } from '../../utils/utils';
 
@@ -29,6 +28,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../rootReducer'; 
 
 import { NodeFormEditState } from '../NodeForm/NodeForm';
+import { NodeForm } from '../NodeForm/NodeForm';
+import { useRecord } from '../../model/ModelSelectors';
 
 import { updateRecord, insertRecord, deleteRecord } from '../../model/ModelThunks';
 import { recordDelta } from '../../utils/utils';
@@ -54,15 +55,20 @@ export const SystemNavigator = () => {
   const state = useSelector<RootState,RootState>(state=>state);
   const dispatch = useDispatch();
   const { navTable, navTableID, navParentTable, navStrParentID } = state.navigate;
+  const origRecord = useRecord(navTable,navTableID,navParentTable,navStrParentID);
 
   const [latestNodeformState, setLatestNodeformState] = useState<NodeFormEditState>(
-      new NodeFormEditState(navTableID!=="-1") // init dummy value of correct type
+      new NodeFormEditState(navTableID!=="-1", origRecord) // init dummy value of correct type
   );
 
   const { record, isFormValid, originalRecord } = latestNodeformState;
 
+  console.log(`RECORD: record = ${JSON.stringify(record)}`);
+  console.log(`ORIG RECORD: record = ${JSON.stringify(originalRecord)}`);
+
   let { outline } = state.model; 
   const [ mode, setMode ] = useState<EditMode>('Both');
+  const [ rerenderFlag, setRerenderFlat ] = useState(1);
   const [ width ] = useWindowSize();
   const otherMode = mode==='Outline' ? 'Edit' : 'Outline';
   const otherLabel = mode==='Outline' ? 'Form' : 'Outline';
@@ -162,23 +168,24 @@ export const SystemNavigator = () => {
                 <Button 
                     id="crudCancel" variant='contained'
                     onClick={ ()=> { 
-                      // Trigger rerender of NodeForm
-                      // (requires props to change, so a clear and restore ID)
-                      dispatch(setFocus({ 
-                        table:navTable, 
-                        tableID: '', 
-                        parentTable: navParentTable,
-                        parentID: navStrParentID 
-                      }));
-                      if (navTableID === '-1')
-                        setMode(mode==='Both'?mode:'Outline');
-                      else
+                      setLatestNodeformState({ 
+                        record: originalRecord, 
+                        isFormValid: true,
+                        originalRecord 
+                      });
+                      // Remove form if Add New record form...
+                      if (navTableID === '-1') {
                         dispatch(setFocus({ 
-                          table: navTable, 
-                          tableID: navTableID,
+                          table:navTable, 
+                          tableID: '', 
                           parentTable: navParentTable,
                           parentID: navStrParentID 
                         }));
+                        // Return to outline display only...
+                        setMode('Outline');
+                      } else
+                      // If user was editing an existing record, flag rerender...
+                        setRerenderFlat(rerenderFlag+1);  
                     }
                 }> Cancel </Button>
               </>}
@@ -205,7 +212,9 @@ export const SystemNavigator = () => {
               style={{  
                 display: mode!=='Outline' && navTable
                   ? 'inline-block' : 'none'}}> 
-            <NodeFormView dispatch = {setLatestNodeformState} /> 
+            <NodeFormView 
+              key = { rerenderFlag }
+              dispatch = { setLatestNodeformState } /> 
             <VerticalSpace pixels={80}/>
         </Paper>
       </Grid>
@@ -214,3 +223,28 @@ export const SystemNavigator = () => {
   );
 }
 
+
+const NodeFormView = memo( 
+// NOTE: Memoization is required to prevent loss of state (edits)     
+    (props: {dispatch   : Dispatch<SetStateAction<NodeFormEditState>>}) => {
+    const { dispatch } = props;
+    const state = useSelector<RootState,RootState>(state=>state);
+    let { navTable, navTableID, navParentTable, navStrParentID } = state.navigate;
+    const record = useRecord(navTable,navTableID,navParentTable,navStrParentID);
+
+    console.log( 
+        `<NodeFormView/> navTable: ${navTable},`
+        + ` navTableID: ${navTableID}`);
+
+    if (navTable && navTableID) { 
+        return <NodeForm 
+            navTable = { navTable } 
+            navTableID = { navTableID }
+            navParentTable = { navParentTable }
+            navStrParentID = { navStrParentID }
+            record = { record }
+            dispatch = { dispatch } />
+    }
+
+    return <></>;
+});

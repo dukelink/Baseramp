@@ -20,117 +20,98 @@
 */
 
 import React, { 
-  useState, useEffect, useLayoutEffect, useRef, Dispatch, SetStateAction 
+  useState, useEffect, useLayoutEffect, useRef, Dispatch, SetStateAction, memo 
 } from 'react';
 import { RecordOfAnyType, AppColumnRow } from '../../model/ModelTypes';
 import { useTableAppCols } from '../../model/ModelSelectors';
-import { usePrevious } from '../../utils/utils';
 import { AppField } from '../FieldFactory/FieldFactory';  
 
 export class NodeFormEditState {
-  constructor(isFormValidDefault?:boolean) {
-    this.isFormValid = isFormValidDefault || false; // conservative default assumption
-  }
-  record : RecordOfAnyType = {};
-  isFormValid : boolean;
-  originalRecord : RecordOfAnyType = {};
+  public originalRecord : RecordOfAnyType = this.record;
+  constructor(
+    public isFormValid = false, 
+    public record : RecordOfAnyType = {}
+  ) { }
 }
-
-export type NodeFormEditState_OnChange 
-  = (stateRecord:NodeFormEditState) => (void);
 
 export interface NodeFormProps {
   navTable   : string, 
   navTableID : string, 
+  navParentTable ?: string,
+  navStrParentID ?: string,
   record     : RecordOfAnyType,
   dispatch   : Dispatch<SetStateAction<NodeFormEditState>>
 }
 
-export const NodeForm =  
+export const NodeForm =  memo(
 (props : NodeFormProps) => {
   const { navTable, navTableID, record, dispatch } = props;
-//  const dispatch = useContext(NodeFormDispatch);
-  const priorRecord = usePrevious(record);
   let tableAppCols = useTableAppCols(navTable); 
-  const [ state, setState ] = useState<RecordOfAnyType>(); 
-  const firstFieldRef = useRef<HTMLSpanElement>();
-  const dummyRef = useRef<HTMLSpanElement>();
+  const [ state, setState ] = useState<RecordOfAnyType>(record); 
+  const formRef = useRef<any>();
 
-  // Initialize state to the 'record' property
-  // HACK: This seems like a hack compared to the straightforward
-  //       props to state mapping (and built-in "memoization")
-  //       of PureComponent, or making this a controlled/redux-connected
-  //       component, but perhaps it is a small price to pay to for standardizing 
-  //       on all Function Components, which allows me to compose behaviors with
-  //       hooks at any time.
+  // Initialize state to the 'record' property... (this is the standard 
+  // way to populate initial state in a functional component)
   useEffect(() => { 
+    console.log('NodeForm initial setState....')
     setState(record); 
-    dispatch({ record, isFormValid: false, originalRecord : record });
   }, [record,props,dispatch]); 
 
+  // Focus on first form field after Add New...
   useLayoutEffect(() => {
-    if (navTableID==='-1' && firstFieldRef.current) {
-      // Focus on first form field after Add New...
-      firstFieldRef.current.getElementsByTagName('input')[0]?.focus();
-    } 
-  }, [record,navTableID,priorRecord])
+    if (navTableID==='-1')
+      formRef.current.getElementsByTagName('input')[0]?.focus();
+  },[navTableID]);
 
-  console.log(`<NodeForm navTable=${navTable} navTableID=${navTableID} record=${JSON.stringify(record)} />`);
+  console.log(`<NodeForm navTable=${navTable} navTableID=${navTableID} />`);
 
-  if  // Just return a blank fragment if state is empty or is in the process of changing...
-      ( !state || ( 
-            ( !Object.keys(state).length
-              // Test needed & related to hack above; TODO: Explain fully
-              || priorRecord !== record )
-        // But -1 is key for a new record, so continue to render the blank form below
-        && navTableID!=='-1' ) )
-    return <></>;
-  else {
-    return (
-    <div style={{ paddingRight: 16 }}>
-      {
-        tableAppCols
-          .filter((appCol:AppColumnRow) => !appCol.AppColumn_ui_hidden)
-          .map((appCol:any, index:number) => {
-            const fieldName = appCol.AppColumn_column_name;
-            return (
-              <span  
-                  id = { 'AppField_'+fieldName } // useful reference for unit tests
-                  key = { fieldName } 
-                  ref ={ (index===0 ? firstFieldRef : dummyRef) as any } > 
-                <AppField                      
-                  fieldName = { fieldName } 
-                  field     = { state[fieldName]} 
-                  onChange  = { onChange } /> 
-              </span> )
-        })
-      }
+  return (
+    <div ref={formRef} style={{ paddingRight: 16 }}>
+    { // Make sure there is a form to render...
+      (!state || (navTableID!=='-1' && !Object.keys(state).length)) ||
+      tableAppCols
+        .filter((appCol:AppColumnRow) => !appCol.AppColumn_ui_hidden)
+        .map((appCol:any, index:number) => {
+          const fieldName = appCol.AppColumn_column_name;
+          return (
+            <span  
+                id = { 'AppField_'+fieldName } // useful for unit tests
+                key = { fieldName } > 
+              <AppField                      
+                fieldName = { fieldName } 
+                field     = { state[fieldName]} 
+                onChange  = { onChange } /> 
+            </span> )
+      })
+    }
     </div>
-  )}
+  )
 
   function onChange(fieldName: string, newVal: RecordOfAnyType)
   {
+    // Keep local form data state up-to-date...
     const newState : RecordOfAnyType = {...state, [fieldName]: newVal };
-
     setState(newState);
 
+
+console.log(`CHANGE FIELD fieldName=${fieldName}, newVal=${JSON.stringify(newVal)}`);
+
+    // Also update record (and form-valid flag) at form container level
+    // which is responsible for CRUD controls etc...
     const uncompletedRequiredFields 
       // Form considered complete (and correct for now) if there are no unfilled required fields...
       = tableAppCols.filter( (col) => (
-        col.AppColumn_is_nullable==="NO"                  // A required field
-        && !col.AppColumn_ui_hidden                       // That is in the UI and able to be completed
-        && !newState[col.AppColumn_column_name]           // And that is empty at the moment!
-        && (col.AppColumn_data_type!=='bit' ||            // bit fields cannot be considered empty if falsy
+        col.AppColumn_is_nullable==="NO"        // A required field
+        && !col.AppColumn_ui_hidden             // That is in the UI and able to be completed
+        && !newState[col.AppColumn_column_name] // And that is empty at the moment!
+        && (col.AppColumn_data_type!=='bit' ||  // bit fields cannot be considered empty if falsy
             typeof newState[col.AppColumn_column_name]
               !== 'boolean') 
         ) );
-
-//    console.log(`uncompletedRequiredFields = ${JSON.stringify(uncompletedRequiredFields)}`)
     dispatch({ 
       record: newState, 
       isFormValid: !uncompletedRequiredFields.length,
       originalRecord : record
     });
-
   }
-};
+});

@@ -24,20 +24,16 @@ import { NodeForm, NodeFormEditState } from './NodeForm';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../rootReducer'; 
 import { RecordOfAnyType } from '../../model/ModelTypes';
-import { useInitializedRecord } from '../../model/ModelSelectors';
+import { useRecord } from '../../model/ModelSelectors';
 
 export const NodeFormView = memo( 
-// REVIEW: HOC memo() required to prevent recursive
-// setUserRecord calls from NodeForm init...    
+// NOTE: Memoization is required to prevent loss of state (edits)     
     (props: {dispatch   : Dispatch<SetStateAction<NodeFormEditState>>}) => {
-// NOTE: Memoization is required to prevent loss of state (edits) 
-//       when switching between Outline and Edit modes 
-//       (modes used on mobile form factors).
     const { dispatch } = props;
     const state = useSelector<RootState,RootState>(state=>state);
     let { navTable, navTableID, navParentTable, navStrParentID } = state.navigate;
     const derivedModel = state.model.derivedModel;
-    const initialRecord : RecordOfAnyType = useInitializedRecord(navTable); // TODO: should we memoize?
+    const initialRecord : RecordOfAnyType = useRecord(navTable); // TODO: should we memoize?
 
     console.log(
         `<NodeFormView/> navTable: ${navTable},`
@@ -51,8 +47,11 @@ export const NodeFormView = memo(
             if (navParentTable && navStrParentID) {
                 record[navTable + '_' + navParentTable + '_id'] = navStrParentID;
             }
-        } else 
+        } else {
             record = derivedModel[navTable][navTableID].record;
+//            dispatch(new NodeFormEditState(true,record));
+        }
+        console.log(`NodeFormView: record = ${JSON.stringify(record)}`)
         return <NodeForm 
             navTable = { navTable } 
             navTableID = { navTableID }

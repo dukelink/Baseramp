@@ -24,7 +24,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import { Button } from '@material-ui/core';
 import { NodeForm, NodeFormEditState, NodeFormProps } from '../NodeForm/NodeForm';
 import { INavigateState } from '../SystemNavigator/NavigateSlice';
-import { useInitializedRecord } from '../../model/ModelSelectors';
+import { useRecord } from '../../model/ModelSelectors';
 import { insertRecord } from '../../model/ModelThunks';
 import { useDispatch } from 'react-redux';
 import { Login_OnDone } from './AccountPage';
@@ -48,18 +48,17 @@ const useStyles = makeStyles(theme => ({
     }
   }));
 
-// REVIEW: HOC memo() required to prevent recursive
-// setUserRecord calls from NodeForm init...
-const NodeFormView = memo((props:NodeFormProps) => <NodeForm {...props}/>,()=>true);
+// Review: memoized form required to retain field edits...
+const NodeFormMemoized = memo((props:NodeFormProps) => <NodeForm {...props}/>,()=>true);
 
 export const NewUser = (props:{ onDone: Login_OnDone }) => 
 {
-    const record = useInitializedRecord('user');
+    const record = useRecord('user');
     const [ userRecord, setUserRecord ] = useState(new NodeFormEditState());
 
     console.log(`<NewUser/> initial record = ${JSON.stringify(record)}`);
     return <>
-      <NodeFormView 
+      <NodeFormMemoized
         navTable = 'user' 
         navTableID = '-1' 
         record = { record } 

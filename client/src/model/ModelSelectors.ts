@@ -20,26 +20,48 @@
 */
 
 import { RootState } from '../rootReducer';
+import { ViewModelDerived } from '../model/ModelTypes';
 import { useSelector } from 'react-redux';
 import { RecordOfAnyType, Records } from './ModelTypes';
 
-export const useInitializedRecord = (navTable:string) => {
+export const useRecord = (
+    navTable:string, navTableID='-1', 
+    navParentTable?:string, navStrParentID ?: string
+) => {
   const columnMetadata = useTableAppCols(navTable);
-  // Mutating 'record' to accumulate initial values will be faster than
-  // successively replacing values ("immutably") using reduce... 
-  let record : RecordOfAnyType = {};
-  columnMetadata.forEach( col => {
-    // Since NodeForms use a two state switch control
-    // for boolean values, we cannot visibly represent 
-    // undefined or null so users would be unable to, e.g., 
-    // see or have an easy way to enter 'false' for a required
-    // boolean field since it would already display as off/false.
-    // NOTE: More rules will probably be added here in the future,
-    // including perhaps querying initial values from SQL if
-    // database level defaults have been defined...
-    if (col.AppColumn_data_type==='bit')
-      record[col.AppColumn_column_name] = false;
-  });
+  const derivedModel 
+    = useSelector<RootState,ViewModelDerived>(state=>state.model.derivedModel);
+
+  let record : RecordOfAnyType;
+
+  if (navTableID && navTableID!=='-1')
+    // Return row from VM...
+    record = derivedModel[navTable][navTableID].record;
+  else {  
+    // Initialize new row...
+    record = {};
+    // Mutating 'record' to accumulate initial values will be faster than
+    // successively replacing values ("immutably") using reduce...
+    columnMetadata.forEach( col => {
+      // Since NodeForms use a two state switch control
+      // for boolean values, we cannot visibly represent 
+      // undefined or null so users would be unable to, e.g., 
+      // see or have an easy way to enter 'false' for a required
+      // boolean field since it would already display as off/false.
+      // NOTE: More rules will probably be added here in the future,
+      // including perhaps querying initial values from SQL if
+      // database level defaults have been defined...
+      if (col.AppColumn_data_type==='bit')
+        record[col.AppColumn_column_name] = false;
+    });
+
+    // Default foreign key from parent table in outline
+    // TODO: Need something more sophisticated as there may be multiple FKs
+    // available in the heirarchy...
+    if (navParentTable && navStrParentID) 
+      record[navTable + '_' + navParentTable + '_id'] = navStrParentID;
+  }
+
   return record;
 }
 
