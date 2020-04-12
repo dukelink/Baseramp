@@ -44,6 +44,17 @@ function OutlineItemLabel(props: { item : OutlineNode })
         : ( ( !item.tableID || item.closedItem ) 
         ? classes.labelIcon : classes.labelIconNotInProgress );
 
+    let childCount = 
+      Object.entries(item.totalChildRecords)
+        .filter((x)=>x[0]===item.table)
+        .map(x=>x[1]).join();
+
+    let grandChildCounts = 
+      Object.entries(item.totalChildRecords)
+      .filter((x)=>x[0]!==item.table)
+      .map(x=>x[0][0]+x[0][1]+':'+x[1])
+      .join(', ');
+
   return (
     <div className={classes.labelRoot}>
       { !item.tableID ?
@@ -59,7 +70,9 @@ function OutlineItemLabel(props: { item : OutlineNode })
             item.closedItem ? 
               classes.labelTextClosedItem : classes.labelText }>
         { item.itemTitle }
-      </Typography>
+        { !childCount ? '' : <sup>&nbsp;({childCount})</sup> }
+        { !grandChildCounts ? '' : <sup>&nbsp;({grandChildCounts})</sup> }
+      </Typography> 
     </div> 
   )
 }

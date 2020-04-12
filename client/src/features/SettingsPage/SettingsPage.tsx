@@ -3,7 +3,7 @@ import React from 'react';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Switch from '@material-ui/core/Switch';
 
-import Grid from '@material-ui/core/Grid';
+import { Grid, Paper } from '@material-ui/core';
 
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '../../rootReducer';
@@ -46,7 +46,7 @@ const Settings: React.FC = () => {
   }
 
   return ( 
-    <div>
+    <Paper style={{ height: "100vh", width:"80%", paddingLeft: "10%", paddingTop: "20px", boxShadow: "none" }}>
       <div>
         <FormControlLabel
             control={
@@ -107,11 +107,11 @@ const Settings: React.FC = () => {
  
       <hr/>
       { process.env.NODE_ENV !== 'development' ? <></> :
-        <pre id="model"  style={{height:"calc(100vh - 185px)", overflowY:"scroll" }} >
+        <pre id="model"  style={{height:"calc(80vh - 185px)", overflowY:"scroll" }} >
         { JSON.stringify(model,null,1) } 
         </pre>
       }
-    </div>
+    </Paper>
   );  
 }
 

@@ -33,7 +33,8 @@ const useStyles = makeStyles(theme => ({
     margin: "auto",
     textAlign: "center",
     spacing: "10%",
-    paddingBottom: "50px"
+    paddingBottom: "50px",
+    height: "100vh"
   },
   buttons: {
     marginLeft: 20, 

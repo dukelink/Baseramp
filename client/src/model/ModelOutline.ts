@@ -19,7 +19,7 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
  
-import { ViewModelDerived, RecordDerived } from './ModelTypes';
+import { ViewModelDerived, RecordDerived, RecordOfAnyType } from './ModelTypes';
 import { INavigateState } from '../features/SystemNavigator/NavigateSlice';
 import { properCasePluralize } from '../utils/utils';
 
@@ -32,7 +32,8 @@ export interface OutlineNode {
     parentID ?: number | string,
     children : OutlineNode[],
     closedItem ?: boolean,
-    inProgress ?: boolean 
+    inProgress ?: boolean,
+    totalChildRecords : RecordOfAnyType 
 }
 
 const parentChildTables: any = { 
@@ -73,9 +74,13 @@ export function buildOutline(
     let outline = buildTableHeadingsOutline(Object.keys(derivedModel));
 
     outline = sequenceOutline(outline) as OutlineNode[];
+    addRecordTallies(outline);
     return outline;
 
-    function sequenceOutline(outline: OutlineNode[],path='') {
+    // REVIEW: Is this currently being used?
+    // Was the intent to help with keyboard navigation of outline?
+    function sequenceOutline(outline: OutlineNode[],path='') 
+    {
         return outline
             .filter((item) => (!navActiveFilter || !item.closedItem))
             .map<OutlineNode>((outline: OutlineNode) => {
@@ -84,6 +89,31 @@ export function buildOutline(
                 outline.children = sequenceOutline(outline.children,path); 
                 return outline;
             })
+    }
+
+    // Tally number of records for all children by 'table'...
+    function addRecordTallies(outline: OutlineNode[]) : RecordOfAnyType 
+    {
+        let tallies : RecordOfAnyType = {};
+        [...outline].forEach( node => {
+            if (node.table && node.tableID) {
+                if (!tallies[node.table])
+                    tallies[node.table] = 1;
+                else
+                    tallies[node.table] += 1;
+            }
+            let subTallies = addRecordTallies(node.children);
+            node.totalChildRecords  = subTallies;
+            (new Set([...Object.keys(tallies),...Object.keys(subTallies)]))
+                .forEach(table => {
+                    if (!tallies[table])
+                        tallies[table] = subTallies[table];
+                    else
+                        tallies[table] 
+                            = (tallies[table] || 0) + (subTallies[table] || 0);
+                })  
+        })
+        return Object.assign({},tallies);
     }
 
     function buildRowsOutline(
@@ -133,7 +163,8 @@ export function buildOutline(
                     (parentChildTables[tableHeading] || []),
                     tableHeading,
                     row.record[tableHeading + '_id'] 
-                )
+                ),
+                totalChildRecords : {}
             }
         ))
         .map((row:any) => ({
@@ -191,7 +222,8 @@ export function buildOutline(
                     parentID,
                     closedItem: false,
                     inProgress: false,
-                    children: buildRowsOutline(tableHeading, parentTable, parentID)
+                    children: buildRowsOutline(tableHeading, parentTable, parentID),
+                    totalChildRecords: {}
                 })
             });
         return outline;

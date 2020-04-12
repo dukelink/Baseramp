@@ -4,7 +4,13 @@ export const useTreeItemStyles = makeStyles(theme => ({
     treeviewRoot: {
       "& .MuiTreeItem-root.Mui-selected > .MuiTreeItem-content" : {
         backgroundColor: theme.palette.background.default
-      }
+      },
+      "& sup" : {
+        opacity: 1
+      },
+      "& sup:nth-child(2)" : {
+        opacity: 0.7
+      }      
     },
     labelRoot: {
       display: 'flex',
@@ -50,6 +56,8 @@ export const useTreeItemStyles = makeStyles(theme => ({
   export const useNavPanelStyles = makeStyles(theme=>({
     root: {
       flexGrow: 1,
+      boxShadow: 'none',
+      padding: '6px'
     },  
     paperFullHeight: {
       padding: theme.spacing(1),
@@ -83,6 +91,12 @@ export const useTreeItemStyles = makeStyles(theme => ({
           paddingBottom: "4px !important",
           paddingLeft: "10px !important",
           paddingRight: "10px !important",
+          maxHeight: "32px",
+          maxWidth: "47vw",
+          overflow: "hidden",
+          whiteSpace: "nowrap",
+          justifyContent: "left",
+          textOverflow: "ellipsis"
       }
     }
   }));

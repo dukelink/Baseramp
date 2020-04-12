@@ -65,11 +65,11 @@ export const Login = (props:{state:StateType, setState: React.Dispatch<React.Set
       <FormControl className={classes.formControl}>
           <InputLabel htmlFor="password-input">Password</InputLabel>
           <Input
-              type='password'
-              value={password}
-              onChange={ (e:React.ChangeEvent<HTMLInputElement>) => { 
-                          setState({...state,password:e.target.value}) }}
-              id="password-input"/>
+            type='password'
+            value={password}
+            onChange={ (e:React.ChangeEvent<HTMLInputElement>) => { 
+                        setState({...state,password:e.target.value}) }}
+            id="password-input"/>
       </FormControl>
   
       <div style={{marginTop: "4em"}}>
@@ -77,14 +77,14 @@ export const Login = (props:{state:StateType, setState: React.Dispatch<React.Set
             variant='contained' 
             className={classes.buttons}
             onClick={ () => { setState({...state,newUserForm:true}); } } >
-                New User
+          Register
         </Button>
         <Button 
             variant='contained' 
             className={classes.buttons}
             disabled={!login || !password} 
             onClick={ () => (dispatch(authLogin(login,password))) } >
-            Login
+          Login
         </Button>
       </div>  
     </>;
