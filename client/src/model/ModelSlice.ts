@@ -52,18 +52,18 @@ const model = createSlice({
     },
     refreshRecordInVM(
         model : Model, 
-        action:PayloadAction<{navigate:INavigateState,recordDelta:RecordOfAnyType}>) 
+        action:PayloadAction<{navigate:INavigateState,record:RecordOfAnyType}>) 
     {
-      const { navigate, recordDelta } = action.payload;
+      const { navigate, record } = action.payload;
       const { navTable, navTableID } = navigate;
-      Object.assign(model.apiModel[navTable][navTableID], recordDelta); 
+      Object.assign(model.apiModel[navTable][navTableID], record); 
       buildDerived(model);
       switch (navTable) {
         case 'AppTable' :
-          Object.assign(model.metaModel.AppTable[navTableID], recordDelta);
+          Object.assign(model.metaModel.AppTable[navTableID], record);
           break;
         case 'AppColumn' :
-          Object.assign(model.metaModel.AppColumn[navTableID], recordDelta);
+          Object.assign(model.metaModel.AppColumn[navTableID], record);
           break;
       } 
       model.outline = buildOutline(model.derivedModel,navigate);

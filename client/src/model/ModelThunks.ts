@@ -62,6 +62,7 @@ export const updateRecord = (navigate:INavigateState, recordDelta:any)
   const { navTable, navTableID } = navigate;
   const state = store.getState(); // TODO: not SSR compatible; consider changing
   let err = false;
+  let record : RecordOfAnyType = {};
 
   if (Object.keys(recordDelta).length) {
     if (!state.navigate.testDataMode) {
@@ -69,11 +70,18 @@ export const updateRecord = (navigate:INavigateState, recordDelta:any)
           method: 'PUT',
           body: JSON.stringify(recordDelta),
           headers: { 'Content-Type': 'application/json' }
-      }).then().catch((error) =>{ err = true; });
+      })
+      .then(res => res && res.json())
+      .then(res => {
+        // Grab committed record from server that will be populated with
+        // any other fields computed server-side... 
+        record = res[0] 
+      })
+      .catch((error) =>{ err = true; });
     }
 
     if (!err)
-      dispatch(refreshRecordInVM({navigate,recordDelta}));
+      dispatch(refreshRecordInVM({navigate,record}));
   }
 }
 

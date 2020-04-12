@@ -69,14 +69,12 @@ export const addApiWriteDataRoutes = (router : Router ) =>
             .insert(record, [primaryKeyField]) // TODO: validate against dd and handle nulls, etc.
             .then(async (data)=>{
                 // console.log(data);
-                primaryKeyID = data[0]; // Note: Postgresql needed "[0][primaryKeyField]" but not MS SQL???
+                primaryKeyID = data[0]; // Postgresql driver needs "[0][primaryKeyField]"
                 // NOTE: Currently I relfect the added record just in case there are any computed fields...
                 await knex(tableName)
                     .select('*')
                     .where(primaryKeyField,'=',primaryKeyID)
-                    // TODO: Perhaps we should return data[0] but this'll require client change and to recordAuditTrail call...
                     .then((data)=>{ fullRecordReadback = data }) 
-                    // TODO: Can/should we differentiate (for client) between an error here and on the insert itself???
                     .catch( (error) => { knexErrorHandler(req,res,error) } );           
             })
             .catch( (error) => { knexErrorHandler(req,res,error) } ); 
@@ -91,7 +89,7 @@ export const addApiWriteDataRoutes = (router : Router ) =>
             tableName,
             primaryKeyID,
             user_id, 
-            fullRecordReadback[0]  // Will include any default values, as well as the identity primary key field :)
+            fullRecordReadback[0]  // includes PK, default & calculated values :)
         );
 
         res.send(fullRecordReadback);
@@ -101,6 +99,7 @@ export const addApiWriteDataRoutes = (router : Router ) =>
     async function(req : AuthenticatedRequest , res) 
     {
         const tableName = req.params.table;
+        let fullRecordReadback;
 
         await throwIfNotAuthorizedRoute(req,res,tableName);
 
@@ -114,7 +113,7 @@ export const addApiWriteDataRoutes = (router : Router ) =>
 
         // HACK: May want to change structure of AppColumn/AppTable keys
         // and remove this...
-        // If business rules updated primary key (e.g. for AppColumn table)
+        // If business rules updated primary key (e.g. FOR APPCOLUMN TABLE)
         // then capture new primary key id and erase it (since we cannot update PKs).
         if (newPKID = recordDelta[primaryKeyField]) {
             primaryKeyID = newPKID; 
@@ -125,6 +124,14 @@ export const addApiWriteDataRoutes = (router : Router ) =>
             .from(tableName)
             .where(primaryKeyField,'=', primaryKeyID)
             .update(recordDelta) 
+            .then(async (data)=>{
+                // NOTE: Currently I relfect the added record just in case there are any computed fields...
+                await knex(tableName)
+                    .select('*')
+                    .where(primaryKeyField,'=',primaryKeyID)
+                    .then((data)=>{ fullRecordReadback = data }) 
+                    .catch( (error) => { knexErrorHandler(req,res,error) } );           
+            })         
             .catch( (error) => { knexErrorHandler(req,res,error) } ); 
 
         await recordAuditTrail(
@@ -134,8 +141,8 @@ export const addApiWriteDataRoutes = (router : Router ) =>
             req.user.user_id,
             recordDelta
         );
-
-        res.status(200).end();        
+ 
+        res.send(fullRecordReadback);      
     });
 
     router.delete("/:table/:id", loggedInOnly, 
@@ -146,7 +153,6 @@ export const addApiWriteDataRoutes = (router : Router ) =>
         const primaryKeyID = req.params.id;
 
         await throwIfNotAuthorizedRoute(req,res,tableName);
-
 
         if (tableName==='user') {
             // Deprecate by 'renaming' user; this preserves audit trail
@@ -257,6 +263,7 @@ export const addApiWriteDataRoutes = (router : Router ) =>
             switch(tableName) 
             {
                 case 'AppColumn' :
+                    // HACK: Translate PK's back from column name to ID...
                     knex
                         .select('AppColumn_id')
                         .from('AppColumn')
