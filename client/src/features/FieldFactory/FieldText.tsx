@@ -1,6 +1,6 @@
 import React, { memo } from 'react';
 import { AppColumnRow } from '../../model/ModelTypes';
-import { TextField } from '@material-ui/core';
+import { TextField, FormControl } from '@material-ui/core';
 import NumberFormat from 'react-number-format';
 import { useStyles } from './FieldStyles'
 
@@ -51,14 +51,15 @@ export const FieldText = memo((props : {
         InputProps = { ...InputProps, inputComponent: NumberFormatHours }; 
     
     return (
+      <FormControl 
+        error={ flagEmptyRequiredField }
+        style = {{ minWidth: AppColumn_ui_minwidth || 
+          ( AppColumn_character_maximum_length 
+              || AppColumn_data_type!=='character varying' ? "150px" : "100%" )
+          }} >
         <TextField
             variant="outlined" 
             className={ classes.textControl }
-            error={ flagEmptyRequiredField }  
-            style = {{ minWidth: AppColumn_ui_minwidth || 
-            ( AppColumn_character_maximum_length 
-                || AppColumn_data_type!=='character varying' ? "150px" : "100%" )
-            }} 
             label = { appColTitle }
             value = { 
                 field==null 
@@ -83,6 +84,7 @@ export const FieldText = memo((props : {
             disabled = { AppColumn_read_only }
             InputProps = { InputProps }
         />    
+      </FormControl>
     )
 });
 

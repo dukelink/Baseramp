@@ -63,7 +63,7 @@ export const NodeForm =  memo(
   console.log(`<NodeForm navTable=${navTable} navTableID=${navTableID} />`);
 
   return (
-    <div ref={formRef} style={{ paddingRight: 16 }}>
+    <div ref={formRef}>
     { // Make sure there is a form to render...
       (!state || (navTableID!=='-1' && !Object.keys(state).length)) ||
       tableAppCols

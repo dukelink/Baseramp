@@ -67,8 +67,11 @@ export const useRecord = (
 
 export const useTableAppCols = (navTable:string) => {
   const state = useSelector<RootState,RootState>(state=>state);
-  return Object.values(state.model.metaModel.AppColumn) 
-      .filter( row => row.AppColumn_AppTable_id===navTable );       
+  let cols = Object.values(state.model.metaModel.AppColumn) 
+      .filter( row => row.AppColumn_AppTable_id===navTable )
+      .sort( (firstCol,secondCol) => 
+        (firstCol.AppColumn_rank - secondCol.AppColumn_rank) );
+  return cols;
 }
 
 export const useFieldMetadata = (fieldName:string) => {

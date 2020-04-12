@@ -51,6 +51,9 @@ export const SystemNavigator = () => {
 
   let { record } = latestNodeformState;
 
+  //console.log(`ORIG = ${JSON.stringify(origRecord)}`);
+  //console.log(`RECO = ${JSON.stringify(record)}`);
+
   useEffect(()=>{
     setLatestNodeformState(initState)    
   },

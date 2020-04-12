@@ -49,6 +49,13 @@ export const AppField =  ( props : {
 
   console.log(`AppField(): fieldName=${fieldName}`);
 
+  function onTextFieldChange(fieldName:string, newVal:string) {
+    // Ensure numeric fields are being stored as numeric, the
+    // Material-UI control implementation can convert these values to string,
+    // which can mess with our 'dirty flag' detection...
+    onChange(fieldName, AppColumn_data_type==='integer' ? Number(newVal) : newVal);
+  }
+
   function onSwitchChange(e:ChangeEvent<HTMLInputElement>) {
     onChange(fieldName,e.target.checked);
   }
@@ -126,7 +133,7 @@ export const AppField =  ( props : {
           <FieldText appCol = { appCol }
             fieldName = { fieldName }
             field = { field }
-            onChange = { onChange }
+            onChange = { onTextFieldChange }
           />
         );
         break; 

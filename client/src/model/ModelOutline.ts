@@ -28,6 +28,7 @@ export interface OutlineNode {
     itemTitle : string,
     table ?: string,
     tableID ?: number | string,
+    rank ?: number,
     parentTable ?: string,
     parentID ?: number | string,
     children : OutlineNode[],
@@ -149,7 +150,7 @@ export function buildOutline(
             // ... HACK: CYCLIC RELATIONSHIPS
    
         return rows
-            .map((row: any): OutlineNode => (
+            .map((row): OutlineNode => (
             // Following code embeds some DB naming convention rules: 
             //    _id, _title, _<table>_<parentTable>_id, ...
             {
@@ -157,6 +158,7 @@ export function buildOutline(
                 itemTitle: row.record[tableHeading + '_title'],
                 table: tableHeading,
                 tableID: row.record[tableHeading + '_id'],
+                rank: row.record[tableHeading + '_rank'],
                 parentTable,
                 parentID,
                 children: buildTableHeadingsOutline(
@@ -167,26 +169,25 @@ export function buildOutline(
                 totalChildRecords : {}
             }
         ))
-        .map((row:any) => ({
+        .map((row) => ({
             ...row,
             closedItem: 
                 derivedModel[tableHeading] 
-                    && derivedModel[tableHeading][row.tableID].closedItem,
+                    && derivedModel[tableHeading][row.tableID||0].closedItem,
             inProgress: 
                 derivedModel[tableHeading] 
-                    && derivedModel[tableHeading][row.tableID].inProgress,
+                    && derivedModel[tableHeading][row.tableID||0].inProgress,
         }))
-        .sort((firstEl:any,secondEl:any) => {
+        .sort((firstEl,secondEl) => {
             const   firstStarted = (firstEl.inProgress ? 0 : 1 ) + (firstEl.closedItem ? 2 : 0 ),
                     secondStarted = (secondEl.inProgress ? 0 : 1 ) + (secondEl.closedItem ? 2 : 0 ),
-                    // TODO: restore rank support...
-                    //firstRank = firstEl[tableHeading + '_rank'],
-                    //secondRank = secondEl[tableHeading + '_rank'],
-                    firstID = firstEl.tableID,
-                    secondID = secondEl.tableID;
-            const   firstOrd = firstStarted*1000000 + (firstID||0),
-                    secondOrd = secondStarted*1000000 + (secondID||0);
-            return  firstOrd - secondOrd;
+                    firstRank = firstEl.rank, // sort by rank if available
+                    secondRank = secondEl.rank,
+                    firstID = -(firstEl.tableID || 0), // sort most recent to top
+                    secondID = -(secondEl.tableID || 0);
+            const   firstOrd = firstStarted*1000000 + (firstRank||(100000+firstID)),
+                    secondOrd = secondStarted*1000000 + (secondRank||(100000+secondID));
+            return  firstOrd - secondOrd; 
         });
     }
 
