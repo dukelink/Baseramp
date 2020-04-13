@@ -96,8 +96,9 @@ export interface Model {
 }
 
 export interface AuditUpdate {
+  audit_id : number,
   table_name : string;
-  table_id : string; 
+  table_id : Number; 
   update_type : 'INSERT'|'UPDATE'|'DELETE';
   field_changes : string;
 }

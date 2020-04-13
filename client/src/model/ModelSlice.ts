@@ -73,26 +73,30 @@ const model = createSlice({
         action:PayloadAction<{navigate:INavigateState,audit_updates:AuditUpdate[]}>) 
     {
       const { navigate, audit_updates } = action.payload;
+
+      //console.log(`refreshVMfromAuditRecords(${JSON.stringify(audit_updates)})`)
+
       audit_updates.forEach((update)=>{
         const { table_name, table_id, update_type, field_changes } = update;
+        const tableID = table_id.toString(); // Number not allowed as object 'index' key
         const record = JSON.parse(field_changes);
         if (['INSERT','UPDATE'].includes(update_type)) 
         {
           // Update model...
-          const recordRef = model.apiModel[table_name][table_id];
+          const recordRef = model.apiModel[table_name][tableID];
           if (!recordRef) // INSERT case (should we assert this on update_type?)
-            model.apiModel[table_name][table_id] = record;
+            model.apiModel[table_name][tableID] = record;
           else {          // UPDATE case
             const newRec : RecordOfAnyType = Object.assign(recordRef, record);  
             // Meta data UPDATES only at this time (no INSERT/DELETEs)...
             if (table_name==='AppTable') 
-              Object.assign(model.metaModel.AppTable[table_id], newRec);
+              Object.assign(model.metaModel.AppTable[tableID], newRec);
             else if (table_name==='AppColumn')
-              Object.assign(model.metaModel.AppColumn[table_id], newRec);
+              Object.assign(model.metaModel.AppColumn[tableID], newRec);
           }
         } 
         else if (update_type==='DELETE')
-          delete model.apiModel[table_name][table_id]; 
+          delete model.apiModel[table_name][tableID]; 
       })
       buildDerived(model);
       model.outline = buildOutline(model.derivedModel, navigate);

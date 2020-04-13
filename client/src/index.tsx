@@ -27,14 +27,14 @@ import 'core-js/es/string';
 */
 import 'core-js/es/array'; // 01/07/2020 - sufficient for Edge browser as of today
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import ReactDOM from 'react-dom';
 import { CssBaseline, ThemeProvider, createMuiTheme } from '@material-ui/core'
 
 import { Provider, useSelector } from 'react-redux'
 import store from './store';
 import { RootState } from './rootReducer';
-import { loadMetadata } from './model/ModelThunks'; 
+import { loadMetadata, refreshFromServer } from './model/ModelThunks'; 
 
 import './index.css';
 import * as serviceWorker from './serviceWorker';
@@ -52,9 +52,29 @@ const Main = () => {
 }
 
 const UI = () => {
+    const navigate = useSelector((state:RootState)=>(state.navigate));
     const palettetype = useSelector((state:RootState)=>(state.settings.paletteType));
 
-    loadMetadata(); 
+    // Initial one-time meta-data load just, only needed to support
+    // new user registration form...
+    useEffect(loadMetadata, []);
+
+    // Set-up to poll latest DB data for possible updates by other users
+    useEffect(() => {
+        const intv = setInterval(()=>{
+            refreshFromServer(navigate);
+        }, 2000); // 2 second polling for DB updates from other users 
+        return () => { 
+            clearInterval(intv); // critical to clear out-of-scope resource!
+        }
+    }, 
+        // Navigate 'slice' dependency is perfect for two reasons:
+        //  1. It contains the latest audit_id for the 2 second polling, and
+        //  2. Whenever we navigate to a new item, we'll get an immediate refresh
+        //     which is great to ensure that record viewing or editing starts
+        //     out with the most current data!
+        [navigate]
+    )
 
     const theme : ThemeOptions = {
         palette: {

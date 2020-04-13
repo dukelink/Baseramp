@@ -24,6 +24,7 @@ import store, { AppThunk } from  '../store';  // REVIEW: Are there any anti-patt
 import { Fetch } from '../utils/Fetch';
 import { recordDelta } from '../utils/utils';
 import  { metaload, load, 
+          refresVMfromAuditRecords,
           refreshRecordInVM, 
           addRecordToVM, 
           deleteRecordFromVM, 
@@ -47,6 +48,7 @@ export const initialLoad = (route:string="all") =>
 
 export const loadMetadata = () => 
 {
+  //console.log('loadMetadata()');
   Fetch(Environment.serverURL + 'meta')
   .then(res => res && res.json())
   .then(res => {
@@ -82,6 +84,21 @@ export const updateRecord = (navigate:INavigateState, recordDelta:any)
 
     if (!err)
       dispatch(refreshRecordInVM({navigate,record}));
+  }
+}
+
+export const refreshFromServer = (navigate:INavigateState) =>
+//  : AppThunk => async dispatch => 
+{
+  if (navigate.lastAuditTableID !== -1) {
+    //console.log(`refreshFromServer(${JSON.stringify(navigate)})`);
+    Fetch(Environment.serverURL + `audit_updates/${navigate.lastAuditTableID}`)
+    .then(res => res && res.json())
+    .then(res => {
+        store.dispatch(refresVMfromAuditRecords({navigate,audit_updates:res}));
+        return res;
+    })
+    .catch((error) =>{});
   }
 }
 

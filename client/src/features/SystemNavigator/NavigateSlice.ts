@@ -21,6 +21,7 @@
 
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { OutlineNode } from '../../model/ModelOutline';
+import { Model, Records, RecordOfAnyType, AuditUpdate } from '../../model/ModelTypes';
 
 export interface INavigateState {
   navTable: string;
@@ -29,6 +30,7 @@ export interface INavigateState {
   navStrParentID: string;
   navActiveFilter : boolean;
   navShowAdminTables : boolean;
+  lastAuditTableID : number,
   testDataMode: boolean;
 };
 
@@ -39,6 +41,7 @@ let initialState : INavigateState = {
     navStrParentID: "",
     navActiveFilter: true,
     navShowAdminTables: false,
+    lastAuditTableID:-1,
     testDataMode: false
 };
 
@@ -48,9 +51,25 @@ const model = createSlice({
   name: 'model',
   initialState,
   reducers: {
+    load(state, action:PayloadAction<Records<any>>) { 
+      const records = action.payload;
+      //console.log(JSON.stringify(records['audit']))
+      state.lastAuditTableID = Number.parseInt(
+            Object.keys(records['audit'])[0] // (highest audit_id)
+        ) || -1;  // -1 is just any low value that we can spot as 'uninitialized'
+                  // (Unlikely to occur as the audit table will always have some data)
+    },   
+    refresVMfromAuditRecords(state, 
+      action:PayloadAction<{navigate:INavigateState,audit_updates:AuditUpdate[]}>)
+    {
+      const { navigate, audit_updates } = action.payload;
+      //console.log(`refresVMfromAuditRecords(); action=${JSON.stringify(action)}`)
+      state.lastAuditTableID = 
+          Object.values(audit_updates).slice(-1)[0].audit_id
+            || navigate.lastAuditTableID; // REVIEW: Consider MAX for safety's sake!
+    },
     setFocus(state, action: PayloadAction<INavigateRecordFocus>) {
       let { table, tableID, parentTable, parentID } = action.payload;
-
       // HACK: XREF...
       if (table==='Project Sprint') {
         table = 'project';
@@ -58,7 +77,6 @@ const model = createSlice({
           tableID = tableID.split('-')[0]; // Extract product_id value only
       }
       // ... HACK: XREF
-
       state.navTable = table||"";
       state.navTableID = (tableID||"").toString();
       state.navParentTable = (parentTable||"");

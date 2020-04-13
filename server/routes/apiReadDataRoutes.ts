@@ -248,8 +248,12 @@ export const addApiReadDataRoutes = async (router : Router ) =>
 
         const fromID = req.params.from_id;
 
+        const user_id = (req.user as any)?.user_id;
+                
+        // TODO: Fitler on NOT current user...
         await knex
             .select(
+                'audit_id',
                 'AppTable_table_name as table_name', 
                 'audit_table_id as table_id',
                 'audit_update_type as update_type',
