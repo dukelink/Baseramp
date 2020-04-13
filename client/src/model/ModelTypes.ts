@@ -94,3 +94,10 @@ export interface Model {
   inactive_status_ids: number[],
   inprogress_status_ids: number[]
 }
+
+export interface AuditUpdate {
+  table_name : string;
+  table_id : string; 
+  update_type : 'INSERT'|'UPDATE'|'DELETE';
+  field_changes : string;
+}

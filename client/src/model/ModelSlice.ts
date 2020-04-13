@@ -23,7 +23,7 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { buildOutline } from './ModelOutline';
 import { testModelData } from './testModel';
 import { buildDerived, loadData } from './ModelDerived';
-import { Model, Records, RecordOfAnyType } from './ModelTypes';
+import { Model, Records, RecordOfAnyType, AuditUpdate } from './ModelTypes';
 import { INavigateState } from '../features/SystemNavigator/NavigateSlice';
 
 let initialState : Model = {
@@ -68,6 +68,35 @@ const model = createSlice({
       } 
       model.outline = buildOutline(model.derivedModel,navigate);
     },
+    refresVMfromAuditRecords(
+        model : Model, 
+        action:PayloadAction<{navigate:INavigateState,audit_updates:AuditUpdate[]}>) 
+    {
+      const { navigate, audit_updates } = action.payload;
+      audit_updates.forEach((update)=>{
+        const { table_name, table_id, update_type, field_changes } = update;
+        const record = JSON.parse(field_changes);
+        if (['INSERT','UPDATE'].includes(update_type)) 
+        {
+          // Update model...
+          const recordRef = model.apiModel[table_name][table_id];
+          if (!recordRef) // INSERT case (should we assert this on update_type?)
+            model.apiModel[table_name][table_id] = record;
+          else {          // UPDATE case
+            const newRec : RecordOfAnyType = Object.assign(recordRef, record);  
+            // Meta data UPDATES only at this time (no INSERT/DELETEs)...
+            if (table_name==='AppTable') 
+              Object.assign(model.metaModel.AppTable[table_id], newRec);
+            else if (table_name==='AppColumn')
+              Object.assign(model.metaModel.AppColumn[table_id], newRec);
+          }
+        } 
+        else if (update_type==='DELETE')
+          delete model.apiModel[table_name][table_id]; 
+      })
+      buildDerived(model);
+      model.outline = buildOutline(model.derivedModel, navigate);
+    },
     addRecordToVM(model, action : 
         PayloadAction<{navigate:INavigateState,record:RecordOfAnyType}>) { 
       const { navigate, record } = action.payload;
@@ -80,7 +109,9 @@ const model = createSlice({
     deleteRecordFromVM(model, action : PayloadAction<{navigate:INavigateState}>) 
     {
       const { navTable, navTableID } = action.payload.navigate;
-      delete model.apiModel[navTable][navTableID];
+      // REVIEW: 'delete' results in 'sparse' array...
+      // I assume this is faster and OK???
+      delete model.apiModel[navTable][navTableID]; 
       buildDerived(model);
       model.outline = buildOutline(model.derivedModel, action.payload.navigate);
     },
@@ -110,6 +141,7 @@ export const {
   metaload,
   load, 
   refreshRecordInVM, 
+  refresVMfromAuditRecords,
   addRecordToVM, 
   deleteRecordFromVM, 
   setActiveItemDisplay, 

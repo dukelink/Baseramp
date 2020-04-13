@@ -47,7 +47,8 @@ const adminTables = [
     'AppColumn',
     'status',
     'user', 
-    'role'
+    'role',
+    'audit'
 ];
 
 // Authentication Middleware
@@ -148,14 +149,23 @@ function tableSelect(tableName : string)
         //
         // ...TODO END
         //
-
         case 'user':
         {
             query = query.whereNot('user_login','like','delete-%');                
+            break;
         }
+        case 'audit': 
+        {
+            // Just fetch the last (highest ID) audit record,
+            // so the client has a starting point for periodic 
+            // audit trail update data requests...
+            query = query.whereRaw('audit_id = (select max(audit_id) from audit)');
+        }
+
         default:
-            return query;
+            break;
     }
+    return query;
 }
 
 export const addApiReadDataRoutes = async (router : Router ) => 
@@ -167,32 +177,25 @@ export const addApiReadDataRoutes = async (router : Router ) =>
         {
             let results = {};
 
-//            const user_id = req?.paras?.table;
-
             // Use procedural loop and 'await' to confirm potential performance
             // benefit is worth the additional work for parallel processing...
             for (let x of queries) { 
                 const { name: tableName, query } = x; 
-                
 
                 const user_id = (req.user as any)?.user_id;
 
-
-
                 // User tables filter rows by user 'ownership'
                 if (userTables.includes(tableName)) {
+                    const query2 =  knex.select('*').from(tableName);
 
-const query2 =  knex.select('*').from(tableName);
+                    console.log(`PATH ${path}, user_id ${user_id}`)
 
-                            console.log(`PATH ${path}, user_id ${/*req?.user?.user_id*/user_id}`)
-
-                            const ownedRows = 
-                            knex.select('audit_table_id')
-                                .from('audit')
-                                .innerJoin('AppTable','audit_AppTable_id','AppTable_id')
-                                .where('AppTable_title','=',tableName)
-                                .where('audit_user_id','=',/*req?.user?.user_id*/user_id);
-        
+                    const ownedRows = 
+                        knex.select('audit_table_id')
+                            .from('audit')
+                            .innerJoin('AppTable','audit_AppTable_id','AppTable_id')
+                            .where('AppTable_title','=',tableName)
+                            .where('audit_user_id','=',/*req?.user?.user_id*/user_id);
 
                     console.log(`NOT ADMIN - filtered, tableName=${tableName}, user_id=${user_id}`)
                     await query2
@@ -208,11 +211,10 @@ const query2 =  knex.select('*').from(tableName);
                         .catch((error)=>{knexErrorHandler(req,res,error)});                             
                 } else {
                     console.log(`ADMIN - NOT filtered, tableName=${tableName}`)
-
-//
-// TODO: Refactory to build all queries locally; Move special Meta table refactor here...
-//
-
+                    //
+                    // TODO: Refactor to build all queries locally; 
+                    //       Move special Meta table refactor here...
+                    //
                     await query
                         .then((data)=>{
                             console.log(`${tableName} rows read = ${data.length}`)
@@ -229,4 +231,40 @@ const query2 =  knex.select('*').from(tableName);
             res.send(results);
         });
     }
+
+    //
+    // Fetch audit records starting from a particular ID
+    // NOTE: identity column IDs are assumed to be assigned in
+    // chronological order which is how SQL handles them starting
+    // form a 'seed' value. The system administrator should not
+    // perform any maintenance that would result in IDs not following
+    // this pattern.
+    //
+    router.get("/audit_updates/:from_id", loggedInOnly,
+    async function(req : Request , res) 
+    {
+        const tableName = req.params.table;
+        let records;
+
+        const fromID = req.params.from_id;
+
+        await knex
+            .select(
+                'AppTable_table_name as table_name', 
+                'audit_table_id as table_id',
+                'audit_update_type as update_type',
+                'audit_field_changes as field_changes' )
+            .from('audit')
+            .innerJoin('AppTable','audit_AppTable_id','AppTable_id')
+            .where('audit_id','>', fromID)
+            // hold up on trying to 'sync' metadata for now...
+            // .whereNotIn('AppTable_table_name',['AppTable','AppColumn']) 
+            // apply updates in order
+            .orderBy('audit_id')
+            .then( (data) => { records = data } )      
+            .catch( (error) => { knexErrorHandler(req,res,error) } ); 
+ 
+        res.send(records);      
+    });
+
 }
