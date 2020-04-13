@@ -36,7 +36,14 @@ export const useRecord = (
 
   if (navTableID && navTableID!=='-1')
     // Return row from VM...
-    record = derivedModel[navTable][navTableID].record;
+    // NOTE: Optional chaining & default is only needed now that
+    // we have implement real-time, multi-user, polled updates,
+    // where the 'model' might be updated asynchronously prior
+    // to recomputing the derived model.  Perhaps we are entering
+    // into use-cases where we'll need more sophisticated async
+    // handling, but this was the only 'fix' found to be needed
+    // so far...
+    record = derivedModel[navTable][navTableID]?.record || {};
   else {  
     // Initialize new row...
     record = {};
