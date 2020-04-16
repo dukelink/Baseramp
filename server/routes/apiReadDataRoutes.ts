@@ -241,17 +241,19 @@ export const addApiReadDataRoutes = async (router : Router ) =>
     // this pattern.
     //
     router.get("/audit_updates/:from_id", loggedInOnly,
-    async function(req : Request , res) 
+    function(req : Request , res) 
     {
-        const tableName = req.params.table;
         let records;
 
         const fromID = req.params.from_id;
 
         const user_id = (req.user as any)?.user_id;
-                
-        // TODO: Fitler on NOT current user...
-        await knex
+
+        // Filter on "admin" records or
+        // records created under "my" login 
+        // which is currently how we identify 
+        // "owned" records...
+        const query = knex
             .select(
                 'audit_id',
                 'AppTable_table_name as table_name', 
@@ -259,16 +261,24 @@ export const addApiReadDataRoutes = async (router : Router ) =>
                 'audit_update_type as update_type',
                 'audit_field_changes as field_changes' )
             .from('audit')
-            .innerJoin('AppTable','audit_AppTable_id','AppTable_id')
-            .where('audit_id','>', fromID)
+            .join('AppTable',function() { this
+                .on('audit_AppTable_id','=','AppTable_id')
+                // stuck an 'and' filter into join, to simplify where clause ORs
+                .andOn('audit_id','>', knex.raw('?',[fromID]))
+            })
+            .join('role','AppTable_role_id','role_id')
+            .where('role_title','=','Admin')
+            .orWhere('audit_user_id','=',user_id)
             // hold up on trying to 'sync' metadata for now...
             // .whereNotIn('AppTable_table_name',['AppTable','AppColumn']) 
             // apply updates in order
-            .orderBy('audit_id')
-            .then( (data) => { records = data } )      
-            .catch( (error) => { knexErrorHandler(req,res,error) } ); 
- 
-        res.send(records);      
-    });
+            .orderBy('audit_id');
 
+        // NOTE: Can serialize generated query text to assist with troubleshooting
+        // console.log(`audit query = ${query.toString()}`);
+
+        query
+            .then( (data) => { res.send(data) } )      
+            .catch( (error) => { knexErrorHandler(req,res,error) } ); 
+    });
 }
