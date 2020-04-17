@@ -30,39 +30,53 @@ export var Fetch = (resource:any,init:RequestInit={},defaultMessage=true):Promis
     _init.headers['Content-Type'] = _init.headers['Content-Type'] || 'application/json; charset=utf-8';
 
     return new Promise<Response>((resolve,reject)=>{
-        return fetch(resource,_init)        
-        .then(res => {
-            if ( // Forbidden, likely do to loss/change of sesion
-                res.status === 401 || res.status === 403 
-            ) {
-                alert('This user is logged out possibly due to another user login from this browser -- return to login form...');
-                const { origin, pathname } = document.location;
-                document.location.replace(origin+pathname); 
-            }
-            if (res.status >= 400/* Http error response range */) {
-                if (defaultMessage)
-                    alert(`Error fetching resource ${resource}: ${res.statusText}`); 
-                reject(res.statusText);
-            }
-            else
-                resolve(res); 
-        })        
-        .catch((error) => { 
-            //
-            // Example of this case is a CORS error, which populates error with a string of:
-            //  "TypeError: NetworkError when attempting to fetch resource".
-            //
-            // For these errors, more information may be provided by the browser; where in 
-            // the example above we get a console.warn of:
-            //   Cross-Origin Request Blocked: The Same Origin Policy disallows reading the 
-            //   remote resource at http://localhost:8080/api/all. (Reason: CORS request did not succeed).
-            // TODO: Access and report these additional details from accessing browser console API...
-            //
-            if (error)
-                alert(error); 
-            else if (defaultMessage)
-                console.warn(`Fetch exception with no error message`)
-            reject(error);
-        });
+        try {
+            let rv = fetch(resource,_init)        
+            .then(res => {
+                if ( // Forbidden, likely do to loss/change of sesion
+                    res.status === 401 || res.status === 403 
+                ) {
+                    reject(res.statusText);                    
+                    alert('This user is logged out possibly due usage from another browser tab...');
+                    const { origin } = document.location;
+                    document.location.replace(origin);                         
+                }
+                else if (res.status >= 400/* Http error response range */) {
+                    reject(res.statusText);                    
+                    const { origin, pathname } = document.location;
+                    if (defaultMessage && 
+                        !window.confirm(
+                        `Error fetching resource ${resource}: ${res.statusText}.\n`
+                        +`Do you want the system to try again?`) 
+                    ) {
+                        if (pathname!==`/`) 
+                            document.location.replace(origin);                         
+                    }
+                }
+                else
+                    resolve(res); 
+            })        
+            .catch((error) => { 
+                //
+                // Example of this case is a CORS error, which populates error with a string of:
+                //  "TypeError: NetworkError when attempting to fetch resource".
+                //
+                // For these errors, more information may be provided by the browser; where in 
+                // the example above we get a console.warn of:
+                //   Cross-Origin Request Blocked: The Same Origin Policy disallows reading the 
+                //   remote resource at http://localhost:8080/api/all. (Reason: CORS request did not succeed).
+                // TODO: Access and report these additional details from accessing browser console API...
+                //
+                if (error)
+                    alert(error); 
+                else if (defaultMessage)
+                    console.warn(`Fetch exception with no error message`)
+                reject(error);
+            });
+        } catch (err) {
+            // Refresh root page - returns to login...
+            const { origin, pathname } = document.location;
+            document.location.replace(origin+pathname); 
+        }
     })
 }
