@@ -19,11 +19,43 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import express from 'express';
+import express, { Request, Response } from 'express';
 export const apiRoutes = express.Router();
 import { addApiReadDataRoutes } from './apiReadDataRoutes';
 import { addApiWriteDataRoutes } from './apiWriteDataRoutes';
 import { addApiAuthRoutes } from './apiAuthRoutes';
+
+type AuthenticatedRequest = Request & { user : any, isAuthenticated: any };
+
+//
+// Custom Authentication Middleware...
+//
+
+export const loggedInOnly = (req:AuthenticatedRequest, res:Response, next) =>
+{
+    if (req.isAuthenticated()) {
+        if (req.user.user_id === req.query['user_id'])
+            next();
+        else {
+            console.log(`HTTP 403 Forbidden user: ${JSON.stringify(req.user)}`)
+            console.log(`HTTP 403 Forbidden params: ${JSON.stringify(req.query)}`)
+            // HTTP 403 - Forbidden:
+            // Appropriate for failed assertin where
+            // request user no longer matches auth user.
+            // (User probably signed in as another user in another tab.)
+            res.status(403).end(); 
+        }
+    } else 
+        res.status(401).end();
+};
+
+export const loggedOutOnly = (req, res, next) =>
+{
+    if (req.isUnauthenticated()) 
+        next();
+    else 
+        res.end();
+};
 
 // auth routes must come before api routes because,
 // at present, the POST /login route is ambiguous and
@@ -32,4 +64,27 @@ addApiAuthRoutes(apiRoutes);
 addApiReadDataRoutes(apiRoutes);
 addApiWriteDataRoutes(apiRoutes);
 
+/*
+** REVIEW: This approach does NOT work, WHY????
+**
 
+//
+// Authentication Middleware...
+//
+
+export function loggedInOnly(req, res, next)
+{
+    if (req.isAuthenticated()) 
+        next();
+    else 
+        res.status(401).end();
+}
+
+export function loggedOutOnly(req, res, next) 
+{
+    if (req.isUnauthenticated()) 
+        next();
+    else 
+        res.end();
+}
+*/

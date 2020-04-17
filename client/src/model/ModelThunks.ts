@@ -62,7 +62,11 @@ export const updateRecord = (navigate:INavigateState, recordDelta:any)
   : AppThunk => async dispatch => 
 {
   const { navTable, navTableID } = navigate;
-  const state = store.getState(); // TODO: not SSR compatible; consider changing
+
+  // NOTE/REVIEW: not SSR compatible; but convinient for easy/quick/fast
+  // access to Redux global store...  
+  const state = store.getState();
+
   let err = false;
   let record : RecordOfAnyType = {};
 

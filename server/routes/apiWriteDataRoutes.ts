@@ -23,6 +23,7 @@ import { Router, Request, Response } from 'express';
 import Knex from "knex";
 import { development } from '../knexfile';
 import { knexErrorHandler } from './util';
+import { loggedInOnly } from './apiRoutes';
 import { cacheTable } from './cacheAppTables';
 import bcrypt from "bcryptjs";
 const knex = Knex(development);
@@ -31,30 +32,18 @@ type AuthenticatedRequest = Request & { user: any };
 
 export const addApiWriteDataRoutes = (router : Router ) => 
 {
-    // Authentication Middleware
-    const loggedInOnly = (req, res, next) => {
-        if (req.isAuthenticated()) 
-            next();
-        else 
-            res.status(401).end();
-    };
+    
+     // Following posts must come last for now since '/:table' matches any single token!!!  TODO: Perhaps I should modify?
+    router.post("/user", (req:AuthenticatedRequest,res) => 
+        tablePostHandler(req,res,'user') ); // allow adding new users w/o authentication
+    router.post("/:table", loggedInOnly, (req:AuthenticatedRequest,res) => 
+        tablePostHandler(req,res,req.params.table) );
 
-    const loggedOutOnly = (req, res, next) => {
-        if (req.isUnauthenticated()) 
-            next();
-        else 
-            res.end();
-    };
-
-    // Following posts must come last for now since '/:table' matches any single token!!!  TODO: Perhaps I should modify?
-    router.post("/user", (req,res) => tablePostHandler(req,res,'user') ); // allow adding new users w/o authentication
-    router.post("/:table", loggedInOnly, (req,res) => tablePostHandler(req,res,req.params.table) );
-
-    async function tablePostHandler(req:Request<any>,res:Response<any>,tableName:string) 
+    async function tablePostHandler(req:AuthenticatedRequest,res:Response<any>,tableName:string) 
     {
         let record = req.body;
 
-        await throwIfNotAuthorizedRoute(req,res,tableName);
+        await throwIfNotAuthorizedRoute(req, res,tableName);
 
         const primaryKeyField = tableName+'_id';
         let primaryKeyID;
@@ -202,7 +191,7 @@ export const addApiWriteDataRoutes = (router : Router ) =>
         }
     });
 
-    const throwIfNotAuthorizedRoute = async (req : Request, res : Response, _tableName ?: string) =>
+    const throwIfNotAuthorizedRoute = async (req : AuthenticatedRequest, res : Response, _tableName ?: string) =>
     {
         //
         // Consider replacing route auth middleware with a version of this.
@@ -227,8 +216,8 @@ export const addApiWriteDataRoutes = (router : Router ) =>
             throw 400;
         }            
 
-        const user_role_id = req?.user?.user_role_id;
-        const user_id = req?.user?.user_id;
+        const user_role_id = req.user.user_role_id;
+        const user_id = req.user.user_id;
 
         if (tableName != 'user' && !user_id) {
             console.log(`NO USER INFO: ${JSON.stringify(req?.user)}`);

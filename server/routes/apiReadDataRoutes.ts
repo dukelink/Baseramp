@@ -23,6 +23,8 @@ import { Router, Request } from 'express';
 import Knex, { QueryBuilder } from "knex";
 import { development } from '../knexfile';
 import { knexErrorHandler } from './util';
+import { loggedInOnly } from './apiRoutes';
+
 const knex = Knex(development);
 
 const userTables = [
@@ -50,21 +52,6 @@ const adminTables = [
     'role',
     'audit'
 ];
-
-// Authentication Middleware
-const loggedInOnly = (req, res, next) => {
-    if (req.isAuthenticated()) 
-        next();
-    else 
-        res.status(401).end();
-};
-
-const loggedOutOnly = (req, res, next) => {
-    if (req.isUnauthenticated()) 
-        next();
-    else 
-        res.end();
-};
 
 class apiRoute {
     path : string;
