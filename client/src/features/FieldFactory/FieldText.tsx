@@ -52,12 +52,12 @@ export const FieldText = memo((props : {
     
     return (
       <FormControl 
-        error={ flagEmptyRequiredField }
         style = {{ minWidth: AppColumn_ui_minwidth || 
           ( AppColumn_character_maximum_length 
               || AppColumn_data_type!=='character varying' ? "150px" : "100%" )
           }} >
         <TextField
+            error={ flagEmptyRequiredField }
             variant="outlined" 
             className={ classes.textControl }
             label = { appColTitle }

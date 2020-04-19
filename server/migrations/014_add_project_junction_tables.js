@@ -48,6 +48,12 @@ exports.up = async (knex) => {
             .inTable('story');
     });
 
+    await knex.schema.table('AppColumn', (table) => {
+        table.integer('AppColumn_AppTable_junction_id').nullable()            
+            .references('AppTable_id')
+            .inTable('AppTable');
+    }) 
+
     // Drop and recreate all foreign key relationship metadata.
     // Nothing here is user-configurable, so no settings are lost.
     let sqlMetaFKs = fs.readFileSync(
@@ -64,7 +70,8 @@ exports.up = async (knex) => {
     ).toString();
     await knex.raw(sqlMetaColumns,'[StoryRequirement][StoryStory]');
 
-    // This time the custom script must come AFTER 
+
+    // This time the custom script must come **AFTER** 
     // the AppColumn / AppTable updates above...
     let sqlCreateVirtual_M2M_FK_fields = fs.readFileSync(
         path.join(__dirname, '..', 'sql', 
