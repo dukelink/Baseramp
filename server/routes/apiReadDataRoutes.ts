@@ -41,7 +41,9 @@ const userTables = [
     'account',
     'lead',
     'chore',
-    'checkoff'
+    'checkoff',
+    'StoryStory',
+    'StoryRequirement'
 ];
 
 const adminTables = [

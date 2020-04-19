@@ -82,7 +82,8 @@ INSERT INTO AppTable (
 	AppTable_Title,
 	AppTable_Description,
 	AppTable_Rank,
-	AppTable_table_name
+	AppTable_table_name,
+	AppTable_role_id
 )
 SELECT DISTINCT
 	case 
@@ -92,7 +93,8 @@ SELECT DISTINCT
 	end,
 	tm.table_metadata_description,
 	tm.table_metadata_rank,
-	tc.table_name
+	tc.table_name,
+	(select role_id from role where role_title='User')
 from TABLE_COLUMNS tc
 left join table_metadata tm
 on tc.table_name = tm.table_metadata_table_name

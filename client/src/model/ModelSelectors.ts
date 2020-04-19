@@ -89,23 +89,28 @@ export const useFieldMetadata = (fieldName:string) => {
   let referenceTableName : string = '';
   let referenceTable:Records<any> = []; 
   if (_related_pk_id) {
-      referenceTableName = state.model.metaModel.AppTable
-        [state.model.metaModel.AppColumn[_related_pk_id].AppColumn_AppTable_id]
-          .AppTable_table_name;
-    if (state.model.apiModel[referenceTableName]) // TODO: Only needed pre-login when 'role' not found for new user setup
-      referenceTable = Object.values(state.model.apiModel[referenceTableName])
-        .filter((rec:RecordOfAnyType) => (
-          // Don't filter out any foreign keys if Active record only filter is OFF...
-          !navActiveFilter ||
-          // Otherwise, filter out any foreign keys that ARE in the inactive list...
-          !state.model.inactive_status_ids
-            .includes(rec[referenceTableName+'_status_id'] || '*no-match*') ||
-          // Except DO NOT filter out the foreign key currently being referenced...
-          ((navTableID && navTableID!=='-1') &&
-            rec[referenceTableName+'_id']
-              === state.model.apiModel[navTable][navTableID]
-              [fieldName.replace(navParentTable+'_',referenceTableName+'_')])
-        ));
+    referenceTableName = state.model.metaModel.AppTable
+      [state.model.metaModel.AppColumn[_related_pk_id].AppColumn_AppTable_id]
+        .AppTable_table_name;
+    // TODO: '?.' only needed pre-login when 'role' not found for new user setup...
+    referenceTable = Object.values(state.model?.apiModel[referenceTableName])
+      .filter((rec:RecordOfAnyType) => (
+        // Don't filter out any foreign keys if Active record only filter is OFF...
+        !navActiveFilter ||
+        // Otherwise, filter out any foreign keys that ARE in the inactive list...
+        !state.model.inactive_status_ids
+          .includes(rec[referenceTableName+'_status_id'] || '*no-match*') ||
+        // Except DO NOT filter out the foreign key currently being referenced...
+        ((navTableID && navTableID!=='-1') &&
+          rec[referenceTableName+'_id']
+            === state.model?.apiModel[navTable][navTableID]
+            [fieldName.replace(navParentTable+'_',referenceTableName+'_')])
+      ))
+      // If many-to-many, cyclic foreign key, then filter out current record
+      .filter((rec:RecordOfAnyType)=>(
+        navTable!==referenceTableName 
+        || navTableID !== rec[referenceTableName+'_id'].toString()
+      ));
   }
   return { appCol, referenceTableName, referenceTable }; 
 }
