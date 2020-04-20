@@ -56,7 +56,9 @@ const parentChildTables: any = {
     AppTable: ['AppColumn'],
     status: ['lead'],
     account: ['account'],
-    chore: ['checkoff'] 
+    chore: ['checkoff'],
+    // Hack: Prevent direct browsing to junction tables...
+    dummy: [ 'StoryStory', 'StoryRequirement' ] 
 }
 
 // Get set of all 'child' tables, used to exclude them from top levels of outline...

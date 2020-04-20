@@ -83,6 +83,7 @@ let getRoutes = [
                 } } )
     ) ) ];
 
+// TODO: Pull from cache...
 getRoutes.push(    
     (new apiRoute('/meta','get',
         ['AppTable','AppColumn']
@@ -131,10 +132,12 @@ function tableSelect(tableName : string)
                 'AppColumn.AppColumn_data_type',
                 'AppColumn.AppColumn_character_maximum_length',
                 'AppColumn.AppColumn_column_default',
-                'AppColumn_related.AppColumn_column_name as AppColumn_related_pk_id'
+                'AppColumn_related.AppColumn_column_name as AppColumn_related_pk_id',
+                'AppTable_junction.AppTable_table_name as AppColumn_AppTable_junction_id'
             ).from('AppColumn')
                 .innerJoin('AppTable','AppColumn_AppTable_id','AppTable_id')
-                .leftJoin('AppColumn as AppColumn_related','AppColumn.AppColumn_related_pk_id','AppColumn_related.AppColumn_id');
+                .leftJoin('AppColumn as AppColumn_related','AppColumn.AppColumn_related_pk_id','AppColumn_related.AppColumn_id')
+                .leftJoin('AppTable as AppTable_junction','AppColumn.AppColumn_AppTable_junction_id','AppTable_junction.AppTable_id');
         //
         // ...TODO END
         //

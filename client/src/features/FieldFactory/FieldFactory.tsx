@@ -21,11 +21,13 @@
 
 import React, { ChangeEvent } from 'react';
 
-import { FormControl, Select, Switch, MenuItem, InputLabel } 
+import { Switch, InputLabel } 
   from '@material-ui/core';
 import DateFnsUtils from '@date-io/date-fns';
-import { MuiPickersUtilsProvider, KeyboardDatePicker } from '@material-ui/pickers'; 
+import { MuiPickersUtilsProvider, KeyboardDatePicker } from '@material-ui/pickers';
 import { FieldText } from './FieldText';
+import { FieldFK } from './FieldFK';
+import { FieldMtoM } from './FieldMtoM';
 import { useStyles } from './FieldStyles';
 
 import { useFieldMetadata } from '../../model/ModelSelectors';
@@ -43,11 +45,12 @@ export const AppField =  ( props : {
   const { appCol, referenceTableName, referenceTable } = useFieldMetadata(fieldName);
   const { AppColumn_title : appColTitle, 
           AppColumn_data_type, AppColumn_ui_minwidth,
-          AppColumn_is_nullable, AppColumn_read_only } = appCol;
+          AppColumn_is_nullable, AppColumn_read_only,
+          AppColumn_AppTable_junction_id } = appCol;
 
   const flagEmptyRequiredField = AppColumn_is_nullable==="NO" && !field;
 
-  console.log(`AppField(): fieldName=${fieldName}`);
+  console.log(`AppField(): fieldName=${fieldName}, field=${JSON.stringify(field)?.substr(0,40)}`);
 
   function onTextFieldChange(fieldName:string, newVal:string) {
     // Ensure numeric fields are being stored as numeric, the
@@ -64,43 +67,28 @@ export const AppField =  ( props : {
     onChange(fieldName,val);
   }
 
-  if (referenceTableName) {
+  function onMtoMchange(fieldName:string,val:any) {
+    console.log(`==== fieldName=${fieldName}, val=${JSON.stringify(val)}`); 
+    onChange(fieldName,val);
+  }
+
+  if (!!AppColumn_AppTable_junction_id) 
+  // Many-to-many junction table multiselect control...
+  {
     return (
-      <FormControl 
-        error={ flagEmptyRequiredField }
-        style = {{ 
-          width: ( AppColumn_ui_minwidth || "198px")
-        }} >
-        <InputLabel 
-          id = {"label"+fieldName} 
-          className = { classes.fkDefaultLable } >
-            { appColTitle } 
-        </InputLabel>
-        <Select
-          className={ classes.formControl }
-          variant="outlined"
-          error={ flagEmptyRequiredField }
-          label = { appColTitle }
-          disabled = { AppColumn_read_only }
-          value={ field || '' }
-          onChange = { (e : any) => onChange(fieldName,e.target.value) }>            
-          <MenuItem> 
-            {
-              // TODO: Make conditional to allow nullification only of nullable fields; 
-              //       also review styling of the 'blank' entry.
-              "(Clear entry)"
-            }
-          </MenuItem>
-          { 
-            referenceTable.map((row:any) => (
-              <MenuItem 
-                  key = { row[referenceTableName+'_id'] } 
-                  value = { row[referenceTableName+'_id'] }>
-                { row[referenceTableName+'_title'] }
-              </MenuItem>))
-          }
-        </Select>
-      </FormControl>
+      <FieldMtoM {...{
+        appCol, fieldName, field, referenceTableName, referenceTable, 
+        onChange: onMtoMchange
+      }} />
+    );
+  } 
+  else if (referenceTableName) 
+  // Regular foreign key...
+  {
+    return (
+      <FieldFK {...{
+        appCol, fieldName, field, referenceTableName, referenceTable, onChange
+      }} />
     );
   }
   else 
@@ -109,7 +97,7 @@ export const AppField =  ( props : {
 
     switch(AppColumn_data_type) 
     {
-      case 'bit': // TODO: Test w/ Postgresql, might be 'boolean'....
+      case 'bit': // TODO: Test w/ Postgresql, might be 'boolean'.... 
         rv = (
         <div style = {{ 
               width: ( AppColumn_ui_minwidth || "198px")

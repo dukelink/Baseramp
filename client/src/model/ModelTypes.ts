@@ -79,6 +79,7 @@ export class AppColumnRow {
   AppColumn_character_maximum_length?: number;
   AppColumn_column_default?: any;
   AppColumn_related_pk_id?: string;
+  AppColumn_AppTable_junction_id?: string;
 }
 
 export interface IMetaModelState {
