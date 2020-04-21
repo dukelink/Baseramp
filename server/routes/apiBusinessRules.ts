@@ -25,14 +25,14 @@ import bcrypt from "bcryptjs";
 
 import { knexErrorHandler } from './util';
 import { development } from '../knexfile';
-import { cacheTable } from './cacheAppTables';
+import { cacheMetadata } from './apiReadDataRoutes';
 
 const knex = Knex(development);
 
 export const businessRules 
 = (tableName:string, req: Request, res: Response, record:any={}) => 
 {
-  let promise: Promise<{record:object,virtual:object}>;
+  let promise: Promise<{ record:object, virtual:Array<{[key:string]:any}> }>;
   promise = new Promise( (resolve, reject) => {
     switch(tableName) 
     {
@@ -46,7 +46,7 @@ export const businessRules
           .then( data => {
             const newRec = {...record, ...data[0]};
             console.log(`modified record = ${JSON.stringify(newRec)}`);
-            resolve({record:newRec,virtual:{}});
+            resolve({record:newRec,virtual:[]});
           } )
           .catch( (error) => { knexErrorHandler(req,res,error) } );
         break;
@@ -88,30 +88,42 @@ export const businessRules
                     // TODO: Remove hard code for role_id...
                     user_role_id: record.user_role_id || 2
                   }, 
-                  virtual:{}
+                  virtual:[]
                 });
             })
         } else
-          resolve({record,virtual:{}});
+          resolve({record,virtual:[]});
         break;
 
       default:
         //
-        // Filter out any many-to-many, virtual fields...
+        // Separate out any many-to-many, virtual fields...
         //
-        cacheTable('AppColumn').recall()
-        .then(appColumn => {
-          let newUserRecord = Object.entries(record as object)
-            .reduce( (prev,[key,value]) => (
-              // Is this a virtual field associated with a junction table?
-              appColumn[key]['AppColumn_AppTable_junction_id']
-                ? 
-                  prev                      // Yes: exclude 
-                : 
-                  { ...prev, [key]:value }  // No: include
-            ), {});
-          resolve({record:newUserRecord,virtual:{}});
+        const { AppColumn } = cacheMetadata;
+        let newRecord = {}, virtualFields : Array<object> = [];
+
+        Object.entries(record as object)
+        .forEach( ([key,value]) => {
+          // Is this a virtual field associated with a junction table?
+          const junction_table_id = AppColumn[key]['AppColumn_AppTable_junction_id'];
+          if (junction_table_id) {
+            (value as Array<number>).forEach(fkID => {
+              virtualFields.push({
+                table : AppColumn[key]['AppColumn_AppTable_junction_id'],
+                key,
+                fkField: AppColumn[key]['AppColumn_related_pk_id'],
+                fkID
+              });
+            });
+            Object.assign( virtualFields, { [key] : value } );
+          } else
+            Object.assign( newRecord, { [key] : value } );
         });
+
+        if (Object.keys(virtualFields).length)
+          console.log(`virtual fields = ${JSON.stringify(virtualFields)}`);
+
+        resolve({record:newRecord,virtual:virtualFields});
     }
   });
   return promise;

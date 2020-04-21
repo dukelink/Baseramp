@@ -1,22 +1,22 @@
 /*
-    Baseramp Tracker - An open source Project Management software built
-    as a Single Page Application (SPA) and Progressive Web Application (PWA) using
-    Typescript, React, and an extensible SQL database model.
+  Baseramp Tracker - An open source Project Management software built
+  as a Single Page Application (SPA) and Progressive Web Application (PWA) using
+  Typescript, React, and an extensible SQL database model.
 
-    Copyright (C) 2019-2020  William R. Lotherington, III
+  Copyright (C) 2019-2020  William R. Lotherington, III
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
  
 import { ViewModelDerived, RecordDerived, RecordOfAnyType } from './ModelTypes';
@@ -24,211 +24,211 @@ import { INavigateState } from '../features/SystemNavigator/NavigateSlice';
 import { properCasePluralize } from '../utils/utils';
 
 export interface OutlineNode {
-    itemKey : (number | string),  // When itemType=='Heading': use table names, and when 
-    itemTitle : string,
-    table ?: string,
-    tableID ?: number | string,
-    rank ?: number,
-    parentTable ?: string,
-    parentID ?: number | string,
-    children : OutlineNode[],
-    closedItem ?: boolean,
-    inProgress ?: boolean,
-    totalChildRecords : RecordOfAnyType 
+  itemKey : (number | string),  // When itemType=='Heading': use table names, and when 
+  itemTitle : string,
+  table ?: string,
+  tableID ?: number | string,
+  rank ?: number,
+  parentTable ?: string,
+  parentID ?: number | string,
+  children : OutlineNode[],
+  closedItem ?: boolean,
+  inProgress ?: boolean,
+  totalChildRecords : RecordOfAnyType 
 }
 
 const parentChildTables: any = { 
-    category: ['project', 'chore'],
-    project: ['project', 'story', 'requirement'],
-    requirement: ['requirement'],
-    competency: ['competency','resource','challenge'],
-    challenge: ['response'],
+  category: ['project', 'chore'],
+  project: ['project', 'story', 'requirement'],
+  requirement: ['requirement'],
+  competency: ['competency','resource','challenge'],
+  challenge: ['response'],
 //    story: ['task'], // pending...
-    user: [],
-    sprint: [
-        'story',
-        // NOTE: A sprint-project virtual table will be 
-        // created using the story table since  project is not 
-        // direclty related to sprint.
-        'Project Sprint'  // HACK: XREF
-    ],
-    'Project Sprint': [ 'story' ],
-    AppTable: ['AppColumn'],
-    status: ['lead'],
-    account: ['account'],
-    chore: ['checkoff'],
-    // Hack: Prevent direct browsing to junction tables...
-    dummy: [ 'StoryStory', 'StoryRequirement' ] 
+  user: [],
+  sprint: [
+    'story',
+    // NOTE: A sprint-project virtual table will be 
+    // created using the story table since  project is not 
+    // direclty related to sprint.
+    'Project Sprint'  // HACK: XREF
+  ],
+  'Project Sprint': [ 'story' ],
+  AppTable: ['AppColumn'],
+  status: ['lead'],
+  account: ['account'],
+  chore: ['checkoff'],
+  // Hack: Prevent direct browsing to junction tables...
+  dummy: [ 'StoryStory', 'StoryRequirement' ] 
 }
 
 // Get set of all 'child' tables, used to exclude them from top levels of outline...
 const childTableSet = new Set(
-    Object.values(parentChildTables)
-    .flat()
-    .filter( (tbl) => (!['lead','account','competency'].includes(tbl)) )  // HACK: CYCLIC; TODO: Generalize
+  Object.values(parentChildTables)
+  .flat()
+  .filter( (tbl) => (!['lead','account','competency'].includes(tbl)) )  // HACK: CYCLIC; TODO: Generalize
 );
 
 export function buildOutline(
-        derivedModel: ViewModelDerived, 
-        navigate: INavigateState | ( 
-            Pick<INavigateState,'navActiveFilter'> 
-            & Pick<INavigateState,'navShowAdminTables'> ) ) {
-    const { navActiveFilter } = navigate;
-    let outline = buildTableHeadingsOutline(Object.keys(derivedModel));
+    derivedModel: ViewModelDerived, 
+    navigate: INavigateState | ( 
+      Pick<INavigateState,'navActiveFilter'> 
+      & Pick<INavigateState,'navShowAdminTables'> ) ) {
+  const { navActiveFilter } = navigate;
+  let outline = buildTableHeadingsOutline(Object.keys(derivedModel));
 
-    outline = sequenceOutline(outline) as OutlineNode[];
-    addRecordTallies(outline);
-    return outline;
+  outline = sequenceOutline(outline) as OutlineNode[];
+  addRecordTallies(outline);
+  return outline;
 
-    // REVIEW: Is this currently being used?
-    // Was the intent to help with keyboard navigation of outline?
-    function sequenceOutline(outline: OutlineNode[],path='') 
-    {
-        return outline
-            .filter((item) => (!navActiveFilter || !item.closedItem))
-            .map<OutlineNode>((outline: OutlineNode) => {
-                path = path + outline.table + (outline.tableID||'');
-                outline.itemKey = path;
-                outline.children = sequenceOutline(outline.children,path); 
-                return outline;
-            })
-    }
-
-    // Tally number of records for all children by 'table'...
-    function addRecordTallies(outline: OutlineNode[]) : RecordOfAnyType 
-    {
-        let tallies : RecordOfAnyType = {};
-        [...outline].forEach( node => {
-            if (node.table && node.tableID) {
-                if (!tallies[node.table])
-                    tallies[node.table] = 1;
-                else
-                    tallies[node.table] += 1;
-            }
-            let subTallies = addRecordTallies(node.children);
-            node.totalChildRecords  = subTallies;
-            (new Set([...Object.keys(tallies),...Object.keys(subTallies)]))
-                .forEach(table => {
-                    if (!tallies[table])
-                        tallies[table] = subTallies[table];
-                    else
-                        tallies[table] 
-                            = (tallies[table] || 0) + (subTallies[table] || 0);
-                })  
-        })
-        return Object.assign({},tallies);
-    }
-
-    function buildRowsOutline(
-                tableHeading: string,
-                parentTable?: string,
-                parentID?: number
-        ) {
-        let rowsObj = derivedModel[tableHeading];
-
-        //if (typeof rows === 'object') 
-        let rows = Object.values(rowsObj); // conversion to table objects
-
-        if (parentTable && parentID)
-            rows = rows
-                .filter((row:RecordDerived) => { 
-                    // HACK: CYCLIC RELATIONSHIPS... 
-                    // - only present under parent record of same type...
-                    if (row.record[tableHeading+'_'+tableHeading+'_id']
-                            && tableHeading !== parentTable)
-                        return false;
-                    // ... HACK: CYCLIC RELATIONSHIPS
-
-                    return row.record[tableHeading + '_' + parentTable + '_id'] 
-                        === parentID;
-                });
-        else
-            // HACK: CYCLIC RELATIONSHIPS ... 
-            // - only present under parent record of same type...
-            rows = rows
-                .filter((row:RecordDerived) => ( 
-                    !row.record[tableHeading+'_'+tableHeading+'_id']
-                            || tableHeading === parentTable));
-            // ... HACK: CYCLIC RELATIONSHIPS
-   
-        return rows
-            .map((row): OutlineNode => (
-            // Following code embeds some DB naming convention rules: 
-            //    _id, _title, _<table>_<parentTable>_id, ...
-            {
-                itemKey: row.record[tableHeading + '_id'].toString(),
-                itemTitle: row.record[tableHeading + '_title'],
-                table: tableHeading,
-                tableID: row.record[tableHeading + '_id'],
-                rank: row.record[tableHeading + '_rank'],
-                parentTable,
-                parentID,
-                children: buildTableHeadingsOutline(
-                    (parentChildTables[tableHeading] || []),
-                    tableHeading,
-                    row.record[tableHeading + '_id'] 
-                ),
-                totalChildRecords : {}
-            }
-        ))
-        .map((row) => ({
-            ...row,
-            closedItem: 
-                derivedModel[tableHeading] 
-                    && derivedModel[tableHeading][row.tableID||0].closedItem,
-            inProgress: 
-                derivedModel[tableHeading] 
-                    && derivedModel[tableHeading][row.tableID||0].inProgress,
-        }))
-        .sort((firstEl,secondEl) => {
-            const   firstStarted = (firstEl.inProgress ? 0 : 1 ) + (firstEl.closedItem ? 2 : 0 ),
-                    secondStarted = (secondEl.inProgress ? 0 : 1 ) + (secondEl.closedItem ? 2 : 0 ),
-                    firstRank = firstEl.rank, // sort by rank if available
-                    secondRank = secondEl.rank,
-                    firstID = -(firstEl.tableID || 0), // sort most recent to top
-                    secondID = -(secondEl.tableID || 0);
-            const   firstOrd = firstStarted*1000000 + (firstRank||(100000+firstID)),
-                    secondOrd = secondStarted*1000000 + (secondRank||(100000+secondID));
-            return  firstOrd - secondOrd; 
-        });
-    }
-
-    function buildTableHeadingsOutline(
-                tableHeadings: string[],
-                parentTable?: string,
-                parentID?: number
-        ) {
-            let outline: OutlineNode[];
-            outline = tableHeadings
-                .filter((TableHeading) => ((
-                    parentTable ||                     // Tables w/ parents are filtered by parentIDs in buildRowsOutline()
-                    !childTableSet.has(TableHeading))  // Otherwise top level of outine only presents tables that are never children
-                    &&  ( navigate.navShowAdminTables || derivedModel['AppTable']
-                            [TableHeading].record.role_title!=='Admin' )))
-                .map((tableHeading): OutlineNode => { 
-                    let itemTitle : string;
-        
-                if (tableHeading===parentTable)
-                    // HACK: CYCLIC RELATIONSHIPS - format outline title "Sub <Table>"
-                    itemTitle = 'Sub-' + properCasePluralize(tableHeading);
-                else if (tableHeading.includes(" "))
-                    // HACK: XREF - compound headings, temp hack - split at space
-                    itemTitle = properCasePluralize(tableHeading.split(" ")[0])
-                else
-                    itemTitle = properCasePluralize(tableHeading);
-
-                return ({
-                    itemKey: tableHeading,
-                    itemTitle,
-                    table: tableHeading,
-                    parentTable,
-                    parentID,
-                    closedItem: false,
-                    inProgress: false,
-                    children: buildRowsOutline(tableHeading, parentTable, parentID),
-                    totalChildRecords: {}
-                })
-            });
+  // REVIEW: Is this currently being used?
+  // Was the intent to help with keyboard navigation of outline?
+  function sequenceOutline(outline: OutlineNode[],path='') 
+  {
+    return outline
+      .filter((item) => (!navActiveFilter || !item.closedItem))
+      .map<OutlineNode>((outline: OutlineNode) => {
+        path = path + outline.table + (outline.tableID||'');
+        outline.itemKey = path;
+        outline.children = sequenceOutline(outline.children,path); 
         return outline;
-    }
+      })
+  }
+
+  // Tally number of records for all children by 'table'...
+  function addRecordTallies(outline: OutlineNode[]) : RecordOfAnyType 
+  {
+    let tallies : RecordOfAnyType = {};
+    [...outline].forEach( node => {
+      if (node.table && node.tableID) {
+        if (!tallies[node.table])
+          tallies[node.table] = 1;
+        else
+          tallies[node.table] += 1;
+      }
+      let subTallies = addRecordTallies(node.children);
+      node.totalChildRecords  = subTallies;
+      (new Set([...Object.keys(tallies),...Object.keys(subTallies)]))
+      .forEach(table => {
+        if (!tallies[table])
+          tallies[table] = subTallies[table];
+        else
+          tallies[table] 
+            = (tallies[table] || 0) + (subTallies[table] || 0);
+      })  
+    })
+    return Object.assign({},tallies);
+  }
+
+  function buildRowsOutline(
+        tableHeading: string,
+        parentTable?: string,
+        parentID?: number
+    ) {
+    let rowsObj = derivedModel[tableHeading];
+
+    //if (typeof rows === 'object') 
+    let rows = Object.values(rowsObj); // conversion to table objects
+
+    if (parentTable && parentID)
+      rows = rows
+        .filter((row:RecordDerived) => { 
+          // HACK: CYCLIC RELATIONSHIPS... 
+          // - only present under parent record of same type...
+          if (row.record[tableHeading+'_'+tableHeading+'_id']
+              && tableHeading !== parentTable)
+            return false;
+          // ... HACK: CYCLIC RELATIONSHIPS
+
+          return row.record[tableHeading + '_' + parentTable + '_id'] 
+            === parentID;
+        });
+    else
+      // HACK: CYCLIC RELATIONSHIPS ... 
+      // - only present under parent record of same type...
+      rows = rows
+        .filter((row:RecordDerived) => ( 
+          !row.record[tableHeading+'_'+tableHeading+'_id']
+              || tableHeading === parentTable));
+      // ... HACK: CYCLIC RELATIONSHIPS
+   
+    return rows
+      .map((row): OutlineNode => (
+      // Following code embeds some DB naming convention rules: 
+      //    _id, _title, _<table>_<parentTable>_id, ...
+      {
+        itemKey: row.record[tableHeading + '_id'].toString(),
+        itemTitle: row.record[tableHeading + '_title'],
+        table: tableHeading,
+        tableID: row.record[tableHeading + '_id'],
+        rank: row.record[tableHeading + '_rank'],
+        parentTable,
+        parentID,
+        children: buildTableHeadingsOutline(
+          (parentChildTables[tableHeading] || []),
+          tableHeading,
+          row.record[tableHeading + '_id'] 
+        ),
+        totalChildRecords : {}
+      }
+    ))
+    .map((row) => ({
+      ...row,
+      closedItem: 
+        derivedModel[tableHeading] 
+          && derivedModel[tableHeading][row.tableID||0].closedItem,
+      inProgress: 
+        derivedModel[tableHeading] 
+          && derivedModel[tableHeading][row.tableID||0].inProgress,
+    }))
+    .sort((firstEl,secondEl) => {
+      const   firstStarted = (firstEl.inProgress ? 0 : 1 ) + (firstEl.closedItem ? 2 : 0 ),
+          secondStarted = (secondEl.inProgress ? 0 : 1 ) + (secondEl.closedItem ? 2 : 0 ),
+          firstRank = firstEl.rank, // sort by rank if available
+          secondRank = secondEl.rank,
+          firstID = -(firstEl.tableID || 0), // sort most recent to top
+          secondID = -(secondEl.tableID || 0);
+      const   firstOrd = firstStarted*1000000 + (firstRank||(100000+firstID)),
+          secondOrd = secondStarted*1000000 + (secondRank||(100000+secondID));
+      return  firstOrd - secondOrd; 
+    });
+  }
+
+  function buildTableHeadingsOutline(
+        tableHeadings: string[],
+        parentTable?: string,
+        parentID?: number
+    ) {
+      let outline: OutlineNode[];
+      outline = tableHeadings
+        .filter((TableHeading) => ((
+          parentTable ||                     // Tables w/ parents are filtered by parentIDs in buildRowsOutline()
+          !childTableSet.has(TableHeading))  // Otherwise top level of outine only presents tables that are never children
+          &&  ( navigate.navShowAdminTables || derivedModel['AppTable']
+              [TableHeading].record.role_title!=='Admin' )))
+        .map((tableHeading): OutlineNode => { 
+          let itemTitle : string;
+    
+        if (tableHeading===parentTable)
+          // HACK: CYCLIC RELATIONSHIPS - format outline title "Sub <Table>"
+          itemTitle = 'Sub-' + properCasePluralize(tableHeading);
+        else if (tableHeading.includes(" "))
+          // HACK: XREF - compound headings, temp hack - split at space
+          itemTitle = properCasePluralize(tableHeading.split(" ")[0])
+        else
+          itemTitle = properCasePluralize(tableHeading);
+
+        return ({
+          itemKey: tableHeading,
+          itemTitle,
+          table: tableHeading,
+          parentTable,
+          parentID,
+          closedItem: false,
+          inProgress: false,
+          children: buildRowsOutline(tableHeading, parentTable, parentID),
+          totalChildRecords: {}
+        })
+      });
+    return outline;
+  }
 }

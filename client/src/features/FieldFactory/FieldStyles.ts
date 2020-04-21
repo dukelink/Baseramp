@@ -39,5 +39,12 @@ export const useStyles = makeStyles(theme => ({
       */
       "&": { left: 23, top: 3 },    
       "&.Mui-focused,&.MuiFormLabel-filled": { top: 0 }
-    }
+    },
+    chips: {
+      display: 'flex',
+      flexWrap: 'wrap',
+    },
+    chip: {
+      margin: 2,
+    }    
   }));

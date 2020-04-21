@@ -24,8 +24,8 @@ import Knex from "knex";
 import { development } from '../knexfile';
 import { knexErrorHandler } from './util';
 import { loggedInOnly } from './apiRoutes';
-import { cacheTable } from './cacheAppTables';
 import { businessRules } from './apiBusinessRules';
+import { cacheMetadata } from './apiReadDataRoutes';
 
 const knex = Knex(development);
 
@@ -48,9 +48,7 @@ export const addApiWriteDataRoutes = (router : Router ) =>
     let primaryKeyID;
     let fullRecordReadback;
 
-    let { record } = await businessRules(tableName, req, res, req.body);
-
-    console.log(record)
+    let { record, virtual } = await businessRules(tableName, req, res, req.body);
 
     await knex
       .from(tableName)
@@ -63,23 +61,28 @@ export const addApiWriteDataRoutes = (router : Router ) =>
         await knex(tableName)
           .select('*')
           .where(primaryKeyField,'=',primaryKeyID)
-          .then( (data)=>{ fullRecordReadback = data } ) 
+          .then( (data)=>{ fullRecordReadback = data[0] } ) 
           .catch( (error) => { knexErrorHandler(req,res,error) } );           
       })
       .catch( (error) => { knexErrorHandler(req,res,error) } ); 
 
     let user_id;
     if (tableName==='user' && !req.user)
-      user_id = fullRecordReadback[0]['user_id'];
+      user_id = fullRecordReadback['user_id'];
     else
       user_id = (req.user as any).user_id
+
+    if (Object.keys(virtual).length)
+      updateJunctionTables(primaryKeyID,virtual,fullRecordReadback);
+
     // TODO: Wrap record write and audit trail write in a transaction
     await recordAuditTrail(
       'INSERT',
       tableName,
       primaryKeyID,
       user_id, 
-      fullRecordReadback[0]
+      // HACK: return many-to-many lists via ...req.body...
+      { ...req.body, ...fullRecordReadback } 
     );
 
     res.send(fullRecordReadback);
@@ -97,7 +100,7 @@ export const addApiWriteDataRoutes = (router : Router ) =>
     let primaryKeyID = req.params.id;
     let newPKID;
 
-    const { record: recordDelta } 
+    const { record: recordDelta, virtual } 
       = await businessRules(tableName, req, res, req.body);
 
     // HACK: May want to change structure of AppColumn/AppTable keys
@@ -109,30 +112,93 @@ export const addApiWriteDataRoutes = (router : Router ) =>
       delete recordDelta[primaryKeyField];
     }
 
-    await knex
-      .from(tableName)
-      .where(primaryKeyField,'=', primaryKeyID)
-      .update(recordDelta) 
-      .then(async (data)=>{
-        // NOTE: Currently I relfect the added record just in case there are any computed fields...
-        await knex(tableName)
-          .select('*')
-          .where(primaryKeyField,'=',primaryKeyID)
-          .then((data)=>{ fullRecordReadback = data }) 
-          .catch( (error) => { knexErrorHandler(req,res,error) } );           
-      })         
-      .catch( (error) => { knexErrorHandler(req,res,error) } ); 
+    if (Object.keys(recordDelta).length)
+      await knex
+        .from(tableName)
+        .where(primaryKeyField,'=', primaryKeyID)
+        .update(recordDelta) 
+        .then(async (data)=>{
+          // NOTE: Currently I relfect the added record just in case there are any computed fields...
+          await knex(tableName)
+            .select('*')
+            .where(primaryKeyField,'=',primaryKeyID)
+            .then( (data) => { fullRecordReadback = data } ) 
+            .catch( (error) => { knexErrorHandler(req,res,error) } );           
+        })         
+        .catch( (error) => { knexErrorHandler(req,res,error) } ); 
+
+    if (Object.keys(virtual).length)
+      updateJunctionTables(primaryKeyID,virtual,fullRecordReadback);
 
     await recordAuditTrail(
-      'UPDATE',
+      'UPDATE', 
       tableName,
       primaryKeyID,
       req.user.user_id,
-      recordDelta
+      // HACK: return many-to-many lists via ...req.body...
+      { ...req.body, ...recordDelta } 
     );
  
     res.send(fullRecordReadback);      
   });
+
+  function updateJunctionTables(
+    pkID:string,
+    virtual:Array<any>,
+    fullRecordReadback:Array<any>)
+  {
+    return new Promise( async (resolve,reject) => {
+      // Process each junction table independently
+      (new Set(virtual.map(item => item.table as string)))
+      .forEach( async junctionTable => 
+      {
+        // Fetch current set of FK items select
+        const enteredItems = virtual
+          .filter(item => (item.table as string)===junctionTable);
+        const enteredIDs = enteredItems.map(item => item.fkID);
+
+        // Get select FK items current on-file (may need updating)
+        let existingIDs : Array<number> = []; 
+        const selectQuery = knex
+          // Following assumes only 1 fkField exists per reference junction table
+          // (just picking from first entry; we could add an assertion test here)
+          .select(junctionTable+'_'+enteredItems[0].fkField) 
+          .from(junctionTable)
+          .where(junctionTable+"_id","=",pkID);
+        await selectQuery
+        .then(data => {
+          existingIDs = data.map(item=>Object.values(item)[0] as number)
+        });
+
+        const IDsToDelete = existingIDs.filter(id => !enteredIDs.includes(id));
+        const IDsToAdd = enteredIDs.filter(id => !existingIDs.includes(id));
+
+        // Delete entries no longer selected...
+        if (IDsToDelete.length) {
+          knex.delete()
+            .from(junctionTable)
+            .where(junctionTable+"_id","=",pkID)
+            .whereIn(junctionTable+'_'+enteredItems[0].fkField, IDsToDelete)
+            .then();
+        }
+
+        // Add newly selected items...
+        if (IDsToAdd.length) {
+          const itemsToAdd = enteredItems
+            .filter(item => IDsToAdd.includes(item.fkID))
+            .map(item => ({ 
+              [item.table+'_id'] : pkID,
+              [item.table+'_'+item.fkField] : item.fkID 
+            }));
+          knex
+            .insert(itemsToAdd)
+            .from(junctionTable)
+            .then();
+        }
+        resolve();
+      })
+    });
+  }
 
   router.delete("/:table/:id", loggedInOnly, 
   async function(req : AuthenticatedRequest, res) 
@@ -227,40 +293,34 @@ export const addApiWriteDataRoutes = (router : Router ) =>
       throw 409;
     }
 
-    await Promise.all([
-      cacheTable('role').recall(),
-      cacheTable('AppTable').recall()
-    ]).then((promises)=>{
-      const [roles,appTables] = promises;
-      if ( tableName != 'user'
-        && roles[user_role_id]['role_title'] !== 'Admin'
-        && appTables[tableName]['AppTable_role_id'] !== user_role_id
-      ) {
-        res.statusMessage 
-          = `You are not authorized to modify the '${tableName}' table.`;
-        res.status(409).end();
-        throw 409;
-      }
-    });
+    const { AppTable } = cacheMetadata;
+    if ( tableName != 'user'
+      && user_role_id !== 1 // 'Admin'; TODO: Remove hard code???
+      && AppTable[tableName]['AppTable_role_id'] !== user_role_id
+    ) {
+      res.statusMessage 
+        = `You are not authorized to modify the '${tableName}' table.`;
+      res.status(409).end();
+      throw 409;
+    }
 
     return;
   }
 
   const recordAuditTrail = (updateType,tableName,tableID,reqUser,recordUpdates = {}) => 
   {
-    return cacheTable('AppTable').recall()
-      .then(appTables => {
-        return (
-          knex
-          .from('audit')
-          .insert({
-            audit_user_id : reqUser,
-            audit_AppTable_id : appTables[tableName]['AppTable_id'],
-            audit_table_id : tableID,
-            audit_update_type : updateType,
-            audit_field_changes : JSON.stringify(recordUpdates)
-          })
-      )})
+    const { AppTable } = cacheMetadata;
+    return (
+      knex
+      .from('audit')
+      .insert({
+        audit_user_id : reqUser,
+        audit_AppTable_id : AppTable[tableName]['_id'],
+        audit_table_id : tableID,
+        audit_update_type : updateType,
+        audit_field_changes : JSON.stringify(recordUpdates)
+      })
+    )
   }
 }
 

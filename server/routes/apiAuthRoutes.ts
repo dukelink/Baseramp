@@ -20,7 +20,6 @@
 */
 
 import passport from 'passport';
-import { cacheTable } from './cacheAppTables';
 
 export const addApiAuthRoutes = (router) => 
 {
@@ -50,16 +49,6 @@ export const addApiAuthRoutes = (router) =>
                     } 
                     else // Successful login
                     {
-                        // Various business rules rely on ready access to 
-                        // the following metadata and configuration tables,
-                        // so let's request and cache them up-front (pre-fetch)
-                        // but no need to 'await' a response, as I don't 
-                        // need to use this information here at login...
-                        Promise.all([
-                            cacheTable('AppTable').load(req,res),
-                            cacheTable('AppColumn').load(req,res),
-                            cacheTable('role').load(req,res)
-                        ])
                         const { user_id, user_title, user_login, user_active, user_role_id, role_title } 
                             = user; // reflect a subset of user attributes
                         return res.json({user_id, user_title, user_login, user_active, user_role_id, role_title});
