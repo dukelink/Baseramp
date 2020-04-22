@@ -128,13 +128,11 @@ export const insertRecord = (navigate:INavigateState, _record:RecordOfAnyType)
       .then(res => {
         // Grab committed record from server that will be populated with
         // a primary key field, and any other fields computed server-side... 
-        record = res[0] 
+        record = res[0]; 
+        dispatch(addRecordToVM({navigate,record}));
       })
-      .catch((error) =>{ err = true; }) 
-    } 
-
-    if (!err)
-      dispatch(addRecordToVM({navigate,record})) 
+      .catch((error) =>{ err = true; }); 
+    }
   }
 }
 
