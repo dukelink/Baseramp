@@ -100,7 +100,7 @@ getRoutes.push(
   ))
 )
 
-function tableSelect(tableName : string) 
+export function tableSelect(tableName : string) 
 {
   let query = knex.select('*').from(tableName);
 

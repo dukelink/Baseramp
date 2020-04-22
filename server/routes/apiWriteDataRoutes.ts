@@ -25,7 +25,7 @@ import { development } from '../knexfile';
 import { knexErrorHandler } from './util';
 import { loggedInOnly } from './apiRoutes';
 import { businessRules } from './apiBusinessRules';
-import { cacheMetadata } from './apiReadDataRoutes';
+import { cacheMetadata, tableSelect } from './apiReadDataRoutes';
 
 const knex = Knex(development);
 
@@ -110,6 +110,9 @@ export const addApiWriteDataRoutes = (router : Router ) =>
     if (newPKID = recordDelta[primaryKeyField]) {
       primaryKeyID = newPKID; 
       delete recordDelta[primaryKeyField];
+      // Same goes for foreign key in AppColumn...
+      //if (recordDelta['AppColumn_AppTable_id'])
+      //  delete recordDelta['AppColumn_AppTable_id']
     }
 
     if (Object.keys(recordDelta).length)
@@ -119,9 +122,10 @@ export const addApiWriteDataRoutes = (router : Router ) =>
         .update(recordDelta) 
         .then(async (data)=>{
           // NOTE: Currently I relfect the added record just in case there are any computed fields...
-          await knex(tableName)
-            .select('*')
-            .where(primaryKeyField,'=',primaryKeyID)
+          // Reflect via tableSelect() since that contains biz rules 
+          // (e.g. for AppTable/AppColumn)...
+          await tableSelect(tableName)
+            .where(tableName+'.'+primaryKeyField,'=',primaryKeyID)
             .then( (data) => { fullRecordReadback = data } ) 
             .catch( (error) => { knexErrorHandler(req,res,error) } );           
         })         

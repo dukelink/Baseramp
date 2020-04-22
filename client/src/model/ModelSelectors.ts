@@ -109,7 +109,7 @@ export const useFieldMetadata = (fieldName:string) => {
       // If many-to-many, cyclic foreign key, then filter out current record
       .filter((rec:RecordOfAnyType)=>(
         navTable!==referenceTableName 
-        || navTableID !== rec[referenceTableName+'_id'].toString()
+        || navTableID !== rec[referenceTableName+'_id']?.toString()
       ));
   }
   return { appCol, referenceTableName, referenceTable }; 
