@@ -184,29 +184,50 @@ export const addApiReadDataRoutes = async (router : Router ) =>
 
         // User tables filter rows by user 'ownership'
         if (userTables.includes(tableName)) {
-          const query =  knex.select('*').from(tableName);
+          //const query =  knex.select('*').from(tableName);
 
           console.log(`PATH ${path}, user_id ${user_id}`)
 
           const ownedRows = 
-            knex.select('audit_table_id')
+            knex
+              .select('audit_table_id')
+              .max({latest_audit_id:'audit_id'})
               .from('audit')
-              .innerJoin('AppTable','audit_AppTable_id','AppTable_id')
-              .where('AppTable_title','=',tableName)
-              .where('audit_user_id','=',/*req?.user?.user_id*/user_id);
+              .innerJoin('AppTable', 'audit_AppTable_id', 'AppTable_id')
+              .where('AppTable_title', '=', tableName)
+              .where('audit_user_id', '=', user_id)
+              .groupBy('audit_table_id');
 
           console.log(`NOT ADMIN - filtered; PATH=${path}, tableName=${tableName}, user_id=${user_id}`)
-          await query
-            .whereIn(tableName+'_id',ownedRows)
-            .then( (data) => {
-              console.log(`${tableName} rows read = ${data.length}`)
-              results[tableName] = data.reduce(
-                (prevVal,currVal) => {
-                  prevVal[currVal[tableName+'_id']] = currVal;
-                  return prevVal;
-                }, {});
-            })
-            .catch((error)=>{knexErrorHandler(req,res,error)});       
+          const query = knex.raw('with auditLastOwned as (?) ?', [
+            ownedRows,
+            knex.select(tableName+'.*','audit.audit_field_changes')
+            .from(tableName)
+            .innerJoin( 'auditLastOwned',
+              'auditLastOwned.audit_table_id','=',tableName+'_id' )
+            .innerJoin('audit',
+              'audit.audit_id','=','auditLastOwned.latest_audit_id')
+          ]);
+
+//console.log('//////////////////////////////////')
+//console.log(JSON.stringify(query.toString()));
+//console.log('\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\')
+
+          await query.then( (data) => {
+            console.log(`${tableName} rows read = ${data.length}`)
+            results[tableName] = data.reduce(
+              (prevVal,currVal) => {
+                const lastUpdatesWithVirtualFields = currVal.audit_field_changes;
+                if (lastUpdatesWithVirtualFields) {
+                  delete currVal.audit_field_changes;
+                  // Incorporate many-to-many, virtual fields if applicable...
+                  Object.assign(currVal,JSON.parse(lastUpdatesWithVirtualFields));
+                }
+                prevVal[currVal[tableName+'_id']] = currVal;
+                return prevVal;
+              }, {});
+          })
+          .catch((error)=>{knexErrorHandler(req,res,error)});       
 
         } else {
           
