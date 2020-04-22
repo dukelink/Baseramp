@@ -118,11 +118,14 @@ export const CrudButtons = ( props: {
                                 alert('Please fill in all required fields before saving');
                                 return;
                             }
-                            if (navTableID==="-1") 
+                            if (navTableID==="-1")
                                 dispatch(insertRecord(state.navigate, record));
-                            else
+                            else {
+                                console.log(`ORIGRECORD = ${JSON.stringify(origRecord)}`);
+                                console.log(`RECORD = ${JSON.stringify(record)}`);
                                 dispatch(updateRecord(state.navigate,
-                                    recordDelta(record, origRecord)));                 
+                                    recordDelta(record, origRecord)));
+                            }
                     }}> Save </Button> 
                     <Button 
                         id="crudCancel" variant='contained'

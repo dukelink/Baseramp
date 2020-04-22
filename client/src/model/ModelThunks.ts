@@ -43,7 +43,7 @@ export const initialLoad = (route:string="all") =>
       store.dispatch(load(res));
       return res;
   })
-  .catch((error) =>{});
+  .catch(() =>{});
 }
 
 export const loadMetadata = () => 
@@ -55,7 +55,7 @@ export const loadMetadata = () =>
       store.dispatch(metaload(res));
       return res;
   })
-  .catch((error) =>{});
+  .catch(() =>{});
 }
 
 export const updateRecord = (navigate:INavigateState, recordDelta:any) 
@@ -82,12 +82,10 @@ export const updateRecord = (navigate:INavigateState, recordDelta:any)
         // Grab committed record from server that will be populated with
         // any other fields computed server-side... 
         record = res[0] 
+        dispatch(refreshRecordInVM({navigate,record}));
       })
-      .catch((error) =>{ err = true; });
+      .catch(() =>{/*Fetch handles user alert; avoid node exception*/});
     }
-
-    if (!err)
-      dispatch(refreshRecordInVM({navigate,record}));
   }
 }
 
@@ -102,7 +100,7 @@ export const refreshFromServer = (navigate:INavigateState) =>
         store.dispatch(refresVMfromAuditRecords({navigate,audit_updates:res}));
         return res;
     })
-    .catch((error) =>{});
+    .catch(() =>{});
   }
 }
 
@@ -110,7 +108,6 @@ export const insertRecord = (navigate:INavigateState, _record:RecordOfAnyType)
   : AppThunk => async dispatch => 
 {
   const { navTable } = navigate;
-  let err = false;
 
   // HACK: XREF - I have a business rule in recordDelta that filters out 
   // derived key fields...  I may move the rule elsewhere later...
@@ -131,7 +128,7 @@ export const insertRecord = (navigate:INavigateState, _record:RecordOfAnyType)
         record = res[0]; 
         dispatch(addRecordToVM({navigate,record}));
       })
-      .catch((error) =>{ err = true; }); 
+      .catch(() =>{/*Fetch handles user alert; avoid node exception*/});
     }
   }
 }
