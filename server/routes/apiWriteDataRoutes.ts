@@ -298,8 +298,11 @@ export const addApiWriteDataRoutes = (router : Router ) =>
       && user_role_id !== 1 // 'Admin'; TODO: Remove hard code???
       && AppTable[tableName]['AppTable_role_id'] !== user_role_id
     ) {
+
       res.statusMessage 
         = `You are not authorized to modify the '${tableName}' table.`;
+      console.log(`${res.statusMessage}\nuser_role_id=${user_role_id};\ntable role = ${JSON.stringify(Object.keys(AppTable[tableName]))}`);
+
       res.status(409).end();
       throw 409;
     }

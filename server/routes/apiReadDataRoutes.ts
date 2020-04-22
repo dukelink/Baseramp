@@ -120,6 +120,7 @@ function tableSelect(tableName : string)
         'AppTable_description',
         'AppTable_rank',
         'AppTable_table_name',
+        'AppTable_role_id',
         "role.role_title"
       ).from('AppTable')
       .leftJoin('role','AppTable_role_id','role_id');
