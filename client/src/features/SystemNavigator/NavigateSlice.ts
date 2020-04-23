@@ -21,7 +21,7 @@
 
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { OutlineNode } from '../../model/ModelOutline';
-import { Model, Records, RecordOfAnyType, AuditUpdate } from '../../model/ModelTypes';
+import { Records, AuditUpdate } from '../../model/ModelTypes';
 
 export interface INavigateState {
   navTable: string;

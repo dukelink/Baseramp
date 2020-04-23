@@ -38,8 +38,7 @@ export const FieldMtoM = memo((props : {
   const { appCol, fieldName, onChange, 
       referenceTableName, referenceTable } = props;
   const { AppColumn_title : appColTitle, AppColumn_ui_minwidth,
-      AppColumn_read_only, AppColumn_is_nullable,
-      AppColumn_AppTable_junction_id } = appCol;
+      AppColumn_read_only, AppColumn_is_nullable } = appCol;
   const classes = useStyles();     
 
   // Allow mutating and tracking current value to prevent number field rerendering

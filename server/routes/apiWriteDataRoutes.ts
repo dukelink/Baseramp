@@ -72,8 +72,7 @@ export const addApiWriteDataRoutes = (router : Router ) =>
     else
       user_id = (req.user as any).user_id
 
-    if (Object.keys(virtual).length)
-      updateJunctionTables(primaryKeyID,virtual,fullRecordReadback);
+    updateJunctionTables(primaryKeyID,virtual);
 
     // TODO: Wrap record write and audit trail write in a transaction
     await recordAuditTrail(
@@ -85,7 +84,8 @@ export const addApiWriteDataRoutes = (router : Router ) =>
       { ...req.body, ...fullRecordReadback } 
     );
 
-    res.send(fullRecordReadback);
+    // HACK: return many-to-many lists via ...req.body...
+    res.send({...req.body, ...fullRecordReadback}); 
   }
 
   router.put("/:table/:id", loggedInOnly, 
@@ -120,19 +120,18 @@ export const addApiWriteDataRoutes = (router : Router ) =>
         .from(tableName)
         .where(primaryKeyField,'=', primaryKeyID)
         .update(recordDelta) 
-        .then(async (data)=>{
-          // NOTE: Currently I relfect the added record just in case there are any computed fields...
-          // Reflect via tableSelect() since that contains biz rules 
-          // (e.g. for AppTable/AppColumn)...
-          await tableSelect(tableName)
-            .where(tableName+'.'+primaryKeyField,'=',primaryKeyID)
-            .then( (data) => { fullRecordReadback = data } ) 
-            .catch( (error) => { knexErrorHandler(req,res,error) } );           
-        })         
+        .then() // Needed to run query 
         .catch( (error) => { knexErrorHandler(req,res,error) } ); 
 
-    if (Object.keys(virtual).length)
-      updateJunctionTables(primaryKeyID,virtual,fullRecordReadback);
+    // NOTE: Currently I relfect the added record just in case there are any computed fields...
+    // Reflect via tableSelect() since that contains biz rules 
+    // (e.g. for AppTable/AppColumn)...
+    await tableSelect(tableName)
+      .where(tableName+'.'+primaryKeyField,'=',primaryKeyID)
+      .then( (data) => { fullRecordReadback = data[0] } ) 
+      .catch( (error) => { knexErrorHandler(req,res,error) } );  
+
+    updateJunctionTables(primaryKeyID,virtual);
 
     await recordAuditTrail(
       'UPDATE', 
@@ -143,13 +142,12 @@ export const addApiWriteDataRoutes = (router : Router ) =>
       { ...req.body, ...recordDelta } 
     );
  
-    res.send(fullRecordReadback);      
+    res.send({...req.body, ...fullRecordReadback});      
   });
 
   function updateJunctionTables(
     pkID:string,
-    virtual:Array<any>,
-    fullRecordReadback:Array<any>)
+    virtual:Array<any>)
   {
     return new Promise( async (resolve,reject) => {
       // Process each junction table independently
@@ -175,7 +173,8 @@ export const addApiWriteDataRoutes = (router : Router ) =>
         });
 
         const IDsToDelete = existingIDs.filter(id => !enteredIDs.includes(id));
-        const IDsToAdd = enteredIDs.filter(id => !existingIDs.includes(id));
+        const IDsToAdd = enteredIDs.filter(id => id // skip undefined, see biz rules
+          && !existingIDs.includes(id));
 
         // Delete entries no longer selected...
         if (IDsToDelete.length) {
@@ -292,7 +291,7 @@ export const addApiWriteDataRoutes = (router : Router ) =>
     if (tableName != 'user' && !user_id) {
       console.log(`NO USER INFO: ${JSON.stringify(req?.user)}`);
       res.statusMessage 
-        = `Your session is closed; please login again.`;
+        = `Your session is closed; please login again.`; 
       res.status(409).end();
       throw 409;
     }

@@ -67,7 +67,6 @@ export const updateRecord = (navigate:INavigateState, recordDelta:any)
   // access to Redux global store...  
   const state = store.getState();
 
-  let err = false;
   let record : RecordOfAnyType = {};
 
   if (Object.keys(recordDelta).length) {
@@ -81,7 +80,7 @@ export const updateRecord = (navigate:INavigateState, recordDelta:any)
       .then(res => {
         // Grab committed record from server that will be populated with
         // any other fields computed server-side... 
-        record = res[0] 
+        record = res;
         dispatch(refreshRecordInVM({navigate,record}));
       })
       .catch(() =>{/*Fetch handles user alert; avoid node exception*/});
@@ -125,7 +124,12 @@ export const insertRecord = (navigate:INavigateState, _record:RecordOfAnyType)
       .then(res => {
         // Grab committed record from server that will be populated with
         // a primary key field, and any other fields computed server-side... 
-        record = res[0]; 
+        record = res; 
+
+        // TODO: (Story logged) Why is following exception masked 
+        //       even if .catch(), below, commented out!!!!!!!!!!!
+        // throw 123;
+
         dispatch(addRecordToVM({navigate,record}));
       })
       .catch(() =>{/*Fetch handles user alert; avoid node exception*/});

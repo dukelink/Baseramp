@@ -1,6 +1,5 @@
 import store from  '../store';  // REVIEW: Are there any anti-patterns associated with thunks being state-aware?
 
-
 // TODO: if response format is json, we could include
 // ".then(res => res && res.json())" in this fetch wrapper...
 //
@@ -31,7 +30,7 @@ export var Fetch = (resource:any,init:RequestInit={},defaultMessage=true):Promis
 
     return new Promise<Response>((resolve,reject)=>{
         try {
-            let rv = fetch(resource,_init)        
+            fetch(resource,_init)        
             .then(res => {
                 if ( // Forbidden, likely do to loss/change of sesion
                     res.status === 401 || res.status === 403 

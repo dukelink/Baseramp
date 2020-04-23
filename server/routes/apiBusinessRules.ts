@@ -45,7 +45,6 @@ export const businessRules
           // then() must come before catch() since we don't rethrow exception in knexErrorHandler
           .then( data => {
             const newRec = {...record, ...data[0]};
-            console.log(`modified record = ${JSON.stringify(newRec)}`);
             resolve({record:newRec,virtual:[]});
           } )
           .catch( (error) => { knexErrorHandler(req,res,error) } );
@@ -107,22 +106,29 @@ export const businessRules
           // Is this a virtual field associated with a junction table?
           const junction_table_id = AppColumn[key]['AppColumn_AppTable_junction_id'];
           if (junction_table_id) {
-            (value as Array<number>).forEach(fkID => {
+            if (value.length)
+              (value as Array<number>).forEach(fkID => {
+                virtualFields.push({
+                  table : AppColumn[key]['AppColumn_AppTable_junction_id'],
+                  key,
+                  fkField: AppColumn[key]['AppColumn_related_pk_id'],
+                  fkID
+                });
+              });
+            else
+              // If virtual fields were changed we must have at least
+              // on entry to trigger deletion of dereferenced items
+              // even if no referenced items remain, so just push a null FK...
               virtualFields.push({
                 table : AppColumn[key]['AppColumn_AppTable_junction_id'],
                 key,
                 fkField: AppColumn[key]['AppColumn_related_pk_id'],
-                fkID
-              });
-            });
+                fkID: undefined                
+              })
             Object.assign( virtualFields, { [key] : value } );
           } else
             Object.assign( newRecord, { [key] : value } );
         });
-
-        if (Object.keys(virtualFields).length)
-          console.log(`virtual fields = ${JSON.stringify(virtualFields)}`);
-
         resolve({record:newRecord,virtual:virtualFields});
     }
   });
