@@ -47,12 +47,12 @@ function OutlineItemLabel(props: { item : OutlineNode })
     let childCount = 
       Object.entries(item.totalChildRecords)
         .filter((x)=>x[0]===item.table)
-        .map(x=>x[1]).join();
+        .map(x=>Object.keys(x[1]).length/* for debug use: .join(', ')*/).join();
 
     let grandChildCounts = 
       Object.entries(item.totalChildRecords)
       .filter((x)=>x[0]!==item.table)
-      .map(x=>x[0][0]+x[0][1]+':'+x[1])
+      .map(x=>x[0][0]+x[0][1]+':'+Object.keys(x[1]).length/* for debug use: .join(', ')*/)
       .join(', ');
 
   return (

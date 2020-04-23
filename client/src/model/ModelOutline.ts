@@ -98,12 +98,35 @@ export function buildOutline(
   function addRecordTallies(outline: OutlineNode[]) : RecordOfAnyType 
   {
     let tallies : RecordOfAnyType = {};
+    // REVIEW: Make sure all destructuring used is really needed,
+    // as in the following line AND Object.assign within the
+    // return values, and that the I'm using the fastest method
+    // to merge to arrays of string within the Set() call, etc....
+    //
+    // NOTE: See commit of 4/23/2020 and consider:
+    //   Instead of just tallying, I build a list of IDs
+    //     so that I can troubleshoot via TreeviewOutline.tsx view.
+    //   I tried using set instead of object to track unique IDs 
+    //     and the first effort failed; I wish I'd just debugged that
+    //     as it must have been a silly, correctable error; but
+    //     objects were easy to work with.
+    //   I could go back to just tallying record counts, when I 
+    //     no longer need/want the option of the 'troubleshooting' display...
+    //
     [...outline].forEach( node => {
       if (node.table && node.tableID) {
-        if (!tallies[node.table])
-          tallies[node.table] = 1;
-        else
-          tallies[node.table] += 1;
+        if (!tallies[node.table]) {
+          tallies[node.table] = {};
+          tallies[node.table][
+            // HACK: XREF - use split to count just one node type
+            node.tableID.toString().split('-')[0]
+          ] = 1; // any dummy value
+        } else {
+          tallies[node.table][
+            // HACK: XREF - use split to count just one node type
+            node.tableID.toString().split('-')[0]
+          ] = 1; // any dummy value
+        }
       }
       let subTallies = addRecordTallies(node.children);
       node.totalChildRecords  = subTallies;
@@ -113,7 +136,8 @@ export function buildOutline(
           tallies[table] = subTallies[table];
         else
           tallies[table] 
-            = (tallies[table] || 0) + (subTallies[table] || 0);
+            = { ...(tallies[table] || {}),
+                ...(subTallies[table] || {}) };
       })  
     })
     return Object.assign({},tallies);
