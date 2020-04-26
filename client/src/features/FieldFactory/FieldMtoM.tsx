@@ -78,6 +78,9 @@ export const FieldMtoM = memo((props : {
                 .filter( (row:any) => 
                   row[referenceTableName+'_id']===value)[0];
               return (
+                // select value not always cleared w/ form focus change...
+                !refRow ? <></> 
+                : 
                 <Chip key={ value } 
                   label={ refRow[referenceTableName+'_title'] } 
                   className={classes.chip} />
