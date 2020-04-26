@@ -58,6 +58,7 @@ const model = createSlice({
       const { navTable, navTableID } = navigate;
       Object.assign(model.apiModel[navTable][navTableID], record); 
       buildDerived(model);
+      /*
       switch (navTable) {
         case 'AppTable' :
           Object.assign(model.metaModel.AppTable[navTableID], record);
@@ -66,6 +67,7 @@ const model = createSlice({
           Object.assign(model.metaModel.AppColumn[navTableID], record);
           break;
       } 
+      */
       model.outline = buildOutline(model.derivedModel,navigate);
     },
     refresVMfromAuditRecords(
@@ -88,11 +90,13 @@ const model = createSlice({
             model.apiModel[table_name][tableID] = record;
           else {          // UPDATE case
             const newRec : RecordOfAnyType = Object.assign(recordRef, record);  
+            /*
             // Meta data UPDATES only at this time (no INSERT/DELETEs)...
             if (table_name==='AppTable') 
               Object.assign(model.metaModel.AppTable[tableID], newRec);
             else if (table_name==='AppColumn')
               Object.assign(model.metaModel.AppColumn[tableID], newRec);
+            */
           }
         } 
         else if (update_type==='DELETE')

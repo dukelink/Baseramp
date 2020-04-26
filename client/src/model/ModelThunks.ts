@@ -39,11 +39,11 @@ export const initialLoad = (route:string="all") =>
 {
   Fetch(Environment.serverURL + route)
   .then(res => res && res.json())
+  .catch(() =>{})
   .then(res => {
       store.dispatch(load(res));
       return res;
-  })
-  .catch(() =>{});
+  });
 }
 
 export const loadMetadata = () => 
@@ -51,11 +51,11 @@ export const loadMetadata = () =>
   //console.log('loadMetadata()');
   Fetch(Environment.serverURL + 'meta')
   .then(res => res && res.json())
+  .catch(() =>{})
   .then(res => {
       store.dispatch(metaload(res));
       return res;
-  })
-  .catch(() =>{});
+  });
 }
 
 export const updateRecord = (navigate:INavigateState, recordDelta:any) 
@@ -77,13 +77,13 @@ export const updateRecord = (navigate:INavigateState, recordDelta:any)
           headers: { 'Content-Type': 'application/json' }
       })
       .then(res => res && res.json())
+      .catch(() =>{/*Fetch handles user alert; avoid node exception*/})
       .then(res => {
         // Grab committed record from server that will be populated with
         // any other fields computed server-side... 
         record = res;
         dispatch(refreshRecordInVM({navigate,record}));
-      })
-      .catch(() =>{/*Fetch handles user alert; avoid node exception*/});
+      });
     }
   }
 }
@@ -95,11 +95,24 @@ export const refreshFromServer = (navigate:INavigateState) =>
     //console.log(`refreshFromServer(${JSON.stringify(navigate)})`);
     Fetch(Environment.serverURL + `audit_updates/${navigate.lastAuditTableID}`)
     .then(res => res && res.json())
+    .catch(() =>{})
     .then(res => {
-        store.dispatch(refresVMfromAuditRecords({navigate,audit_updates:res}));
+        const audit_updates: any = res;
+        store.dispatch(refresVMfromAuditRecords({navigate,audit_updates}));
+
+        //
+        // MINOR HACK: Watch for any edits to metadata tables,
+        // either by ourself or other users, and reload
+        // the denormalized-keys metaData in Redux...
+        //
+        if (audit_updates.length && 
+            (audit_updates[0].table_name==='AppTable' 
+            || audit_updates[0].table_name==='AppColumn')) {
+          loadMetadata();
+        }
+
         return res;
-    })
-    .catch(() =>{});
+    });
   }
 }
 
@@ -121,6 +134,7 @@ export const insertRecord = (navigate:INavigateState, _record:RecordOfAnyType)
         headers: { 'Content-Type': 'application/json' }                        
     })
       .then(res => res && res.json())
+      .catch(() =>{/*Fetch handles user alert; avoid node exception*/})
       .then(res => {
         // Grab committed record from server that will be populated with
         // a primary key field, and any other fields computed server-side... 
@@ -132,7 +146,6 @@ export const insertRecord = (navigate:INavigateState, _record:RecordOfAnyType)
 
         dispatch(addRecordToVM({navigate,record}));
       })
-      .catch(() =>{/*Fetch handles user alert; avoid node exception*/});
     }
   }
 }

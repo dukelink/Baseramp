@@ -120,7 +120,7 @@ export function loadData(model:Model,data:Records<any>)
     // HACK: XREF ...
     model.metaModel.AppTable = 
       Object.assign(                          
-        model.apiModel.AppTable
+        model.metaModel.AppTable
         ,{        
           'Project Sprint': {
             AppTable_id : 'Project Sprint',
@@ -130,7 +130,7 @@ export function loadData(model:Model,data:Records<any>)
         });                        
     model.metaModel.AppColumn = 
       Object.assign(                          
-        model.apiModel.AppColumn
+        model.metaModel.AppColumn
         ,{                            
           //
           // Use Object.assign() below to convert back to POJOs

@@ -36,6 +36,7 @@ export const businessRules
   promise = new Promise( (resolve, reject) => {
     switch(tableName) 
     {
+      /*
       case 'AppColumn' :
         // HACK: Translate PK's back from column name to ID...
         knex
@@ -49,6 +50,7 @@ export const businessRules
           } )
           .catch( (error) => { knexErrorHandler(req,res,error) } );
         break;
+      */
 
       case 'user':
         if (record.user_password_hash) 

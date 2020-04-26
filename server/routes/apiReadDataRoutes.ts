@@ -100,7 +100,7 @@ getRoutes.push(
   ))
 )
 
-export function tableSelect(tableName : string) 
+export function tableSelect(tableName : string, path?:string) 
 {
   let query = knex.select('*').from(tableName);
 
@@ -110,41 +110,61 @@ export function tableSelect(tableName : string)
     // TODO: Metadata has been reshaped to use table names instead of surrogate keys
     //       as a likely new convention to afford the greatest simplicity to consume
     //       this data within the client application.  Consider changing the physical
-    //       metadata tables to reflect this change.
+    //       metadata tables to reflect this change. 
     //
     case 'AppTable':
-      return knex.select(
-        'AppTable_id as _id',
-        'AppTable_table_name as AppTable_id',
-        'AppTable_title',
-        'AppTable_description',
-        'AppTable_rank',
-        'AppTable_table_name',
-        'AppTable_role_id',
-        "role.role_title"
-      ).from('AppTable')
-      .leftJoin('role','AppTable_role_id','role_id');
+      if (path==='/meta')
+        return knex.select(
+          'AppTable_id as _id',
+          'AppTable_table_name as AppTable_id',
+          'AppTable_title',
+          'AppTable_description',
+          'AppTable_rank',
+          'AppTable_table_name',
+          'AppTable_role_id',
+          "role.role_title"
+        ).from('AppTable')
+        .leftJoin('role','AppTable_role_id','role_id');
+      else
+      //
+      // TODO: Consider deriving role_title on
+      // client side...?
+      //
+        return knex.select(
+          'AppTable_id as _id',
+          'AppTable_id',
+          'AppTable_title',
+          'AppTable_description',
+          'AppTable_rank',
+          'AppTable_table_name',
+          'AppTable_role_id',
+          "role.role_title"
+        ).from('AppTable')
+        .leftJoin('role','AppTable_role_id','role_id');
+      break;
     case 'AppColumn':
-      return knex.select(
-        'AppColumn.AppColumn_column_name as AppColumn_id',
-        'AppColumn.AppColumn_title',
-        'AppColumn.AppColumn_description',
-        'AppColumn.AppColumn_rank',
-        'AppTable.AppTable_table_name as AppColumn_AppTable_id',
-        'AppColumn.AppColumn_ui_hidden',
-        'AppColumn.AppColumn_ui_minwidth',
-        'AppColumn.AppColumn_read_only',
-        'AppColumn.AppColumn_column_name',
-        'AppColumn.AppColumn_is_nullable',
-        'AppColumn.AppColumn_data_type',
-        'AppColumn.AppColumn_character_maximum_length',
-        'AppColumn.AppColumn_column_default',
-        'AppColumn_related.AppColumn_column_name as AppColumn_related_pk_id',
-        'AppTable_junction.AppTable_table_name as AppColumn_AppTable_junction_id'
-      ).from('AppColumn')
-        .innerJoin('AppTable','AppColumn_AppTable_id','AppTable_id')
-        .leftJoin('AppColumn as AppColumn_related','AppColumn.AppColumn_related_pk_id','AppColumn_related.AppColumn_id')
-        .leftJoin('AppTable as AppTable_junction','AppColumn.AppColumn_AppTable_junction_id','AppTable_junction.AppTable_id');
+      if (path==='/meta')
+        return knex.select(
+          'AppColumn.AppColumn_column_name as AppColumn_id', 
+          'AppColumn.AppColumn_title',
+          'AppColumn.AppColumn_description',
+          'AppColumn.AppColumn_rank',
+          'AppTable.AppTable_table_name as AppColumn_AppTable_id',
+          'AppColumn.AppColumn_ui_hidden',
+          'AppColumn.AppColumn_ui_minwidth',
+          'AppColumn.AppColumn_read_only',
+          'AppColumn.AppColumn_column_name',
+          'AppColumn.AppColumn_is_nullable',
+          'AppColumn.AppColumn_data_type',
+          'AppColumn.AppColumn_character_maximum_length',
+          'AppColumn.AppColumn_column_default',
+          'AppColumn_related.AppColumn_column_name as AppColumn_related_pk_id',
+          'AppTable_junction.AppTable_table_name as AppColumn_AppTable_junction_id'
+        ).from('AppColumn')
+          .innerJoin('AppTable','AppColumn_AppTable_id','AppTable_id')
+          .leftJoin('AppColumn as AppColumn_related','AppColumn.AppColumn_related_pk_id','AppColumn_related.AppColumn_id')
+          .leftJoin('AppTable as AppTable_junction','AppColumn.AppColumn_AppTable_junction_id','AppTable_junction.AppTable_id');         
+      break;
     //
     // ...TODO END
     //
@@ -233,7 +253,7 @@ export const addApiReadDataRoutes = async (router : Router ) =>
         } else {
           
           console.log(`ADMIN - NOT filtered; PATH=${path}, tableName=${tableName}`)
-          await tableSelect(tableName)
+          await tableSelect(tableName,path)
             .then((data)=>{
               console.log(`${tableName} rows read = ${data.length}`)
               results[tableName] = data.reduce(

@@ -63,10 +63,10 @@ const model = createSlice({
       action:PayloadAction<{navigate:INavigateState,audit_updates:AuditUpdate[]}>)
     {
       const { navigate, audit_updates } = action.payload;
-      //console.log(`refresVMfromAuditRecords(); action=${JSON.stringify(action)}`)
-      state.lastAuditTableID = 
-          Object.values(audit_updates).slice(-1)[0].audit_id
-            || navigate.lastAuditTableID; // REVIEW: Consider MAX for safety's sake!
+      if (audit_updates.length)
+        state.lastAuditTableID = 
+            Object.values(audit_updates).slice(-1)[0].audit_id
+              || navigate.lastAuditTableID; // REVIEW: Consider MAX for safety's sake!
     },
     setFocus(state, action: PayloadAction<INavigateRecordFocus>) {
       let { table, tableID, parentTable, parentID } = action.payload;

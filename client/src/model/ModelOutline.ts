@@ -223,13 +223,24 @@ export function buildOutline(
         parentTable?: string,
         parentID?: number
     ) {
+      //
+      // TODO: If we provide direct access to metaModel then we wouldn't need
+      // to derive this....
+      //
       let outline: OutlineNode[];
+          const tableRoles = Object.values(derivedModel['AppTable'])
+            .reduce( (prev,curr) => ( { 
+              ...prev, 
+              [(curr.record['AppTable_title'])] : curr.record['role_title'] 
+            } ), {} as {[key:string]:string});
+
       outline = tableHeadings
-        .filter((TableHeading) => ((
+        .filter((TableHeading) => { 
+          return ((
           parentTable ||                     // Tables w/ parents are filtered by parentIDs in buildRowsOutline()
           !childTableSet.has(TableHeading))  // Otherwise top level of outine only presents tables that are never children
-          &&  ( navigate.navShowAdminTables || derivedModel['AppTable']
-              [TableHeading].record.role_title!=='Admin' )))
+          &&  ( navigate.navShowAdminTables 
+              || tableRoles[TableHeading] !=='Admin' )) } )
         .map((tableHeading): OutlineNode => { 
           let itemTitle : string;
     
