@@ -43,7 +43,7 @@ const userTables = [
   'competency',
   'response',
   'account',
-  'lead',
+  'sale',
   'chore',
   'checkoff',
   'StoryStory',

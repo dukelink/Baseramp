@@ -54,7 +54,8 @@ const parentChildTables: any = {
   ],
   'Project Sprint': [ 'story' ],
   AppTable: ['AppColumn'],
-  status: ['lead'],
+  status: ['sale'],
+  sale: ['sale'],
   account: ['account'],
   chore: ['checkoff'],
   // Hack: Prevent direct browsing to junction tables...
@@ -65,7 +66,7 @@ const parentChildTables: any = {
 const childTableSet = new Set(
   Object.values(parentChildTables)
   .flat()
-  .filter( (tbl) => (!['lead','account','competency'].includes(tbl)) )  // HACK: CYCLIC; TODO: Generalize
+  .filter( (tbl) => (!['sale','account','competency'].includes(tbl)) )  // HACK: CYCLIC; TODO: Generalize
 );
 
 export function buildOutline(

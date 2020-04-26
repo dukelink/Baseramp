@@ -29,20 +29,20 @@ const baseFieldsBuilder = (table,field_root_name) => {
 }
 
 exports.up = async (knex) => {
-    await knex.schema.createTable('lead', (table) => {
-        baseFieldsBuilder(table,'lead');
+    await knex.schema.createTable('sale', (table) => {
+        baseFieldsBuilder(table,'sale');
         // Additional fields beyond 'base class'...        
-        table.integer('lead_lead_id').nullable()
-            .references('lead_id')
-            .inTable('lead');
-        table.text('lead_description').nullable();
-        table.string('lead_source',50).nullable();
-        table.string('lead_source_type',20).nullable();
-        table.text('lead_proposal_notes').nullable();
-        table.text('lead_dialogue_notes').nullable();
-        table.date('lead_proposal_date').nullable();
-        table.date('lead_next_action_date').notNullable();
-        table.integer('lead_status_id').notNullable()
+        table.integer('sale_sale_id').nullable()
+            .references('sale_id')
+            .inTable('sale');
+        table.text('sale_description').nullable();
+        table.string('sale_source',50).nullable();
+        table.string('sale_source_type',20).nullable();
+        table.text('sale_proposal_notes').nullable();
+        table.text('sale_dialogue_notes').nullable();
+        table.date('sale_proposal_date').nullable();
+        table.date('sale_next_action_date').notNullable();
+        table.integer('sale_status_id').notNullable()
             .references('status_id')
             .inTable('status');        
     });
@@ -61,7 +61,7 @@ exports.up = async (knex) => {
     let sqlMetaColumns = fs.readFileSync(
         path.join(__dirname, '..', 'sql', 'schema_table_columns.sql')
     ).toString();
-    await knex.raw(sqlMetaColumns,'[lead]');
+    await knex.raw(sqlMetaColumns,'[sale]');
 };
 
 exports.down = function(knex) {
