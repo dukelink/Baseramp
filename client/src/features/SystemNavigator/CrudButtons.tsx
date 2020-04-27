@@ -1,22 +1,22 @@
 /*
-    Baseramp Tracker - An open source Project Management software built
-    as a Single Page Application (SPA) and Progressive Web Application (PWA) using
-    Typescript, React, and an extensible SQL database model.
+  Baseramp Tracker - An open source Project Management software built
+  as a Single Page Application (SPA) and Progressive Web Application (PWA) using
+  Typescript, React, and an extensible SQL database model.
 
-    Copyright (C) 2019-2020  William R. Lotherington, III
+  Copyright (C) 2019-2020  William R. Lotherington, III
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
 import React, { useState, Dispatch, SetStateAction } from 'react';
@@ -38,10 +38,10 @@ import { recordDelta } from '../../utils/utils';
 import { RecordOfAnyType } from '../../model/ModelTypes';
 
 export const CrudButtons = ( props: {
-    latestNodeformState: NodeFormEditState,
-    setLatestNodeformState: Dispatch<SetStateAction<NodeFormEditState>>,
-    mode: EditMode, setMode: Dispatch<SetStateAction<EditMode>>,
-    origRecord: RecordOfAnyType
+  latestNodeformState: NodeFormEditState,
+  setLatestNodeformState: Dispatch<SetStateAction<NodeFormEditState>>,
+  mode: EditMode, setMode: Dispatch<SetStateAction<EditMode>>,
+  origRecord: RecordOfAnyType
   } 
 ) => {
   const { setLatestNodeformState, mode, setMode, origRecord } = props;
@@ -56,103 +56,105 @@ export const CrudButtons = ( props: {
 
   const { navTable, navTableID, navParentTable, navStrParentID } = state.navigate;
 
-  return (
-    <Grid item xs = {12} className = { classes.OutlineEditButton } > 
-        { !navTable ? 
-            <Paper className={classes.root}>
-                Select an outline item to view, edit or add...
-            </Paper> 
-            :
-            <div color='secondary' style = {{ width: '100%' }}>
-                { 
-                (mode !== "Both" && navTableID ) &&
-                    <IconButton area-label="Navigation Outline"
-                        style = {{ padding: 6 }} 
-                        onClick = { () => { setMode(otherMode) } }>
-                    <div>
-                        { otherLabel }&nbsp;
-                    </div> 
-                    <PlayCircleFilledIcon className = { 
-                        otherMode==='Outline' ? classes.rotate80 : '' 
-                    } />
-                    </IconButton>
-                }
-                <div  className = { classes.buttonBar }
-                    style = {{ display: 'inline-block', float: 'right' }} >
-                { ( ( !navTableID 
-                        || JSON.stringify(origRecord)===JSON.stringify(record) )
-                    && navTableID!=='-1') ? <>
-                    <Button 
-                        variant='contained' 
-                        style={{maxWidth:"140px ! important"}}
-                        onClick = { () => {
-                            dispatch(addNewBlankRecordForm({navTable}));
-                            console.log(mode);
-                            setMode(mode==='Both'?mode:'Edit'); 
-                        } } >
-                        Add
-                        { (navTable===navParentTable ? ' Sub-' : ' ') // HACK: CYCLIC RELATIONSHIPS
-                        + navTable 
-                        }
-                    </Button> 
+  const strOrigRecord = JSON.stringify(origRecord, Object.keys(origRecord).sort());
+  const strRecord = JSON.stringify(record, Object.keys(record).sort());
 
-                    { navTableID &&
-                    <Button 
-                        id="crudDelete" 
-                        variant='contained' 
-                        onClick={ () => {
-                        dispatch(deleteRecord(state.navigate));
-                        setMode(mode==='Both'?mode:'Outline');
-                        } } > 
-                        Delete 
-                    </Button>                
-                    }
-                </> : 
-                navTableID && <>
-                    <Button
-                        id="crudSave" 
-                        variant='contained' 
-                        disabled={ !isFormValid }
-                        onClick={ () => {
-                            if (!isFormValid) {
-                                alert('Please fill in all required fields before saving');
-                                return;
-                            }
-                            if (navTableID==="-1")
-                                dispatch(insertRecord(state.navigate, record));
-                            else {
-                                console.log(`ORIGRECORD = ${JSON.stringify(origRecord)}`);
-                                console.log(`RECORD = ${JSON.stringify(record)}`);
-                                dispatch(updateRecord(state.navigate,
-                                    recordDelta(record, origRecord)));
-                            }
-                    }}> Save </Button> 
-                    <Button 
-                        id="crudCancel" variant='contained'
-                        onClick={ ()=> { 
-                        setLatestNodeformState({ 
-                            record: origRecord, 
-                            isFormValid: true
-                        });
-                        // Remove form if Add New record form...
-                        if (navTableID === '-1') {
-                            dispatch(setFocus({ 
-                            table:navTable, 
-                            tableID: '', 
-                            parentTable: navParentTable,
-                            parentID: navStrParentID 
-                            }));
-                            // Return to outline display only...
-                            setMode('Outline');
-                        } else
-                        // If user was editing an existing record, flag rerender...
-                            setRerenderFlat(rerenderFlag+1);  
-                        }
-                    }> Cancel </Button>
-                </>}
-                </div>
-            </div>
+  return (
+  <Grid item xs = {12} className = { classes.OutlineEditButton } > 
+    { !navTable ? 
+      <Paper className={classes.root}>
+        Select an outline item to view, edit or add...
+      </Paper> 
+      :
+      <div color='secondary' style = {{ width: '100%' }}>
+        { 
+        (mode !== "Both" && navTableID ) &&
+          <IconButton area-label="Navigation Outline"
+            style = {{ padding: 6 }} 
+            onClick = { () => { setMode(otherMode) } }>
+          <div>
+            { otherLabel }&nbsp;
+          </div> 
+          <PlayCircleFilledIcon className = { 
+            otherMode==='Outline' ? classes.rotate80 : '' 
+          } />
+          </IconButton>
         }
-    </Grid> 
+        <div  className = { classes.buttonBar }
+          style = {{ display: 'inline-block', float: 'right' }} >
+        { ( ( !navTableID || strOrigRecord===strRecord )
+          && navTableID!=='-1') ? <>
+          <Button 
+            variant='contained' 
+            style={{maxWidth:"140px ! important"}}
+            onClick = { () => {
+              dispatch(addNewBlankRecordForm({navTable}));
+              console.log(mode);
+              setMode(mode==='Both'?mode:'Edit'); 
+            } } >
+            Add
+            { (navTable===navParentTable ? ' Sub-' : ' ') // HACK: CYCLIC RELATIONSHIPS
+            + navTable 
+            }
+          </Button> 
+
+          { navTableID &&
+          <Button 
+            id="crudDelete" 
+            variant='contained' 
+            onClick={ () => {
+            dispatch(deleteRecord(state.navigate));
+            setMode(mode==='Both'?mode:'Outline');
+            } } > 
+            Delete 
+          </Button>                
+          }
+        </> : 
+        navTableID && <>
+          <Button
+            id="crudSave" 
+            variant='contained' 
+            disabled={ !isFormValid }
+            onClick={ () => {
+              if (!isFormValid) {
+                alert('Please fill in all required fields before saving');
+                return;
+              }
+              if (navTableID==="-1")
+                dispatch(insertRecord(state.navigate, record));
+              else {
+                console.log(`ORIGRECORD = ${strOrigRecord}`);
+                console.log(`RECORD = ${strRecord}`);
+                dispatch(updateRecord(state.navigate,
+                  recordDelta(record, origRecord)));
+              }
+          }}> Save </Button> 
+          <Button 
+            id="crudCancel" variant='contained'
+            onClick={ ()=> { 
+            setLatestNodeformState({ 
+              record: origRecord, 
+              isFormValid: true
+            });
+            // Remove form if Add New record form...
+            if (navTableID === '-1') {
+              dispatch(setFocus({ 
+              table:navTable, 
+              tableID: '', 
+              parentTable: navParentTable,
+              parentID: navStrParentID 
+              }));
+              // Return to outline display only...
+              setMode('Outline');
+            } else
+            // If user was editing an existing record, flag rerender...
+              setRerenderFlat(rerenderFlag+1);  
+            }
+          }> Cancel </Button>
+        </>}
+        </div>
+      </div>
+    }
+  </Grid> 
   )
 }

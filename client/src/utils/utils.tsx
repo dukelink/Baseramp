@@ -95,3 +95,12 @@ export const VerticalSpace = (props:{pixels:number}) => (
       width: '100%' }}>
     &nbsp; {/* Some browsers need content for spacer to work... */}
   </div>);
+
+// https://stackoverflow.com/questions/16167581/sort-object-properties-and-json-stringify
+export function JSONstringifyOrder( obj : object, space ?: string | number )
+{
+    var allKeys = [] as any;
+    JSON.stringify( obj, function( key, value ){ allKeys.push( key ); return value; } )
+    allKeys.sort();
+    return JSON.stringify( obj, allKeys, space );
+}
