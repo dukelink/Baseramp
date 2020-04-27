@@ -63,7 +63,7 @@ const UI = () => {
     useEffect(() => {
         const intv = setInterval(()=>{
             refreshFromServer(navigate);
-        }, 2000); // 2 second polling for DB updates from other users 
+        }, 20000); // 2 second polling for DB updates from other users 
         return () => { 
             clearInterval(intv); // critical to clear out-of-scope resource!
         }

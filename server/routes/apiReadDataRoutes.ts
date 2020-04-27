@@ -47,7 +47,9 @@ const userTables = [
   'chore',
   'checkoff',
   'StoryStory',
-  'StoryRequirement'
+  'StoryRequirement',
+  'StatusAppTable',
+  'CategoryAppTable'
 ];
 
 const adminTables = [

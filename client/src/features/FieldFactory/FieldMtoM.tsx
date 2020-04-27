@@ -41,6 +41,8 @@ export const FieldMtoM = memo((props : {
       AppColumn_read_only, AppColumn_is_nullable } = appCol;
   const classes = useStyles();     
 
+  console.log(`FieldMtoM: referenceTableName=${referenceTableName}`)
+
   // Allow mutating and tracking current value to prevent number field rerendering
   // (see onChange in character varying data type TextField control)
   let { field } = props; 
@@ -92,7 +94,8 @@ export const FieldMtoM = memo((props : {
 
         onChange = { (e : any) => onChange(fieldName,e.target.value) }>            
         { 
-        referenceTable.map((row:any) => (
+        referenceTable
+        .map((row:any) => (
           <MenuItem key = { row[referenceTableName+'_id'] } 
                 value = { row[referenceTableName+'_id'] }>
             <Checkbox checked={field.indexOf(row[referenceTableName+'_id']) > -1} />

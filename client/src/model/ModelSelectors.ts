@@ -106,6 +106,15 @@ export const useFieldMetadata = (fieldName:string) => {
             === state.model?.apiModel[navTable][navTableID]
             [fieldName.replace(navParentTable+'_',referenceTableName+'_')])
       ))
+      // If reference table is AppTable then
+      // scope tables presented to only those with 
+      // a foreign key to the current navTable...
+      .filter((rec:RecordOfAnyType)=>(
+        referenceTableName !== 'AppTable'
+          ||  state.model.metaModel.AppColumn[
+                rec[referenceTableName+'_title']+'_'+navTable+'_id'
+              ] !== undefined)
+      )
       // If many-to-many, cyclic foreign key, then filter out current record
       .filter((rec:RecordOfAnyType)=>(
         navTable!==referenceTableName 
