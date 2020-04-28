@@ -94,19 +94,20 @@ export const useFieldMetadata = (fieldName:string) => {
         .AppTable_table_name;
     const { AppColumn_AppTable_junction_id } 
       = state.model.metaModel.AppColumn[fieldName];
+
+    // Pre-requisites for many-to-many selected test below
+    let m2m_selected_ids = [] as any;
+    if (referenceTableName && navTableID && navTableID!=='-1') {
+      const currEditRecord = state.model?.apiModel[navTable][navTableID] 
+              || {} as any;
+      const m2mFieldName = navTable+'_'+AppColumn_AppTable_junction_id
+          + '_'+referenceTableName+'_id';
+      m2m_selected_ids = currEditRecord[m2mFieldName] || [];
+    }
+
     // TODO: '?.' only needed pre-login when 'role' not found for new user setup...
     referenceTable = Object.values(state.model?.apiModel[referenceTableName])
-      .filter((rec:RecordOfAnyType) => {
-        let m2m_selected = false; // default assumption
-        if (referenceTableName && navTableID && navTableID!=='-1') {
-          const currEditRecord = state.model?.apiModel[navTable][navTableID] 
-                  || {} as any;
-          const m2mFieldName = navTable+'_'+AppColumn_AppTable_junction_id
-             + '_'+referenceTableName+'_id';
-          const selectedIDs = currEditRecord[m2mFieldName] || [] as any;
-          m2m_selected = selectedIDs.includes(rec[referenceTableName+'_id']);
-        }
-        return(
+      .filter((rec:RecordOfAnyType) => (
           // Don't filter out any foreign keys if Active record only filter is OFF...
           !navActiveFilter ||
           // Otherwise, filter out any foreign keys that ARE in the inactive list...
@@ -114,14 +115,13 @@ export const useFieldMetadata = (fieldName:string) => {
             .includes(rec[referenceTableName+'_status_id'] || '*no-match*') 
           // DO NOT filter out the foreign key currently being referenced...
           || // M:M selected test...
-            m2m_selected
+            m2m_selected_ids.includes(rec[referenceTableName+'_id'])
           || // 1:M selected test...
             ((navTableID && navTableID!=='-1') &&
               rec[referenceTableName+'_id']
                 === state.model?.apiModel[navTable][navTableID]
                 [fieldName.replace(navParentTable+'_',referenceTableName+'_')])
-        )}
-      )
+      ))
       // If reference table is AppTable then
       // scope tables presented to only those with 
       // a foreign key to the current navTable...
