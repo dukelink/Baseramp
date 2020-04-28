@@ -34,6 +34,7 @@ export interface OutlineNode {
   children : OutlineNode[],
   closedItem ?: boolean,
   inProgress ?: boolean,
+  showTable : boolean,
   totalChildRecords : RecordOfAnyType 
 }
 
@@ -188,6 +189,7 @@ export function buildOutline(
         rank: row.record[tableHeading + '_rank'],
         parentTable,
         parentID,
+        showTable: true,
         children: buildTableHeadingsOutline(
           (parentChildTables[tableHeading] || []),
           tableHeading,
@@ -222,66 +224,34 @@ export function buildOutline(
         tableHeadings: string[],
         parentTable?: string,
         parentID?: number
-    ) {
-      //
-      // TODO: If we provide direct access to metaModel then we wouldn't need
-      // to derive this....
-      //
-      let outline: OutlineNode[];
-          const tableRoles = Object.values(derivedModel['AppTable'])
-            .reduce( (prev,curr) => ( { 
-              ...prev, 
-              [(curr.record['AppTable_title'])] : curr.record['role_title'] 
-            } ), {} as {[key:string]:string});
+  ) {
+    //
+    // TODO: If we provide direct access to metaModel then we wouldn't need
+    // to derive this....
+    //
+    let outline: OutlineNode[];
+        const tableRoles = Object.values(derivedModel['AppTable'])
+          .reduce( (prev,curr) => ( { 
+            ...prev, 
+            [(curr.record['AppTable_title'])] : curr.record['role_title'] 
+          } ), {} as {[key:string]:string});
 
-      outline = tableHeadings
-        .filter( tableHeading => (
-            // Tables w/ parents are filtered by parentIDs in buildRowsOutline()
-            parentTable
-              // Otherwise top level of outine only presents tables 
-              // that are never children
-              || !childTableSet.has(tableHeading)
-            ) && ( 
-              navigate.navShowAdminTables 
-                || tableRoles[tableHeading] !=='Admin' 
-            )
-        )
-        .filter( tableHeading => {
-          // See if parent table has an M:M junction
-          // table virtual field, and if so filter to 
-          // only those table names (tableHeading) that
-          // have been select as in-scope within parent record...
-          if (parentTable && parentID) {
-            //
-            // TODO: If we provide direct access to metaModel then we wouldn't need
-            // to derive this....
-            //
-            const appColumnRec = Object.values(derivedModel['AppColumn'])
-              .filter(rec => (
-                rec.record['AppColumn_column_name'].toLowerCase()
-                  === parentTable+'_'+parentTable+'apptable_apptable_id')
-              )[0];
-
-              // If the parent record is for a table that references
-              // an AppTable junction, then filter child tables included
-              // in the outline to just those select by this junction table
-              // information...
-              if (appColumnRec) {
-                const parentRec = derivedModel[parentTable][parentID].record; 
-                const m2m_fieldName = parentTable+'_'+parentTable[0].toUpperCase()
-                  +parentTable.substr(1)+'AppTable_AppTable_id';
-                const showTableIDs = parentRec[m2m_fieldName] || [];
-                const currTableDef = Object.values(derivedModel['AppTable'])
-                  .filter(rec => rec.record['AppTable_table_name']===tableHeading)
-                    [0].record;
-                 return (showTableIDs.includes(currTableDef['AppTable_id']));
-              }
-          }
-          return true;
-        })
-        .map((tableHeading): OutlineNode => { 
-          let itemTitle : string;
-    
+    outline = tableHeadings
+      .filter( tableHeading => (
+          // Tables w/ parents are filtered by parentIDs in buildRowsOutline()
+          parentTable
+            // Otherwise top level of outine only presents tables 
+            // that are never children
+            || !childTableSet.has(tableHeading)
+          ) && ( 
+            navigate.navShowAdminTables 
+              || tableRoles[tableHeading] !=='Admin' 
+          )
+      )
+      .map((tableHeading): OutlineNode => { 
+        let itemTitle : string;
+        let showTable : boolean = true; // default assumption
+  
         if (tableHeading===parentTable)
           // HACK: CYCLIC RELATIONSHIPS - format outline title "Sub <Table>"
           itemTitle = 'Sub-' + properCasePluralize(tableHeading);
@@ -291,6 +261,37 @@ export function buildOutline(
         else
           itemTitle = properCasePluralize(tableHeading);
 
+        // See if parent table has an M:M junction
+        // table virtual field, and if so filter to 
+        // only those table names (tableHeading) that
+        // have been select as in-scope within parent record...
+        if (parentTable && parentID) {
+          //
+          // TODO: If we provide direct access to metaModel then we wouldn't need
+          // to derive this....
+          //
+          const appColumnRec = Object.values(derivedModel['AppColumn'])
+            .filter(rec => (
+              rec.record['AppColumn_column_name'].toLowerCase()
+                === parentTable+'_'+parentTable+'apptable_apptable_id')
+            )[0];
+
+            // If the parent record is for a table that references
+            // an AppTable junction, then filter child tables included
+            // in the outline to just those select by this junction table
+            // information...
+            if (appColumnRec) {
+              const parentRec = derivedModel[parentTable][parentID].record; 
+              const m2m_fieldName = parentTable+'_'+parentTable[0].toUpperCase()
+                +parentTable.substr(1)+'AppTable_AppTable_id';
+              const showTableIDs = parentRec[m2m_fieldName] || [];
+              const currTableDef = Object.values(derivedModel['AppTable'])
+                .filter(rec => rec.record['AppTable_table_name']===tableHeading)
+                  [0].record;
+                showTable = (showTableIDs.includes(currTableDef['AppTable_id']));
+            }
+        }
+ 
         return ({
           itemKey: tableHeading,
           itemTitle,
@@ -299,10 +300,12 @@ export function buildOutline(
           parentID,
           closedItem: false,
           inProgress: false,
+          showTable,
           children: buildRowsOutline(tableHeading, parentTable, parentID),
           totalChildRecords: {}
         })
       });
+
     return outline;
   }
 }

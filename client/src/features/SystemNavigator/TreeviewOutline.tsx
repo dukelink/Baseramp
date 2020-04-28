@@ -60,7 +60,7 @@ function OutlineItemLabel(props: { item : OutlineNode })
       { !item.tableID ?
           <FolderIcon color="inherit" className={ labelClassName } />
         : ( item.children.length ?
-              <InputIcon color={"inherit"} className={ labelClassName } />
+              <InputIcon color="inherit" className={ labelClassName } />
             : <AssignmentIcon color="inherit" className={ labelClassName } />  
           )
       }
@@ -88,7 +88,10 @@ const OutlineItem = memo((props:{item:OutlineNode, key : any, children?:any}) =>
         className = 'customItem' 
         label = { OutlineItemLabel({ item }) }  
         onClick={ (e:any) => { outlineItemClick(item) }}>
-      { item.children.map((item)=><OutlineItem item={item} key={item.itemKey}/>) }
+      { item.children
+          .filter( item => item.children.length || item.showTable )
+          .map( item => <OutlineItem item={item} key={item.itemKey}/> )
+      }
     </TreeItem>);
 
   function outlineItemClick(item:OutlineNode) { dispatch(setFocus(item)); }
