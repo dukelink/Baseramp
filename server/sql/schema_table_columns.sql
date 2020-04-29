@@ -73,7 +73,7 @@ WHERE AppColumn_AppTable_id in (
 ALTER TABLE AppColumn CHECK CONSTRAINT appcolumn_appcolumn_related_pk_id_foreign;
 ALTER TABLE AppColumn CHECK CONSTRAINT appcolumn_appcolumn_apptable_id_foreign;
 
-
+/* */
 DELETE FROM AppTable
 WHERE @TablesToRefresh='*' 
 		or charindex('['+AppTable_table_name+']',@TablesToRefresh) > 0
@@ -101,7 +101,7 @@ on tc.table_name = tm.table_metadata_table_name
 where tc.table_name NOT IN ( 'TABLE_COLUMNS', 'TABLE_RELATIONSHIPS', 'TABLE_METADATA', 'COLUMN_METADATA' )
 and (@TablesToRefresh='*' 
 		or charindex('['+tc.table_name+']',@TablesToRefresh) > 0)
-
+/* */
 INSERT INTO AppColumn
 (	AppColumn_title,
 	AppColumn_description,

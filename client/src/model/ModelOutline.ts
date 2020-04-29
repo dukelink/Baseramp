@@ -39,10 +39,10 @@ export interface OutlineNode {
 }
 
 const parentChildTables: any = { 
-  category: ['project', 'chore'],
-  project: ['project', 'story', 'requirement'],
-  requirement: ['requirement'],
-  competency: ['competency','resource','challenge'],
+  category: ['category','project', 'chore'], // CYCLIC
+  project: ['project', 'story', 'requirement'], // CYCLIC
+  requirement: ['requirement'], // CYCLIC
+  competency: ['competency','resource','challenge'], // CYCLIC
   challenge: ['response'],
 //    story: ['task'], // pending...
   user: [],
@@ -56,7 +56,7 @@ const parentChildTables: any = {
   'Project Sprint': [ 'story' ],
   AppTable: ['AppColumn'],
   status: ['sale'],
-  sale: ['sale'],
+  sale: ['sale'], // CYCLIC
   account: ['account'],
   chore: ['checkoff'],
   // HACK: Prevent direct browsing to junction tables...
@@ -67,7 +67,7 @@ const parentChildTables: any = {
 const childTableSet = new Set(
   Object.values(parentChildTables)
   .flat()
-  .filter( (tbl) => (!['sale','account','competency'].includes(tbl)) )  // HACK: CYCLIC; TODO: Generalize
+  .filter( (tbl) => (!['category','sale','account','competency'].includes(tbl)) )  // HACK: CYCLIC; TODO: Generalize
 );
 
 export function buildOutline(
