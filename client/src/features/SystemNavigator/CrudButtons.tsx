@@ -92,10 +92,7 @@ export const CrudButtons = ( props: {
               console.log(mode);
               setMode(mode==='Both'?mode:'Edit'); 
             } } >
-            Add
-            { (navTable===navParentTable ? ' Sub-' : ' ') // HACK: CYCLIC RELATIONSHIPS
-            + navTable 
-            }
+            Add { navTable }
           </Button> 
 
           { navTableID &&

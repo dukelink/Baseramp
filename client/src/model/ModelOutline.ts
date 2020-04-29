@@ -248,14 +248,11 @@ export function buildOutline(
               || tableRoles[tableHeading] !=='Admin' 
           )
       )
-      .map((tableHeading): OutlineNode => { 
+      .reduce((prev, tableHeading:string) => { 
         let itemTitle : string;
         let showTable : boolean = true; // default assumption
   
-        if (tableHeading===parentTable)
-          // HACK: CYCLIC RELATIONSHIPS - format outline title "Sub <Table>"
-          itemTitle = 'Sub-' + properCasePluralize(tableHeading);
-        else if (tableHeading.includes(" "))
+        if (tableHeading.includes(" "))
           // HACK: XREF - compound headings, temp hack - split at space
           itemTitle = properCasePluralize(tableHeading.split(" ")[0])
         else
@@ -292,19 +289,27 @@ export function buildOutline(
             }
         }
  
-        return ({
-          itemKey: tableHeading,
-          itemTitle,
-          table: tableHeading,
-          parentTable,
-          parentID,
-          closedItem: false,
-          inProgress: false,
-          showTable,
-          children: buildRowsOutline(tableHeading, parentTable, parentID),
-          totalChildRecords: {}
-        })
-      });
+        const childRows = buildRowsOutline(tableHeading, parentTable, parentID);
+
+        // HACK: CYCLIC outline headings may be removed
+        if (tableHeading===parentTable) 
+          prev.push(...childRows);
+        else
+          prev.push({
+            itemKey: tableHeading,
+            itemTitle,
+            table: tableHeading,
+            parentTable,
+            parentID,
+            closedItem: false,
+            inProgress: false,
+            showTable,
+            children: childRows,
+            totalChildRecords: {}
+          });
+
+        return prev;
+      }, [] as OutlineNode[]);
 
     return outline;
   }
