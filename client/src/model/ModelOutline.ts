@@ -39,8 +39,8 @@ export interface OutlineNode {
 }
 
 const parentChildTables: any = { 
-  category: ['category','project', 'chore'], // CYCLIC
-  project: ['project', 'story', 'requirement'], // CYCLIC
+  category: ['category','project', 'chore'], // CYCLIC: category
+  project: ['story', 'requirement'], // CYCLIC
   requirement: ['requirement'], // CYCLIC
   competency: ['competency','resource','challenge'], // CYCLIC
   challenge: ['response'],
