@@ -39,10 +39,12 @@ export interface OutlineNode {
 }
 
 const parentChildTables: any = { 
-  category: ['category','project', 'chore'], // CYCLIC: category
+  category: ['category', // CYCLIC: category
+    'project', 'chore','requirement',
+    'resource','challenge','account',
+    'sale', 'sprint'], 
   project: ['story', 'requirement'], // CYCLIC
   requirement: ['requirement'], // CYCLIC
-  competency: ['competency','resource','challenge'], // CYCLIC
   challenge: ['response'],
 //    story: ['task'], // pending...
   user: [],
@@ -56,8 +58,8 @@ const parentChildTables: any = {
   'Project Sprint': [ 'story' ],
   AppTable: ['AppColumn'],
   status: ['sale'],
-  sale: ['sale'], // CYCLIC
-  account: ['account'],
+////  sale: ['sale'], // CYCLIC
+////  account: ['account'],
   chore: ['checkoff'],
   // HACK: Prevent direct browsing to junction tables...
   dummy: [ 'StoryStory', 'StoryRequirement', 'StatusAppTable', 'CategoryAppTable' ] 
@@ -67,7 +69,7 @@ const parentChildTables: any = {
 const childTableSet = new Set(
   Object.values(parentChildTables)
   .flat()
-  .filter( (tbl) => (!['category','sale','account','competency'].includes(tbl)) )  // HACK: CYCLIC; TODO: Generalize
+  .filter( (tbl) => (!['category'].includes(tbl)) )  // HACK: CYCLIC; TODO: Generalize
 );
 
 export function buildOutline(
@@ -292,7 +294,8 @@ export function buildOutline(
         const childRows = buildRowsOutline(tableHeading, parentTable, parentID);
 
         // HACK: CYCLIC outline headings may be removed
-        if (tableHeading===parentTable) 
+        if (  tableHeading===parentTable 
+          || (!parentTable && tableHeading==='category' && childRows.length) ) 
           prev.push(...childRows);
         else
           prev.push({

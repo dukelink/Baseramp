@@ -40,7 +40,6 @@ const userTables = [
   'requirement',
   'challenge',
   'resource',
-  'competency',
   'response',
   'account',
   'sale',

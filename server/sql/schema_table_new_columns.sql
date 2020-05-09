@@ -59,9 +59,9 @@ where table_catalog=DB_NAME() /* mssql function */
 	and table_name <> 'sysdiagrams'
 ORDER BY TABLE_NAME,ORDINAL_POSITION;
 
+/*
 ALTER TABLE AppColumn NOCHECK CONSTRAINT appcolumn_appcolumn_related_pk_id_foreign;
 ALTER TABLE AppColumn NOCHECK CONSTRAINT appcolumn_appcolumn_apptable_id_foreign;
-
 DELETE FROM AppColumn
 WHERE AppColumn_AppTable_id in (
 	SELECT AppTable_id 
@@ -69,14 +69,15 @@ WHERE AppColumn_AppTable_id in (
 	WHERE @TablesToRefresh='*' 
 		or charindex('['+AppTable_table_name+']',@TablesToRefresh) > 0
 )
-
 ALTER TABLE AppColumn CHECK CONSTRAINT appcolumn_appcolumn_related_pk_id_foreign;
 ALTER TABLE AppColumn CHECK CONSTRAINT appcolumn_appcolumn_apptable_id_foreign;
+*/
 
-/* */
+/*
 DELETE FROM AppTable
 WHERE @TablesToRefresh='*' 
 		or charindex('['+AppTable_table_name+']',@TablesToRefresh) > 0
+*/
 
 INSERT INTO AppTable (
 	AppTable_Title,
@@ -101,7 +102,8 @@ on tc.table_name = tm.table_metadata_table_name
 where tc.table_name NOT IN ( 'TABLE_COLUMNS', 'TABLE_RELATIONSHIPS', 'TABLE_METADATA', 'COLUMN_METADATA' )
 and (@TablesToRefresh='*' 
 		or charindex('['+tc.table_name+']',@TablesToRefresh) > 0)
-/* */
+
+-- Just fields not already on file...
 INSERT INTO AppColumn
 (	AppColumn_title,
 	AppColumn_description,
@@ -145,8 +147,7 @@ SELECT -- TODO: Test/fixup for Postgresql or use Knex select query...
 FROM TABLE_COLUMNS tc
 INNER JOIN AppTable
 ON tc.table_name = AppTable_table_name
-AND (@TablesToRefresh='*' 
-		or charindex('['+tc.table_name+']',@TablesToRefresh) > 0)
+AND tc.column_name not in (select AppColumn_column_name from AppColumn) -- <<<===
 LEFT JOIN column_metadata cm_exact
 on substring(tc.column_name,len(AppTable_table_name)+1,999) = cm_exact.column_metadata_general_column_name
 	and cm_exact.column_metadata_table_name = AppTable_table_name
