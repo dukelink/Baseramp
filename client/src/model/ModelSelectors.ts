@@ -106,7 +106,7 @@ export const useFieldMetadata = (fieldName:string) => {
     }
 
     // TODO: '?.' only needed pre-login when 'role' not found for new user setup...
-    referenceTable = Object.values(state.model?.apiModel[referenceTableName])
+    referenceTable = Object.values(state.model?.apiModel[referenceTableName]||{})
       .filter((rec:RecordOfAnyType) => (
           // Don't filter out any foreign keys if Active record only filter is OFF...
           !navActiveFilter ||
