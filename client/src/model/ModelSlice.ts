@@ -89,7 +89,7 @@ const model = createSlice({
           if (!recordRef) // INSERT case (should we assert this on update_type?)
             model.apiModel[table_name][tableID] = record;
           else {          // UPDATE case
-            const newRec : RecordOfAnyType = Object.assign(recordRef, record);  
+            //const newRec : RecordOfAnyType = Object.assign(recordRef, record);  
             /*
             // Meta data UPDATES only at this time (no INSERT/DELETEs)...
             if (table_name==='AppTable') 

@@ -32,6 +32,7 @@ import { NodeFormEditState } from '../NodeForm/NodeForm';
 import { EditMode } from './SystemNavigator';
 import { updateRecord, insertRecord, deleteRecord } from '../../model/ModelThunks';
 import { addNewBlankRecordForm, setFocus } from './NavigateSlice';
+import { useTableAppCols } from '../../model/ModelSelectors';
 
 import { recordDelta } from '../../utils/utils';
 
@@ -44,8 +45,8 @@ export const CrudButtons = ( props: {
   origRecord: RecordOfAnyType
   } 
 ) => {
-  const { setLatestNodeformState, mode, setMode, origRecord } = props;
-  const { record, isFormValid } = props.latestNodeformState;      
+  const { setLatestNodeformState, mode, setMode } = props;
+  const { isFormValid } = props.latestNodeformState;      
 
   const classes = useNavPanelStyles();
   const state = useSelector<RootState,RootState>(state=>state);
@@ -55,6 +56,30 @@ export const CrudButtons = ( props: {
   const otherLabel = mode==='Outline' ? 'Form' : 'Outline';
 
   const { navTable, navTableID, navParentTable, navStrParentID } = state.navigate;
+
+  const tableVisibleFieldNames = useTableAppCols(navTable)
+    .filter( appCol => 
+      // REVIEW:
+      // Filters out ui hidden since they are not needed to drive UI,
+      // and MORE IMPORTANTLY, I want to filter recordDelta
+      // to only visible fields using this hook, so that we
+      // don't try to send fields updates to the server
+      // for fields that are not editable (like SQL computed fields)
+      !appCol.AppColumn_ui_hidden      
+    )
+    .map( appCol => appCol.AppColumn_column_name); 
+
+  const filterOnlyVisibleColumns = (rec:RecordOfAnyType) => {
+    const rv : RecordOfAnyType = Object.keys(rec).reduce(
+      (prev,colName) => {
+        if (tableVisibleFieldNames.includes(colName))
+          prev[colName] = rec[colName];
+        return prev;
+      },{} as RecordOfAnyType);
+      return rv;
+  }
+  const origRecord = filterOnlyVisibleColumns(props.origRecord);
+  const record = filterOnlyVisibleColumns(props.latestNodeformState.record);
 
   const strOrigRecord = JSON.stringify(origRecord, Object.keys(origRecord).sort());
   const strRecord = JSON.stringify(record, Object.keys(record).sort());
