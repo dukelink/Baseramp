@@ -103,20 +103,6 @@ export const addApiWriteDataRoutes = (router : Router ) =>
     const { record: recordDelta, virtual } 
       = await businessRules(tableName, req, res, req.body);
 
-      /*
-    // HACK: May want to change structure of AppColumn/AppTable keys
-    // and remove this...
-    // If business rules updated primary key (e.g. FOR APPCOLUMN TABLE)
-    // then capture new primary key id and erase it (since we cannot update PKs).
-    if (newPKID = recordDelta[primaryKeyField]) {
-      primaryKeyID = newPKID; 
-      delete recordDelta[primaryKeyField];
-      // Same goes for foreign key in AppColumn...
-      //if (recordDelta['AppColumn_AppTable_id'])
-      //  delete recordDelta['AppColumn_AppTable_id']
-    }
-      */
-
     if (Object.keys(recordDelta).length)
       await knex
         .from(tableName)

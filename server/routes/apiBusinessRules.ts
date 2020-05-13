@@ -20,14 +20,9 @@
 */
 
 import { Request, Response } from 'express';
-import Knex from "knex";
 import bcrypt from "bcryptjs";
 
-import { knexErrorHandler } from './util';
-import { development } from '../knexfile';
 import { cacheMetadata } from './apiReadDataRoutes';
-
-const knex = Knex(development);
 
 export const businessRules 
 = (tableName:string, req: Request, res: Response, record:any={}) => 
@@ -36,22 +31,6 @@ export const businessRules
   promise = new Promise( (resolve, reject) => {
     switch(tableName) 
     {
-      /*
-      case 'AppColumn' :
-        // HACK: Translate PK's back from column name to ID...
-        knex
-          .select('AppColumn_id')
-          .from('AppColumn')
-          .where('AppColumn_column_name','=',req.params.id)
-          // then() must come before catch() since we don't rethrow exception in knexErrorHandler
-          .then( data => {
-            const newRec = {...record, ...data[0]};
-            resolve({record:newRec,virtual:[]});
-          } )
-          .catch( (error) => { knexErrorHandler(req,res,error) } );
-        break;
-      */
-
       case 'user':
         if (record.user_password_hash) 
         {
