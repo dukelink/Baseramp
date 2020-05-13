@@ -98,7 +98,9 @@ export const refreshFromServer = (navigate:INavigateState) =>
     .catch(() =>{})
     .then(res => {
         const audit_updates: any = res;
-        store.dispatch(refresVMfromAuditRecords({navigate,audit_updates}));
+
+        if (audit_updates.length) 
+          store.dispatch(refresVMfromAuditRecords({navigate,audit_updates}));
 
         //
         // MINOR HACK: Watch for any edits to metadata tables,
