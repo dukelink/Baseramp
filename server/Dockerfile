@@ -1,6 +1,4 @@
-FROM node
-
-WORKDIR //Users/dukel/Documents/Projects/goals-react-ts/server
+FROM node:12-alpine3.11
 
 COPY package*.json ./
 

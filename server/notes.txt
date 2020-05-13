@@ -25,6 +25,8 @@ CMD ["node", "./dist/bin/www.js"]
 # docker system prune
 # docker rmi <image hash>
 
+# docker run -p 8080:8080 --env MS_SQL_PW=**password** ec2-projects-2
+
 # To to ship this image, to another machine :
 # docker ps -a  
 # #or docker container ls -a
