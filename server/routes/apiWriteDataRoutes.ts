@@ -273,8 +273,8 @@ export const addApiWriteDataRoutes = (router : Router ) =>
       throw 400;
     }            
 
-    const user_role_id = req.user.user_role_id;
-    const user_id = req.user.user_id;
+    const user_role_id = req?.user?.user_role_id;
+    const user_id = req?.user?.user_id;
 
     if (tableName != 'user' && !user_id) {
       console.log(`NO USER INFO: ${JSON.stringify(req?.user)}`);

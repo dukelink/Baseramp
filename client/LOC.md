@@ -393,6 +393,39 @@ Release refactored Sprint-Projects XREF feature:
 Number of files read :  35  
 ```
 
+```
+05/14/2020 - Performance refactors:
+
+Client: (npx sloc src -e "test")
+  156.49 KB  build\static\js\2.3fe3150f.chunk.js
+  11.85 KB   build\static\js\main.d090daac.chunk.js
+  783 B      build\static\js\runtime-main.fd5b1e98.js
+  583 B      build\static\css\2.47271137.chunk.css
+  434 B      build\static\css\main.2c61f976.chunk.css
+            Physical :  4367
+              Source :  2997
+             Comment :  1043
+ Single-line comment :  383
+       Block comment :  660
+               Mixed :  75
+ Empty block comment :  112
+               Empty :  514
+               To Do :  26
+Number of files read :  42
+
+Server: (npx sloc routes app.ts)
+            Physical :  1130
+              Source :  703
+             Comment :  330
+ Single-line comment :  173
+       Block comment :  157
+               Mixed :  17
+ Empty block comment :  27
+               Empty :  141
+               To Do :  21
+Number of files read :  7
+```
+
 # HELPFUL SNIPPETS:
 
 npx sloc src -- get lines of code reports, presented above
