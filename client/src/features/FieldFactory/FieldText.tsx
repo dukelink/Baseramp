@@ -19,7 +19,7 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import React, { memo } from 'react';
+import React, { memo, ChangeEvent } from 'react';
 import { AppColumnRow } from '../../model/ModelTypes';
 import { TextField, FormControl } from '@material-ui/core';
 import NumberFormat from 'react-number-format';
@@ -71,6 +71,23 @@ export const FieldText = memo((props : {
     else if (fieldName.indexOf('_hours')!==-1)
         InputProps = { ...InputProps, inputComponent: NumberFormatHours }; 
     
+    const textField_onChange = (e : ChangeEvent<HTMLInputElement>)=>{
+        if ( e.target.value.length <= (
+            // varchar max limit for now to prevent large cut-and-paste operations for example 
+            AppColumn_character_maximum_length || 65536 
+        ) ) {
+          let normalizedValue = e.target.value as string | null;
+          if (AppColumn_is_nullable==='YES' && normalizedValue==='')
+            normalizedValue = null;
+          if ( field !== normalizedValue ) {
+            // Track to prevent re-rendering from numeric field formatter
+            // (otherwise this might not be needed)...
+            field = normalizedValue;
+            onChange(fieldName,field);
+          }
+        }
+    }
+
     return (
       <FormControl 
         style = {{ minWidth: AppColumn_ui_minwidth || 
@@ -87,21 +104,7 @@ export const FieldText = memo((props : {
                     ? ''  
                     : field // use space; null does not init control properly
             }
-            onChange = { 
-                // TODO: Refactor to remove arrow function from event handler
-                (e)=>{
-                    if ( e.target.value.length <= (
-                        // varchar max limit for now to prevent large cut-and-paste operations for example 
-                        AppColumn_character_maximum_length || 65536 
-                    ) ) {
-                        if ( (field||'').toString() !== e.target.value ) {
-                          onChange(fieldName,e.target.value); 
-                          // Track to prevent re-rendering from numeric field formatter
-                          // (otherwise this would not be needed)...
-                          field = e.target.value;
-                        }
-                    }
-                } }
+            onChange = { textField_onChange }
             disabled = { AppColumn_read_only }
             InputProps = { InputProps }
         />    

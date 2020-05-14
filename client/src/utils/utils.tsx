@@ -27,7 +27,7 @@ export const recordDelta = (newObj: {[key:string]:any}, origObj: {[key:string]:a
   Object.keys(newObj).forEach((fld) => {
       if (newObj[fld] !== origObj[fld]
           && !fld.includes("Project Sprint")) // HACK: XREF - do not write compound virtual 'key' fields
-        changes[fld] = (newObj[fld] || '');
+        changes[fld] = (newObj[fld] || null);
   });
   return changes;
 }
