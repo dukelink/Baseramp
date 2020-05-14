@@ -39,16 +39,16 @@ export const AppField = /*memo(*/ ( props : {
     field:any,
     navTable:string,
     navTableID:string,
-    navActiveFilter?:boolean,
+    activeFilter?:boolean,
     onChange: (fieldName:string, newVal:any)=>(void),
     appCol: AppColumnRow
 }) => 
 {
-  const { fieldName, field, onChange, appCol, navTable, navTableID, navActiveFilter } = props;
+  const { fieldName, field, onChange, appCol, navTable, navTableID, activeFilter } = props;
   const classes = useStyles();
 
   const { referenceTableName, referenceTable } // , appCol
-    = useFieldMetadata(fieldName,field,navTable,navTableID,navActiveFilter);
+    = useFieldMetadata(fieldName,field,navTable,navTableID,activeFilter);
  
   const { AppColumn_title : appColTitle, 
         AppColumn_data_type, AppColumn_ui_minwidth,

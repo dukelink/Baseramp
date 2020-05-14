@@ -21,51 +21,27 @@
 
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { OutlineNode } from '../../model/ModelOutline';
-import { Records, AuditUpdate } from '../../model/ModelTypes';
 
 export interface INavigateState {
   navTable: string;
   navTableID: string;
   navParentTable: string;
   navStrParentID: string;
-  navActiveFilter : boolean;
-  navShowAdminTables : boolean;
-  lastAuditTableID : number;
 };
 
 let initialState : INavigateState = {
     navTable: "",
     navTableID: "",
     navParentTable: "",
-    navStrParentID: "",
-    navActiveFilter: true,
-    navShowAdminTables: false,
-    lastAuditTableID:-1
-};
+    navStrParentID: ""
+}; 
 
 type INavigateRecordFocus = Pick<OutlineNode,'table'|'tableID'|'parentTable'|'parentID'>;
 
 const model = createSlice({
-  name: 'model',
+  name: 'common', // critical if reducer logic is shared in other slices!
   initialState,
   reducers: {
-    load(state, action:PayloadAction<Records<any>>) { 
-      const records = action.payload;
-      //console.log(JSON.stringify(records['audit']))
-      state.lastAuditTableID = Number.parseInt(
-            Object.keys(records['audit'])[0] // (highest audit_id)
-        ) || -1;  // -1 is just any low value that we can spot as 'uninitialized'
-                  // (Unlikely to occur as the audit table will always have some data)
-    },   
-    refresVMfromAuditRecords(state, 
-      action:PayloadAction<{navigate:INavigateState,audit_updates:AuditUpdate[]}>)
-    {
-      const { navigate, audit_updates } = action.payload;
-      if (audit_updates.length)
-        state.lastAuditTableID = 
-            Object.values(audit_updates).slice(-1)[0].audit_id
-              || navigate.lastAuditTableID; // REVIEW: Consider MAX for safety's sake!
-    },
     setFocus(state, action: PayloadAction<INavigateRecordFocus>) {
       let { table, tableID, parentTable, parentID } = action.payload;
       // HACK: XREF...
@@ -89,10 +65,6 @@ const model = createSlice({
       state.navTableID = record[navTable+'_id']
         .toString(); // NOTE: navTableID is of type string
     }, 
-    setActiveItemDisplay(state,action:PayloadAction<{navigate : INavigateState}>) {
-      console.log(`set acvtive item display: ${JSON.stringify(action.payload)}`)
-      Object.assign(state, action.payload.navigate);
-    },
     deleteRecordFromVM(state,action:PayloadAction) { 
       state.navTableID = '';
     },
@@ -105,7 +77,6 @@ const model = createSlice({
 
 export const { 
   addNewBlankRecordForm, 
-  setActiveItemDisplay,
   setFocus
 } = model.actions;
 

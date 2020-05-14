@@ -24,12 +24,13 @@ import store, { AppThunk } from  '../store';  // REVIEW: Are there any anti-patt
 import { Fetch } from '../utils/Fetch';
 import { recordDelta } from '../utils/utils';
 import  { metaload, load, 
-          refresVMfromAuditRecords,
+          refreshVMfromAuditRecords,
           refreshRecordInVM, 
           addRecordToVM, 
           deleteRecordFromVM
         } from './ModelSlice';
 import { INavigateState } from '../features/SystemNavigator/NavigateSlice';
+import { SettingsState } from '../features/SettingsPage/SettingsSlice';
 import { RecordOfAnyType } from './ModelTypes';
 
 export const initialLoad = (route:string="all") => 
@@ -55,14 +56,11 @@ export const loadMetadata = () =>
   });
 }
 
-export const updateRecord = (navigate:INavigateState, recordDelta:any) 
-  : AppThunk => async dispatch => 
+export const updateRecord = 
+  (navigate:INavigateState, settings:SettingsState, recordDelta:any) 
+    : AppThunk => async dispatch => 
 {
   const { navTable, navTableID } = navigate;
-
-  // NOTE/REVIEW: not SSR compatible; but convinient for easy/quick/fast
-  // access to Redux global store...  
-  const state = store.getState();
 
   let record : RecordOfAnyType = {};
 
@@ -78,24 +76,24 @@ export const updateRecord = (navigate:INavigateState, recordDelta:any)
       // Grab committed record from server that will be populated with
       // any other fields computed server-side... 
       record = res;
-      dispatch(refreshRecordInVM({navigate,record}));
+      dispatch(refreshRecordInVM({navigate,settings,record}));
     });
   }
 }
 
-export const refreshFromServer = (navigate:INavigateState) =>
+export const refreshFromServer = (settings:SettingsState) =>
 //  : AppThunk => async dispatch => 
 {
-  if (navigate.lastAuditTableID !== -1) {
-    Fetch(Environment.serverURL + `audit_updates/${navigate.lastAuditTableID}`)
+  if (settings.lastAuditTableID !== -1) {
+    Fetch(Environment.serverURL + `audit_updates/${settings.lastAuditTableID}`)
     .then(res => res && res.json())
     .catch(() =>{})
     .then(res => {
         const audit_updates: any = res;
 
-        if (audit_updates.length) {
+        if (audit_updates?.length) {
           //console.log(`refreshFromServer(${JSON.stringify(navigate)}): ${JSON.stringify(audit_updates)}`);
-          store.dispatch(refresVMfromAuditRecords({navigate,audit_updates}));
+          store.dispatch(refreshVMfromAuditRecords({settings,audit_updates}));
         }
 
         //
@@ -103,7 +101,7 @@ export const refreshFromServer = (navigate:INavigateState) =>
         // either by ourself or other users, and reload
         // the denormalized-keys metaData in Redux...
         //
-        if (audit_updates.length && 
+        if (audit_updates?.length && 
             (audit_updates[0].table_name==='AppTable' 
             || audit_updates[0].table_name==='AppColumn')) {
           loadMetadata();
@@ -114,8 +112,9 @@ export const refreshFromServer = (navigate:INavigateState) =>
   }
 }
 
-export const insertRecord = (navigate:INavigateState, _record:RecordOfAnyType) 
-  : AppThunk => async dispatch => 
+export const insertRecord = 
+  (navigate:INavigateState, settings:SettingsState, _record:RecordOfAnyType)
+    : AppThunk => async dispatch => 
 {
   const { navTable } = navigate;
 
@@ -140,12 +139,12 @@ export const insertRecord = (navigate:INavigateState, _record:RecordOfAnyType)
       //       even if .catch(), below, commented out!!!!!!!!!!!
       // throw 123;
 
-      dispatch(addRecordToVM({navigate,record}));
+      dispatch(addRecordToVM({navigate,settings,record}));
     })
   }
 }
 
-export const deleteRecord = (navigate: INavigateState)
+export const deleteRecord = (navigate: INavigateState, settings: SettingsState)
   : AppThunk => async dispatch => 
 {
   const { navTable, navTableID } = navigate;
@@ -156,5 +155,5 @@ export const deleteRecord = (navigate: INavigateState)
   ).then().catch((error) =>{ err = true; });
 
   if (!err)
-    dispatch(deleteRecordFromVM({navigate}))
+    dispatch(deleteRecordFromVM({navigate,settings}))
 }

@@ -7,30 +7,23 @@ import { Grid, Paper } from '@material-ui/core';
 
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '../../rootReducer';
-import { setActiveItemDisplay } from '../../model/ModelSlice';
-import { setPaletteType } from './SettingsSlice';
+import { setPaletteType, setActiveItemDisplay } from './SettingsSlice';
 
 const Settings: React.FC = () => {
 
   const dispatch = useDispatch();
-  const state = useSelector((state:RootState)=>state);
-  const { navActiveFilter, navShowAdminTables } = state.navigate;
-  const { paletteType } = state.settings;
-  const { model } = state;
+  const settings = useSelector((state:RootState)=>state.settings);
+  const { activeFilter, showAdminTables, paletteType } = settings;
 
-  //
-  // Do not inline reducer calls on JSX forms, since
-  // the callback functions needed may slow rendering...
-  //
   function toggleAdminDisplay() {
-    dispatch(setActiveItemDisplay({ navigate:
-        {...state.navigate, navShowAdminTables: !navShowAdminTables } }
+    dispatch(setActiveItemDisplay({ settings:
+        {...settings, showAdminTables: !showAdminTables } }
     )); 
   }
   //
   function toggleActiveDisplay() {
-    dispatch(setActiveItemDisplay({ navigate:
-        {...state.navigate, navActiveFilter: !navActiveFilter } }
+    dispatch(setActiveItemDisplay({ settings:
+        {...settings, activeFilter: !activeFilter } }
     )); 
   }
   //
@@ -44,7 +37,7 @@ const Settings: React.FC = () => {
         <FormControlLabel
             control={
               <Switch
-                checked = { navShowAdminTables }
+                checked = { showAdminTables }
                 onChange = { toggleAdminDisplay }
                 value="ignore"
                 color="primary"
@@ -59,7 +52,7 @@ const Settings: React.FC = () => {
         <FormControlLabel
             control={
               <Switch
-                checked={ !navActiveFilter }
+                checked={ !activeFilter }
                 onChange = { toggleActiveDisplay }
                 value="ignore"
                 color="primary"
@@ -84,11 +77,11 @@ const Settings: React.FC = () => {
       </Grid>
  
       <hr/>
-      { process.env.NODE_ENV !== 'development' ? <></> :
+      {/* process.env.NODE_ENV !== 'development' ? <></> :
         <pre id="model"  style={{height:"calc(80vh - 185px)", overflowY:"scroll" }} >
         { JSON.stringify(model,null,1) } 
         </pre>
-      }
+      */}
     </Paper>
   );  
 }

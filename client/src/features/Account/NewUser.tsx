@@ -24,6 +24,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import { Button } from '@material-ui/core';
 import { NodeForm, NodeFormEditState, NodeFormProps } from '../NodeForm/NodeForm';
 import { INavigateState } from '../SystemNavigator/NavigateSlice';
+import { SettingsState } from '../SettingsPage/SettingsSlice';
 import { useRecord } from '../../model/ModelSelectors';
 import { insertRecord } from '../../model/ModelThunks';
 import { useDispatch } from 'react-redux';
@@ -91,7 +92,10 @@ export const NewUser = (props:{ onDone: Login_OnDone }) =>
           className={classes.buttons}
           disabled={!userRecord.isFormValid} 
           onClick={ () => { 
-              dispatch(insertRecord({navTable:'user'} as INavigateState, userRecord.record));
+              dispatch(insertRecord(
+                { navTable:'user' } as INavigateState, 
+                { activeFilter: true, showAdminTables: false } as SettingsState,
+                userRecord.record));
               // TODO: Consider a thunk w/ callback or something similar
               // to NOT return to login page if insertRecord fails!!!
               onDone(

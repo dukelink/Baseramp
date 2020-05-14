@@ -22,25 +22,52 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { PaletteType } from '@material-ui/core';
 
+import { Records, AuditUpdate } from '../../model/ModelTypes';
+
 export interface SettingsState {
-  paletteType: PaletteType
+  paletteType: PaletteType;
+  activeFilter: boolean;
+  showAdminTables: boolean;
+  lastAuditTableID: number;
 }
 
 const initialState: SettingsState = {
-  paletteType : 'light'
+  paletteType : 'light',
+  activeFilter: true,
+  showAdminTables: false,
+  lastAuditTableID: -1
 }
 
 const settingsSlice = createSlice({
-  name: 'settings',
+  name: 'common', // critical if reducer logic is shared in other slices!
   initialState,
   reducers: {
+    load(state, action:PayloadAction<Records<any>>) { 
+      const records = action.payload;
+      state.lastAuditTableID = Number.parseInt(
+            Object.keys(records['audit'])[0] // (highest audit_id)
+        ) || -1;  // -1 is just any low value that we can spot as 'uninitialized'
+                  // (Unlikely to occur as the audit table will always have some data)
+    },   
+    refreshVMfromAuditRecords(state, 
+      action:PayloadAction<{settings:SettingsState,audit_updates:AuditUpdate[]}>)
+    {
+      const { settings, audit_updates } = action.payload;
+      if (audit_updates?.length)
+        state.lastAuditTableID = 
+            Object.values(audit_updates).slice(-1)[0].audit_id
+              || settings.lastAuditTableID; // REVIEW: Consider MAX for safety's sake!
+    },
+    setActiveItemDisplay(state,action:PayloadAction<{settings : SettingsState}>) {
+      Object.assign(state, action.payload.settings);
+    },
     setPaletteType(state, action: PayloadAction<PaletteType>) {
       state.paletteType = action.payload;
     }
   }
 })
 
-export const { setPaletteType } = settingsSlice.actions
+export const { setPaletteType, setActiveItemDisplay } = settingsSlice.actions
 
 export default settingsSlice.reducer
 

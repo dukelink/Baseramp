@@ -88,7 +88,7 @@ export const useFieldMetadata = (
     fieldValue:any,
     navTable:string,
     navTableID:string,
-    navActiveFilter = true) => 
+    activeFilter = true) => 
 {
   const model = useSelector<RootState,Model>(state=>state.model);
   const metaModel = model.metaModel;
@@ -117,7 +117,7 @@ export const useFieldMetadata = (
     referenceTable = Object.values(model?.apiModel[referenceTableName]||{})
       .filter((rec:RecordOfAnyType) => (
           // Don't filter out any foreign keys if Active record only filter is OFF...
-          !navActiveFilter ||
+          !activeFilter ||
           // Otherwise, filter out any foreign keys that ARE in the inactive list...
           !model.inactive_status_ids
             .includes(rec[referenceTableName+'_status_id'] || '*no-match*') 

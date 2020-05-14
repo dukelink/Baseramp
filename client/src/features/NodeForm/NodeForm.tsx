@@ -36,7 +36,7 @@ export class NodeFormEditState {
 export interface NodeFormProps {
   navTable   : string, 
   navTableID : string,
-  navActiveFilter ?: boolean,
+  activeFilter ?: boolean,
   record     : RecordOfAnyType,
   dispatch   : Dispatch<SetStateAction<NodeFormEditState>>
 }
@@ -48,24 +48,23 @@ const InnerRender = memo(
     state:RecordOfAnyType,
     navTable:string,
     navTableID:string,
-    navActiveFilter?:boolean,
+    activeFilter?:boolean,
     tableAppCols:AppColumnRow[],
     onChange:OnChange
   }) => {
-  const {state,navTable,navTableID,navActiveFilter,tableAppCols,onChange} = props;    
+  const {state,navTable,navTableID,activeFilter,tableAppCols,onChange} = props;    
   const empty = (
     !state[navTable+"_id"] 
     || ((state[navTable+"_id"]||'').toString() !== navTableID))
     && navTable!=='user' && navTableID!=="-1"; // REVIEW: render new user signup form
-
-  console.log(state);    
+/* 
   if (empty)
     console.log(`EMPTY: ${((state[navTable+"_id"]||'').toString() !== navTableID.toString())}
     state[navTable+"_id"]=${(state[navTable+"_id"]||'').toString()}, 
     navTableID=${JSON.stringify(navTableID)}`);
   else
     console.log('NOT EMPTY');
-
+*/
   return( empty ? <></> : <>
   { // Make sure there is a form to render...
     (!state || (navTableID!=='-1' && !Object.keys(state).length)) ||
@@ -82,7 +81,7 @@ const InnerRender = memo(
               field     = { state[fieldName]} 
               navTable  = { navTable }
               navTableID= { navTableID }
-              navActiveFilter = { navActiveFilter }
+              activeFilter = { activeFilter }
               appCol    = { appCol }
               onChange  = { onChange } /> 
           </span> )
@@ -95,15 +94,16 @@ const InnerRender = memo(
     (next.state[next.navTable+"_id"]||'').toString() !== next.navTableID
     //&& JSON.stringify(prev.state) === JSON.stringify(next.state)
     && prev.state === next.state
-    && prev.navTableID !== "-1"
+    //&& prev.navTableID !== "-1"
   )
-  console.log(`*****SUPPRESS******** ${rv?"TRUE":"FALSE"}`)
+  if (rv)
+    console.log(`*****SUPPRESS NodeForm RERENDER********`)
   return rv;
 })
 
 export const NodeForm = 
 (props : NodeFormProps) => {
-  const { navTable, navTableID, navActiveFilter, record, dispatch } = props;
+  const { navTable, navTableID, activeFilter, record, dispatch } = props;
   let tableAppCols = useTableAppCols(navTable); 
   const [ state, setState ] = useState<RecordOfAnyType>(record); 
   const formRef = useRef<any>();
@@ -129,7 +129,7 @@ export const NodeForm =
         state={state} 
         navTable={navTable} 
         navTableID={navTableID} 
-        navActiveFilter={navActiveFilter}
+        activeFilter={activeFilter}
         tableAppCols={tableAppCols}
         onChange={onChange} />
     </div>

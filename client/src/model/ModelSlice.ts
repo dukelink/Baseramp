@@ -24,6 +24,7 @@ import { buildOutline } from './ModelOutline';
 import { buildDerived, loadData } from './ModelDerived';
 import { Model, Records, RecordOfAnyType, AuditUpdate } from './ModelTypes';
 import { INavigateState } from '../features/SystemNavigator/NavigateSlice';
+import { SettingsState } from '../features/SettingsPage/SettingsSlice';
 
 let initialState : Model = {
   apiModel: {},
@@ -38,7 +39,7 @@ let initialState : Model = {
 };
 
 const model = createSlice({
-  name: 'model',
+  name: 'common', // critical if reducer logic is shared in other slices!
   initialState,
   reducers: {
     metaload(model, action:PayloadAction<Records<any>>) {
@@ -47,13 +48,18 @@ const model = createSlice({
     load(model, action:PayloadAction<Records<any>>) { 
       loadData(model,action.payload);
       model.outline = buildOutline(model.derivedModel, 
-        {navActiveFilter:true, navShowAdminTables: false}); 
+        { 
+          activeFilter:true, 
+          showAdminTables: false, 
+          paletteType: 'light', 
+          lastAuditTableID: -1
+        }); 
     },
     refreshRecordInVM(
         model : Model, 
-        action:PayloadAction<{navigate:INavigateState,record:RecordOfAnyType}>) 
+        action:PayloadAction<{navigate:INavigateState,settings:SettingsState,record:RecordOfAnyType}>) 
     {
-      const { navigate, record } = action.payload;
+      const { navigate, settings, record } = action.payload;
       const { navTable, navTableID } = navigate;
       Object.assign(model.apiModel[navTable][navTableID], record); 
       buildDerived(model);
@@ -67,13 +73,13 @@ const model = createSlice({
           break;
       } 
       */
-      model.outline = buildOutline(model.derivedModel,navigate);
+      model.outline = buildOutline(model.derivedModel,settings);
     },
-    refresVMfromAuditRecords(
+    refreshVMfromAuditRecords(
         model : Model, 
-        action:PayloadAction<{navigate:INavigateState,audit_updates:AuditUpdate[]}>) 
+        action:PayloadAction<{settings:SettingsState,audit_updates:AuditUpdate[]}>) 
     {
-      const { navigate, audit_updates } = action.payload;
+      const { settings, audit_updates } = action.payload;
 
       console.log(`refreshVMfromAuditRecords(${JSON.stringify(audit_updates)})`) 
 
@@ -103,29 +109,34 @@ const model = createSlice({
           delete model.apiModel[table_name][tableID]; 
       })
       buildDerived(model);
-      model.outline = buildOutline(model.derivedModel, navigate); // should we make navigate optional and save w/in derived structures?
+      model.outline = buildOutline(model.derivedModel, settings); // should we make navigate optional and save w/in derived structures?
     },
     addRecordToVM(model, action : 
-        PayloadAction<{navigate:INavigateState,record:RecordOfAnyType}>) { 
-      const { navigate, record } = action.payload;
+        PayloadAction<{
+          navigate:INavigateState,
+          settings:SettingsState,
+          record:RecordOfAnyType
+        }>) 
+      { 
+      const { navigate, settings, record } = action.payload;
       const { navTable } = navigate;
       const navTableID = record[navTable+'_id'];
       model.apiModel[navTable][navTableID] = record;
       buildDerived(model);
-      model.outline = buildOutline(model.derivedModel, navigate);
+      model.outline = buildOutline(model.derivedModel, settings);
     }, 
-    deleteRecordFromVM(model, action : PayloadAction<{navigate:INavigateState}>) 
+    deleteRecordFromVM(model, 
+      action : PayloadAction<{navigate:INavigateState,settings:SettingsState}>) 
     {
       const { navTable, navTableID } = action.payload.navigate;
       // REVIEW: 'delete' results in 'sparse' array...
       // I assume this is faster and OK???
       delete model.apiModel[navTable][navTableID]; 
       buildDerived(model);
-      model.outline = buildOutline(model.derivedModel, action.payload.navigate);
+      model.outline = buildOutline(model.derivedModel, action.payload.settings);
     },
-    setActiveItemDisplay(model, action : 
-        PayloadAction<{navigate:INavigateState}>) {
-      model.outline = buildOutline(model.derivedModel, action.payload.navigate);
+    setActiveItemDisplay(model, action: PayloadAction<{settings:SettingsState}>) {
+      model.outline = buildOutline(model.derivedModel, action.payload.settings);
     },
     clearModelReducer(model) {
       // Reset everything to initial state, except for meta data which we will retain...
@@ -138,10 +149,9 @@ export const {
   metaload,
   load, 
   refreshRecordInVM, 
-  refresVMfromAuditRecords,
+  refreshVMfromAuditRecords,
   addRecordToVM, 
   deleteRecordFromVM, 
-  setActiveItemDisplay, 
   clearModelReducer
 } = model.actions;
 

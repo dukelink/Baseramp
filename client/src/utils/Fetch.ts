@@ -36,9 +36,11 @@ export var Fetch = (resource:any,init:RequestInit={},defaultMessage=true):Promis
                     res.status === 401 || res.status === 403 
                 ) {
                     reject(res.statusText);                    
-                    alert('This user is logged out possibly due usage from another browser tab...');
-                    const { origin } = document.location;
-                    document.location.replace(origin);                         
+                    const { origin, pathname } = document.location;
+                    if (pathname!=='/') {
+                        alert(`This user is logged out possibly due usage from another browser tab...${pathname}`);
+                        document.location.replace(origin);
+                    }
                 }
                 else if (res.status >= 400/* Http error response range */) {
                     reject(res.statusText);                    

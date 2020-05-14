@@ -40,7 +40,7 @@ export type AccountState =
   | undefined;        // undefined if logged out
 
 const accountSlice = createSlice({
-  name: 'account',
+  name: 'account', // unique name (not 'common') as no reducers are shared w/ other slices yet
   initialState : {} as AccountState,
   reducers: {
     setAccountState(state, action: PayloadAction<AccountState>) {

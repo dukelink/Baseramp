@@ -20,7 +20,7 @@
 */
  
 import { ViewModelDerived, RecordDerived, RecordOfAnyType } from './ModelTypes';
-import { INavigateState } from '../features/SystemNavigator/NavigateSlice';
+import { SettingsState } from '../features/SettingsPage/SettingsSlice';
 import { properCasePluralize } from '../utils/utils';
 
 export interface OutlineNode {
@@ -74,10 +74,8 @@ const childTableSet = new Set(
 
 export function buildOutline(
     derivedModel: ViewModelDerived, 
-    navigate: INavigateState | ( 
-      Pick<INavigateState,'navActiveFilter'> 
-      & Pick<INavigateState,'navShowAdminTables'> ) ) {
-  const { navActiveFilter } = navigate;
+    settings: SettingsState ) {
+  const { activeFilter } = settings;
   let outline = buildTableHeadingsOutline(Object.keys(derivedModel));
 
   outline = sequenceOutline(outline) as OutlineNode[];
@@ -89,7 +87,7 @@ export function buildOutline(
   function sequenceOutline(outline: OutlineNode[],path='') 
   {
     return outline
-      .filter((item) => (!navActiveFilter || !item.closedItem))
+      .filter((item) => (!activeFilter || !item.closedItem))
       .map<OutlineNode>((outline: OutlineNode) => {
         path = path + outline.table + (outline.tableID||'');
         outline.itemKey = path;
@@ -246,7 +244,7 @@ export function buildOutline(
             // that are never children
             || !childTableSet.has(tableHeading)
           ) && ( 
-            navigate.navShowAdminTables 
+            settings.showAdminTables 
               || tableRoles[tableHeading] !=='Admin' 
           )
       )

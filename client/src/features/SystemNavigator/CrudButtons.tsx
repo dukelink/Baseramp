@@ -137,7 +137,7 @@ export const CrudButtons = ( props: {
                     variant='contained' 
                     onClick={ () => {
                       // TODO: Move handlers out of render...
-                      dispatch(deleteRecord(state.navigate));
+                      dispatch(deleteRecord(state.navigate,state.settings));
                       setMode(mode==='Both'?mode:'Outline');
                     } } > 
                     Delete 
@@ -157,11 +157,11 @@ export const CrudButtons = ( props: {
                         return;
                       }
                       if (navTableID==="-1")
-                        dispatch(insertRecord(state.navigate, record));
+                        dispatch(insertRecord(state.navigate, state.settings, record));
                       else {
                         console.log(`ORIGRECORD = ${strOrigRecord}`);
                         console.log(`RECORD = ${strRecord}`);
-                        dispatch(updateRecord(state.navigate,
+                        dispatch(updateRecord(state.navigate, state.settings,
                           recordDelta(record, origRecord)));
                       }
                   }}> Save </Button> 

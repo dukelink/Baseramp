@@ -52,34 +52,29 @@ const Main = () => {
 }
 
 const UI = () => {
-    const palettetype = useSelector((state:RootState)=>(state.settings.paletteType));
+    const settings = useSelector((state:RootState)=>(state.settings));
 
-/*
     // Set-up to poll latest DB data for possible updates by other users
-    const navigate = useSelector((state:RootState)=>(state.navigate));
     useEffect(() => {
         const intv = setInterval(()=>{
-            refreshFromServer(navigate);
+            const { pathname } = document.location;
+            if (pathname !== '/')
+                refreshFromServer(settings);
         }, 3000); // 3 second polling for DB updates from other users 
         return () => { 
             clearInterval(intv); // critical to clear out-of-scope resource!
         }
     }, 
-        // Navigate 'slice' dependency is perfect for two reasons:
-        //  1. It contains the latest audit_id for the 2 second polling, and
-        //  2. Whenever we navigate to a new item, we'll get an immediate refresh
-        //     which is great to ensure that record viewing or editing starts
-        //     out with the most current data!
-        [navigate]
+        [settings]
     )
-*/
+
     // Initial one-time meta-data load just, only needed to support
     // new user registration form...
     useEffect(loadMetadata, []);
 
     const theme : ThemeOptions = {
         palette: {
-            type: palettetype
+            type: settings.paletteType
         }
     };
     const muiTheme = createMuiTheme(theme);

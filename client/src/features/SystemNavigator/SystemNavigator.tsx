@@ -40,7 +40,7 @@ export const SystemNavigator = () => {
   const state = useSelector<RootState,RootState>(state=>state);
 
   const navigate = state.navigate;
-  const { navTable, navTableID, navParentTable, navStrParentID, navActiveFilter } 
+  const { navTable, navTableID, navParentTable, navStrParentID } 
     = navigate;
 
   // REVIEW: Memoize? Use Reslect? Or just cache within this component...
@@ -74,13 +74,15 @@ export const SystemNavigator = () => {
     outline = outline.filter((outlineNode)=>(outlineNode.table 
       && state.model.metaModel['AppTable'][outlineNode.table].role_title==='User'))
 
-  console.log(`SystemNavigator:: navTable: ${navTable}, navTableID: ${navTableID}`); 
+  console.log(`SystemNavigator:: navTable: ${navTable}, navTableID: ${navTableID}, mode: ${mode}`); 
 
   if (width >= 960 && mode!=="Both") 
     // NOTE: 960 must exactly match Material-UI 'md' breakpoint
     // REVIEW: Does this md=960px apply for all device types?
     setMode("Both");
   else if (width < 960 && mode==="Both")
+    setMode("Outline");
+  else if (width < 960 && mode==="Edit" && !navTableID)
     setMode("Outline");
 
   return ( 
@@ -113,7 +115,7 @@ export const SystemNavigator = () => {
               <NodeForm 
                 navTable = { navTable } 
                 navTableID = { navTableID }
-                navActiveFilter = { navActiveFilter }
+                activeFilter = { state.settings.activeFilter }
                 record = { record }
                 dispatch = { setLatestNodeformState } />  
               </>
