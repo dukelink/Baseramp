@@ -65,7 +65,12 @@ export const CrudButtons = ( props: {
       // to only visible fields using this hook, so that we
       // don't try to send fields updates to the server
       // for fields that are not editable (like SQL computed fields)
-      !appCol.AppColumn_ui_hidden      
+      !appCol.AppColumn_ui_hidden 
+      // REVIEW:
+      // Make an exception for the primary key field,
+      // as it is used to avoid rendering empty/null records 
+      // around lines 56-69 in NodeForm.tsx...
+      || appCol.AppColumn_column_name === navTable+'_id'
     )
     .map( appCol => appCol.AppColumn_column_name); 
 
@@ -83,100 +88,111 @@ export const CrudButtons = ( props: {
 
   const strOrigRecord = JSON.stringify(origRecord, Object.keys(origRecord).sort());
   const strRecord = JSON.stringify(record, Object.keys(record).sort());
+  const cleanFlag = (!navTableID || strOrigRecord===strRecord) && navTableID!=='-1';
 
   return (
-  <Grid item xs = {12} className = { classes.OutlineEditButton } > 
-    { !navTable ? 
-      <Paper className={classes.root}>
-        Select an outline item to view, edit or add...
-      </Paper> 
-      :
-      <div color='secondary' style = {{ width: '100%' }}>
-        { 
-        (mode !== "Both" && navTableID ) &&
-          <IconButton area-label="Navigation Outline"
-            style = {{ padding: 6 }} 
-            onClick = { () => { setMode(otherMode) } }>
-          <div>
-            { otherLabel }&nbsp;
-          </div> 
-          <PlayCircleFilledIcon className = { 
-            otherMode==='Outline' ? classes.rotate80 : '' 
-          } />
-          </IconButton>
-        }
-        <div  className = { classes.buttonBar }
-          style = {{ display: 'inline-block', float: 'right' }} >
-        { ( ( !navTableID || strOrigRecord===strRecord )
-          && navTableID!=='-1') ? <>
-          <Button 
-            variant='contained' 
-            style={{maxWidth:"140px ! important"}}
-            onClick = { () => {
-              dispatch(addNewBlankRecordForm({navTable}));
-              console.log(mode);
-              setMode(mode==='Both'?mode:'Edit'); 
-            } } >
-            Add { navTable }
-          </Button> 
-
-          { navTableID &&
-          <Button 
-            id="crudDelete" 
-            variant='contained' 
-            onClick={ () => {
-            dispatch(deleteRecord(state.navigate));
-            setMode(mode==='Both'?mode:'Outline');
-            } } > 
-            Delete 
-          </Button>                
+    <Grid item xs = {12} className = { classes.OutlineEditButton } > 
+      { !navTable ? 
+        <Paper className={classes.root}>
+          Select an outline item to view, edit or add...
+        </Paper> 
+        :
+        <div color='secondary' style = {{ width: '100%' }}>
+          { 
+          (mode !== "Both" && navTableID ) &&
+            <IconButton area-label="Navigation Outline"
+              style = {{ padding: 6 }} 
+              onClick = { () => { 
+                // TODO: Move handlers out of render...
+                setMode(otherMode) } 
+              }>
+            <div>
+              { otherLabel }&nbsp;
+            </div> 
+            <PlayCircleFilledIcon className = { 
+              otherMode==='Outline' ? classes.rotate80 : '' 
+            } />
+            </IconButton>
           }
-        </> : 
-        navTableID && <>
-          <Button
-            id="crudSave" 
-            variant='contained' 
-            disabled={ !isFormValid }
-            onClick={ () => {
-              if (!isFormValid) {
-                alert('Please fill in all required fields before saving');
-                return;
-              }
-              if (navTableID==="-1")
-                dispatch(insertRecord(state.navigate, record));
-              else {
-                console.log(`ORIGRECORD = ${strOrigRecord}`);
-                console.log(`RECORD = ${strRecord}`);
-                dispatch(updateRecord(state.navigate,
-                  recordDelta(record, origRecord)));
-              }
-          }}> Save </Button> 
-          <Button 
-            id="crudCancel" variant='contained'
-            onClick={ ()=> { 
-            setLatestNodeformState({ 
-              record: origRecord, 
-              isFormValid: true
-            });
-            // Remove form if Add New record form...
-            if (navTableID === '-1') {
-              dispatch(setFocus({ 
-              table:navTable, 
-              tableID: '', 
-              parentTable: navParentTable,
-              parentID: navStrParentID 
-              }));
-              // Return to outline display only...
-              setMode('Outline');
-            } else
-            // If user was editing an existing record, flag rerender...
-              setRerenderFlat(rerenderFlag+1);  
+          <div  className = { classes.buttonBar }
+            style = {{ display: 'inline-block', float: 'right' }} >
+            { 
+              cleanFlag ?
+                <>
+                  <Button 
+                    variant='contained' 
+                    style={{maxWidth:"140px ! important"}}
+                    onClick = { () => {
+                      // TODO: Move handlers out of render...
+                      dispatch(addNewBlankRecordForm({navTable}));
+                      console.log(mode);
+                      setMode(mode==='Both'?mode:'Edit'); 
+                    } } >
+                    Add { navTable }
+                  </Button> 
+
+                  { navTableID &&
+                  <Button 
+                    id="crudDelete" 
+                    variant='contained' 
+                    onClick={ () => {
+                      // TODO: Move handlers out of render...
+                      dispatch(deleteRecord(state.navigate));
+                      setMode(mode==='Both'?mode:'Outline');
+                    } } > 
+                    Delete 
+                  </Button>                
+                  }
+                </> 
+              : 
+                navTableID && <>
+                  <Button
+                    id="crudSave" 
+                    variant='contained' 
+                    disabled={ !isFormValid }
+                    onClick={ () => {
+                      // TODO: Move handlers out of render...
+                      if (!isFormValid) {
+                        alert('Please fill in all required fields before saving');
+                        return;
+                      }
+                      if (navTableID==="-1")
+                        dispatch(insertRecord(state.navigate, record));
+                      else {
+                        console.log(`ORIGRECORD = ${strOrigRecord}`);
+                        console.log(`RECORD = ${strRecord}`);
+                        dispatch(updateRecord(state.navigate,
+                          recordDelta(record, origRecord)));
+                      }
+                  }}> Save </Button> 
+                  <Button 
+                    id="crudCancel" variant='contained'
+                    onClick={ ()=> { 
+                      // TODO: Move handlers out of render...
+                      setLatestNodeformState({ 
+                        record: origRecord, 
+                        isFormValid: true
+                      });
+                      // Remove form if Add New record form...
+                      if (navTableID === '-1') {
+                        dispatch(setFocus({ 
+                        table:navTable, 
+                        tableID: '', 
+                        parentTable: navParentTable,
+                        parentID: navStrParentID 
+                        }));
+                        // Return to outline display only...
+                        setMode('Outline');
+                      } else
+                      // If user was editing an existing record, flag rerender...
+                        setRerenderFlat(rerenderFlag+1);  
+                    }
+                  }> Cancel </Button>
+                </>
             }
-          }> Cancel </Button>
-        </>}
+          </div>
         </div>
-      </div>
-    }
-  </Grid> 
+      }
+    </Grid> 
   )
 }

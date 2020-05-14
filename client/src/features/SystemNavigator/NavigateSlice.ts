@@ -88,7 +88,8 @@ const model = createSlice({
     },
     addRecordToVM(state,action:PayloadAction<{navigate:INavigateState, record:any}>) {
       const { navigate: { navTable }, record } = action.payload;
-      state.navTableID = record[navTable+'_id'];
+      state.navTableID = record[navTable+'_id']
+        .toString(); // NOTE: navTableID is of type string
     }, 
     setActiveItemDisplay(state,action:PayloadAction<{navigate : INavigateState}>) {
       console.log(`set acvtive item display: ${JSON.stringify(action.payload)}`)

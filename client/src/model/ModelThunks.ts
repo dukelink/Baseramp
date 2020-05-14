@@ -92,15 +92,16 @@ export const refreshFromServer = (navigate:INavigateState) =>
 //  : AppThunk => async dispatch => 
 {
   if (navigate.lastAuditTableID !== -1) {
-    //console.log(`refreshFromServer(${JSON.stringify(navigate)})`);
     Fetch(Environment.serverURL + `audit_updates/${navigate.lastAuditTableID}`)
     .then(res => res && res.json())
     .catch(() =>{})
     .then(res => {
         const audit_updates: any = res;
 
-        if (audit_updates.length) 
+        if (audit_updates.length) {
+          //console.log(`refreshFromServer(${JSON.stringify(navigate)}): ${JSON.stringify(audit_updates)}`);
           store.dispatch(refresVMfromAuditRecords({navigate,audit_updates}));
+        }
 
         //
         // MINOR HACK: Watch for any edits to metadata tables,

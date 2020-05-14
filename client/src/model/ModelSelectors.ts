@@ -22,7 +22,7 @@
 import { RootState } from '../rootReducer';
 import { ViewModelDerived } from '../model/ModelTypes';
 import { useSelector } from 'react-redux';
-import { RecordOfAnyType, Records } from './ModelTypes';
+import { RecordOfAnyType, Records, Model, IMetaModelState } from './ModelTypes';
 
 export const useRecord = (
     navTable:string, navTableID='-1', 
@@ -73,32 +73,40 @@ export const useRecord = (
 }
 
 export const useTableAppCols = (navTable:string) => {
-  const state = useSelector<RootState,RootState>(state=>state);
-  let cols = Object.values(state.model.metaModel.AppColumn) 
+  const metaModel = useSelector<RootState,IMetaModelState>(
+    state=>state.model.metaModel
+  );
+  let cols = Object.values(metaModel.AppColumn) 
       .filter( row => row.AppColumn_AppTable_id===navTable )
       .sort( (firstCol,secondCol) => 
         (firstCol.AppColumn_rank - secondCol.AppColumn_rank) );
   return cols;
 }
 
-export const useFieldMetadata = (fieldName:string) => {
-  const state = useSelector<RootState,RootState>(state=>state);
-  const { navTable, navTableID, navParentTable, navActiveFilter } = state.navigate; 
-  const appCol = state.model.metaModel.AppColumn[fieldName];
+export const useFieldMetadata = (
+    fieldName:string, 
+    fieldValue:any,
+    navTable:string,
+    navTableID:string,
+    navActiveFilter = true) => 
+{
+  const model = useSelector<RootState,Model>(state=>state.model);
+  const metaModel = model.metaModel;
+
+  const appCol = metaModel.AppColumn[fieldName];
   const _related_pk_id = appCol.AppColumn_related_pk_id;
   let referenceTableName : string = '';
   let referenceTable:Records<any> = []; 
   if (_related_pk_id) {
-    referenceTableName = state.model.metaModel.AppTable
-      [state.model.metaModel.AppColumn[_related_pk_id].AppColumn_AppTable_id]
+    referenceTableName = metaModel.AppTable
+      [metaModel.AppColumn[_related_pk_id].AppColumn_AppTable_id]
         .AppTable_table_name;
-    const { AppColumn_AppTable_junction_id } 
-      = state.model.metaModel.AppColumn[fieldName];
+    const { AppColumn_AppTable_junction_id } = appCol;
 
     // Pre-requisites for many-to-many selected test below
     let m2m_selected_ids = [] as any;
     if (referenceTableName && navTableID && navTableID!=='-1') {
-      const currEditRecord = state.model?.apiModel[navTable][navTableID] 
+      const currEditRecord = model?.apiModel[navTable][navTableID] 
               || {} as any;
       const m2mFieldName = navTable+'_'+AppColumn_AppTable_junction_id
           + '_'+referenceTableName+'_id';
@@ -106,28 +114,25 @@ export const useFieldMetadata = (fieldName:string) => {
     }
 
     // TODO: '?.' only needed pre-login when 'role' not found for new user setup...
-    referenceTable = Object.values(state.model?.apiModel[referenceTableName]||{})
+    referenceTable = Object.values(model?.apiModel[referenceTableName]||{})
       .filter((rec:RecordOfAnyType) => (
           // Don't filter out any foreign keys if Active record only filter is OFF...
           !navActiveFilter ||
           // Otherwise, filter out any foreign keys that ARE in the inactive list...
-          !state.model.inactive_status_ids
+          !model.inactive_status_ids
             .includes(rec[referenceTableName+'_status_id'] || '*no-match*') 
           // DO NOT filter out the foreign key currently being referenced...
           || // M:M selected test...
             m2m_selected_ids.includes(rec[referenceTableName+'_id'])
           || // 1:M selected test...
-            ((navTableID && navTableID!=='-1') &&
-              rec[referenceTableName+'_id']
-                === state.model?.apiModel[navTable][navTableID]
-                [fieldName.replace(navParentTable+'_',referenceTableName+'_')])
+            rec[referenceTableName+'_id'] === fieldValue
       ))
       // If reference table is AppTable then
       // scope tables presented to only those with 
       // a foreign key to the current navTable...
       .filter((rec:RecordOfAnyType)=>(
         referenceTableName !== 'AppTable'
-          ||  state.model.metaModel.AppColumn[
+          ||  metaModel.AppColumn[
                 rec[referenceTableName+'_title']+'_'+navTable+'_id'
               ] !== undefined)
       )

@@ -76,7 +76,7 @@ const model = createSlice({
     {
       const { navigate, audit_updates } = action.payload;
 
-      //console.log(`refreshVMfromAuditRecords(${JSON.stringify(audit_updates)})`)
+      console.log(`refreshVMfromAuditRecords(${JSON.stringify(audit_updates)})`)
 
       audit_updates.forEach((update)=>{
         const { table_name, table_id, update_type, field_changes } = update;
@@ -89,8 +89,9 @@ const model = createSlice({
           if (!recordRef) // INSERT case (should we assert this on update_type?)
             model.apiModel[table_name][tableID] = record;
           else {          // UPDATE case
-            //const newRec : RecordOfAnyType = Object.assign(recordRef, record);  
-            /*
+            //const newRec : RecordOfAnyType = 
+            Object.assign(recordRef, record);  // Important: this is the operative code for audit updates
+            /* REVIEW...
             // Meta data UPDATES only at this time (no INSERT/DELETEs)...
             if (table_name==='AppTable') 
               Object.assign(model.metaModel.AppTable[tableID], newRec);

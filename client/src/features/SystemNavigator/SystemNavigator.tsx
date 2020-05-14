@@ -39,7 +39,9 @@ export const SystemNavigator = () => {
   const classes = useNavPanelStyles();
   const state = useSelector<RootState,RootState>(state=>state);
 
-  const { navTable, navTableID, navParentTable, navStrParentID } = state.navigate;
+  const navigate = state.navigate;
+  const { navTable, navTableID, navParentTable, navStrParentID, navActiveFilter } 
+    = navigate;
 
   // REVIEW: Memoize? Use Reslect? Or just cache within this component...
   const origRecord = useRecord(navTable,navTableID,navParentTable,navStrParentID);
@@ -111,6 +113,7 @@ export const SystemNavigator = () => {
               <NodeForm 
                 navTable = { navTable } 
                 navTableID = { navTableID }
+                navActiveFilter = { navActiveFilter }
                 record = { record }
                 dispatch = { setLatestNodeformState } />  
               </>

@@ -23,7 +23,7 @@ import React, { memo, ChangeEvent } from 'react';
 import { AppColumnRow } from '../../model/ModelTypes';
 import { TextField, FormControl } from '@material-ui/core';
 import NumberFormat from 'react-number-format';
-import { useStyles } from './FieldStyles'
+import { useStyles } from './FieldStyles';
 
 export const FieldText = memo((props : {
         appCol: AppColumnRow, 

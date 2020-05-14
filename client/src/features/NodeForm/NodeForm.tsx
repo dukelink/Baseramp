@@ -35,14 +35,75 @@ export class NodeFormEditState {
 
 export interface NodeFormProps {
   navTable   : string, 
-  navTableID : string
+  navTableID : string,
+  navActiveFilter ?: boolean,
   record     : RecordOfAnyType,
   dispatch   : Dispatch<SetStateAction<NodeFormEditState>>
 }
 
-export const NodeForm =  memo(
+type OnChange = (fieldName: string, newVal: RecordOfAnyType) => (void)
+
+const InnerRender = memo(
+  (props: {
+    state:RecordOfAnyType,
+    navTable:string,
+    navTableID:string,
+    navActiveFilter?:boolean,
+    tableAppCols:AppColumnRow[],
+    onChange:OnChange
+  }) => {
+  const {state,navTable,navTableID,navActiveFilter,tableAppCols,onChange} = props;    
+  const empty = (
+    !state[navTable+"_id"] 
+    || ((state[navTable+"_id"]||'').toString() !== navTableID))
+    && navTable!=='user' && navTableID!=="-1"; // REVIEW: render new user signup form
+
+  console.log(state);    
+  if (empty)
+    console.log(`EMPTY: ${((state[navTable+"_id"]||'').toString() !== navTableID.toString())}
+    state[navTable+"_id"]=${(state[navTable+"_id"]||'').toString()}, 
+    navTableID=${JSON.stringify(navTableID)}`);
+  else
+    console.log('NOT EMPTY');
+
+  return( empty ? <></> : <>
+  { // Make sure there is a form to render...
+    (!state || (navTableID!=='-1' && !Object.keys(state).length)) ||
+    tableAppCols
+      .filter((appCol:AppColumnRow) => !appCol.AppColumn_ui_hidden)
+      .map((appCol:any) => {
+        const fieldName = appCol.AppColumn_column_name;
+        return (
+          <span  
+              id = { 'AppField_'+fieldName } // useful for unit tests
+              key = { fieldName } > 
+            <AppField                      
+              fieldName = { fieldName } 
+              field     = { state[fieldName]} 
+              navTable  = { navTable }
+              navTableID= { navTableID }
+              navActiveFilter = { navActiveFilter }
+              appCol    = { appCol }
+              onChange  = { onChange } /> 
+          </span> )
+    })
+  }</>
+)}, (prev,next)=>{
+//  console.log(prev);
+//  console.log(next);
+  const rv = ( 
+    (next.state[next.navTable+"_id"]||'').toString() !== next.navTableID
+    //&& JSON.stringify(prev.state) === JSON.stringify(next.state)
+    && prev.state === next.state
+    && prev.navTableID !== "-1"
+  )
+  console.log(`*****SUPPRESS******** ${rv?"TRUE":"FALSE"}`)
+  return rv;
+})
+
+export const NodeForm = 
 (props : NodeFormProps) => {
-  const { navTable, navTableID, record, dispatch } = props;
+  const { navTable, navTableID, navActiveFilter, record, dispatch } = props;
   let tableAppCols = useTableAppCols(navTable); 
   const [ state, setState ] = useState<RecordOfAnyType>(record); 
   const formRef = useRef<any>();
@@ -64,23 +125,13 @@ export const NodeForm =  memo(
 
   return (
     <div ref={formRef}>
-    { // Make sure there is a form to render...
-      (!state || (navTableID!=='-1' && !Object.keys(state).length)) ||
-      tableAppCols
-        .filter((appCol:AppColumnRow) => !appCol.AppColumn_ui_hidden)
-        .map((appCol:any, index:number) => {
-          const fieldName = appCol.AppColumn_column_name;
-          return (
-            <span  
-                id = { 'AppField_'+fieldName } // useful for unit tests
-                key = { fieldName } > 
-              <AppField                      
-                fieldName = { fieldName } 
-                field     = { state[fieldName]} 
-                onChange  = { onChange } /> 
-            </span> )
-      })
-    }
+      <InnerRender 
+        state={state} 
+        navTable={navTable} 
+        navTableID={navTableID} 
+        navActiveFilter={navActiveFilter}
+        tableAppCols={tableAppCols}
+        onChange={onChange} />
     </div>
   )
 
@@ -90,8 +141,7 @@ export const NodeForm =  memo(
     const newState : RecordOfAnyType = {...state, [fieldName]: newVal };
     setState(newState);
 
-
-console.log(`CHANGE FIELD fieldName=${fieldName}, newVal=${JSON.stringify(newVal)}`);
+//console.log(`CHANGE FIELD fieldName=${fieldName}, newVal=${JSON.stringify(newVal)}`);
 
     // Also update record (and form-valid flag) at form container level
     // which is responsible for CRUD controls etc...
@@ -110,4 +160,4 @@ console.log(`CHANGE FIELD fieldName=${fieldName}, newVal=${JSON.stringify(newVal
       isFormValid: !uncompletedRequiredFields.length
     });
   }
-});
+};

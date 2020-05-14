@@ -19,8 +19,8 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import React, { ChangeEvent } from 'react';
-
+import React, { ChangeEvent /*, memo*/ } from 'react';
+import { AppColumnRow } from '../../model/ModelTypes';
 import { Switch, InputLabel } 
   from '@material-ui/core';
 import DateFnsUtils from '@date-io/date-fns';
@@ -34,19 +34,26 @@ import { useFieldMetadata } from '../../model/ModelSelectors';
 
 // NOTE: memoization does not help since the onChange callback 
 // currently changes on every field-level state change...
-export const AppField =  ( props : { 
+export const AppField = /*memo(*/ ( props : { 
     fieldName:any,
     field:any,
-    onChange: (fieldName:string, newVal:any)=>(void)
+    navTable:string,
+    navTableID:string,
+    navActiveFilter?:boolean,
+    onChange: (fieldName:string, newVal:any)=>(void),
+    appCol: AppColumnRow
 }) => 
 {
-  const { fieldName, field, onChange } = props;
+  const { fieldName, field, onChange, appCol, navTable, navTableID, navActiveFilter } = props;
   const classes = useStyles();
-  const { appCol, referenceTableName, referenceTable } = useFieldMetadata(fieldName);
+
+  const { referenceTableName, referenceTable } // , appCol
+    = useFieldMetadata(fieldName,field,navTable,navTableID,navActiveFilter);
+ 
   const { AppColumn_title : appColTitle, 
-          AppColumn_data_type, AppColumn_ui_minwidth,
-          AppColumn_is_nullable, AppColumn_read_only,
-          AppColumn_AppTable_junction_id } = appCol;
+        AppColumn_data_type, AppColumn_ui_minwidth,
+        AppColumn_is_nullable, AppColumn_read_only,
+        AppColumn_AppTable_junction_id } = appCol;
 
   const flagEmptyRequiredField = AppColumn_is_nullable==="NO" && !field;
 
@@ -72,6 +79,7 @@ export const AppField =  ( props : {
     onChange(fieldName,val);
   }
 
+ 
   if (!!AppColumn_AppTable_junction_id) 
   // Many-to-many junction table multiselect control...
   {
@@ -159,4 +167,16 @@ export const AppField =  ( props : {
     return rv; 
   }
 }
+/* 
+// REVIEW:
+// Will require persisting an array of AppField controls I think...
+// This memo() alone causes field values to be lost when editing
+// other fields...  Might also be related to onChange redef...
+, (prev,next) => (
+  prev.navTable===next.navTable
+  && prev.navTableID===next.navTableID
+  && prev.fieldName===next.fieldName
+  && prev.field===next.field )
+)
+*/
 
