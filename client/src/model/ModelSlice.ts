@@ -21,7 +21,6 @@
 
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { buildOutline } from './ModelOutline';
-import { testModelData } from './testModel';
 import { buildDerived, loadData } from './ModelDerived';
 import { Model, Records, RecordOfAnyType, AuditUpdate } from './ModelTypes';
 import { INavigateState } from '../features/SystemNavigator/NavigateSlice';
@@ -76,7 +75,7 @@ const model = createSlice({
     {
       const { navigate, audit_updates } = action.payload;
 
-      console.log(`refreshVMfromAuditRecords(${JSON.stringify(audit_updates)})`)
+      console.log(`refreshVMfromAuditRecords(${JSON.stringify(audit_updates)})`) 
 
       audit_updates.forEach((update)=>{
         const { table_name, table_id, update_type, field_changes } = update;
@@ -90,7 +89,7 @@ const model = createSlice({
             model.apiModel[table_name][tableID] = record;
           else {          // UPDATE case
             //const newRec : RecordOfAnyType = 
-            Object.assign(recordRef, record);  // Important: this is the operative code for audit updates
+            Object.assign(recordRef, record);  //  Important: this is the operative code for audit updates
             /* REVIEW...
             // Meta data UPDATES only at this time (no INSERT/DELETEs)...
             if (table_name==='AppTable') 
@@ -104,7 +103,7 @@ const model = createSlice({
           delete model.apiModel[table_name][tableID]; 
       })
       buildDerived(model);
-      model.outline = buildOutline(model.derivedModel, navigate);
+      model.outline = buildOutline(model.derivedModel, navigate); // should we make navigate optional and save w/in derived structures?
     },
     addRecordToVM(model, action : 
         PayloadAction<{navigate:INavigateState,record:RecordOfAnyType}>) { 
@@ -128,17 +127,6 @@ const model = createSlice({
         PayloadAction<{navigate:INavigateState}>) {
       model.outline = buildOutline(model.derivedModel, action.payload.navigate);
     },
-    setTestDataModeReducer(model, action : 
-        PayloadAction<{navigate:INavigateState}>) {
-
-        // console.log(`setTestDataModeReducer() payload = ${JSON.stringify(action.payload)}`)
-
-      if (action.payload.navigate.testDataMode) {
-        loadData(model,testModelData.apiModel); 
-        model.outline = buildOutline(model.derivedModel,
-          {navActiveFilter:true, navShowAdminTables: true}); 
-      }
-    },
     clearModelReducer(model) {
       // Reset everything to initial state, except for meta data which we will retain...
       Object.assign(model, {...initialState, metaModel: model.metaModel}); 
@@ -154,7 +142,6 @@ export const {
   addRecordToVM, 
   deleteRecordFromVM, 
   setActiveItemDisplay, 
-  setTestDataModeReducer,
   clearModelReducer
 } = model.actions;
 

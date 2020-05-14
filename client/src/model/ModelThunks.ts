@@ -27,12 +27,9 @@ import  { metaload, load,
           refresVMfromAuditRecords,
           refreshRecordInVM, 
           addRecordToVM, 
-          deleteRecordFromVM, 
-          setTestDataModeReducer, 
-          clearModelReducer 
+          deleteRecordFromVM
         } from './ModelSlice';
 import { INavigateState } from '../features/SystemNavigator/NavigateSlice';
-import { testModelData } from './testModel';
 import { RecordOfAnyType } from './ModelTypes';
 
 export const initialLoad = (route:string="all") => 
@@ -70,21 +67,19 @@ export const updateRecord = (navigate:INavigateState, recordDelta:any)
   let record : RecordOfAnyType = {};
 
   if (Object.keys(recordDelta).length) {
-    if (!state.navigate.testDataMode) {
-      await Fetch(Environment.serverURL + navTable + '/' + navTableID, {
-          method: 'PUT',
-          body: JSON.stringify(recordDelta),
-          headers: { 'Content-Type': 'application/json' }
-      })
-      .then(res => res && res.json())
-      .catch(() =>{/*Fetch handles user alert; avoid node exception*/})
-      .then(res => {
-        // Grab committed record from server that will be populated with
-        // any other fields computed server-side... 
-        record = res;
-        dispatch(refreshRecordInVM({navigate,record}));
-      });
-    }
+    await Fetch(Environment.serverURL + navTable + '/' + navTableID, {
+        method: 'PUT',
+        body: JSON.stringify(recordDelta),
+        headers: { 'Content-Type': 'application/json' }
+    })
+    .then(res => res && res.json())
+    .catch(() =>{/*Fetch handles user alert; avoid node exception*/})
+    .then(res => {
+      // Grab committed record from server that will be populated with
+      // any other fields computed server-side... 
+      record = res;
+      dispatch(refreshRecordInVM({navigate,record}));
+    });
   }
 }
 
@@ -129,57 +124,37 @@ export const insertRecord = (navigate:INavigateState, _record:RecordOfAnyType)
   let record = recordDelta(_record,{}); 
 
   if (Object.keys(record).length) {
-    if (!navigate.testDataMode) 
-    {
-      await Fetch(Environment.serverURL + navTable, { 
-        method: 'POST', 
-        body: JSON.stringify(record),
-        headers: { 'Content-Type': 'application/json' }                        
+    await Fetch(Environment.serverURL + navTable, { 
+      method: 'POST', 
+      body: JSON.stringify(record),
+      headers: { 'Content-Type': 'application/json' }                        
     })
-      .then(res => res && res.json())
-      .catch(() =>{/*Fetch handles user alert; avoid node exception*/})
-      .then(res => {
-        // Grab committed record from server that will be populated with
-        // a primary key field, and any other fields computed server-side... 
-        record = res; 
+    .then(res => res && res.json())
+    .catch(() =>{/*Fetch handles user alert; avoid node exception*/})
+    .then(res => {
+      // Grab committed record from server that will be populated with
+      // a primary key field, and any other fields computed server-side... 
+      record = res; 
 
-        // TODO: (Story logged) Why is following exception masked 
-        //       even if .catch(), below, commented out!!!!!!!!!!!
-        // throw 123;
+      // TODO: (Story logged) Why is following exception masked 
+      //       even if .catch(), below, commented out!!!!!!!!!!!
+      // throw 123;
 
-        dispatch(addRecordToVM({navigate,record}));
-      })
-    }
+      dispatch(addRecordToVM({navigate,record}));
+    })
   }
 }
 
 export const deleteRecord = (navigate: INavigateState)
   : AppThunk => async dispatch => 
 {
-  const { navTable, navTableID, testDataMode } = navigate;
+  const { navTable, navTableID } = navigate;
   let err = false;
 
-  if (!testDataMode)   
-    await Fetch( Environment.serverURL + navTable + '/' + navTableID,
-        { method: 'DELETE' }
-    ).then().catch((error) =>{ err = true; });
+  await Fetch( Environment.serverURL + navTable + '/' + navTableID,
+      { method: 'DELETE' }
+  ).then().catch((error) =>{ err = true; });
 
   if (!err)
     dispatch(deleteRecordFromVM({navigate}))
-}
-
-export const setTestDataMode = (navigate: INavigateState) 
-    : AppThunk => dispatch => 
-{
-  dispatch(clearModelReducer());
-  dispatch(setTestDataModeReducer({navigate}));
-
-  if (navigate.testDataMode)
-    dispatch(load(testModelData.apiModel)); 
-  else {
-    initialLoad("all"); 
-  }
-  //
-  // TODO: Clear current navigation focus
-  //
 }

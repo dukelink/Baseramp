@@ -7,15 +7,14 @@ import { Grid, Paper } from '@material-ui/core';
 
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '../../rootReducer';
-import { setActiveItemDisplay } from '../../model/ModelSlice'
-import { setTestDataMode } from '../../model/ModelThunks';
+import { setActiveItemDisplay } from '../../model/ModelSlice';
 import { setPaletteType } from './SettingsSlice';
 
 const Settings: React.FC = () => {
 
   const dispatch = useDispatch();
   const state = useSelector((state:RootState)=>state);
-  const { navActiveFilter, navShowAdminTables, testDataMode } = state.navigate;
+  const { navActiveFilter, navShowAdminTables } = state.navigate;
   const { paletteType } = state.settings;
   const { model } = state;
 
@@ -33,12 +32,6 @@ const Settings: React.FC = () => {
     dispatch(setActiveItemDisplay({ navigate:
         {...state.navigate, navActiveFilter: !navActiveFilter } }
     )); 
-  }
-  //
-  function toggleTestDisplay() {
-    dispatch(setTestDataMode(
-      { ...state.navigate, testDataMode: !testDataMode } )
-    ); 
   }
   //
   function toggleDarkMode(e : React.ChangeEvent<HTMLInputElement>) {
@@ -73,21 +66,6 @@ const Settings: React.FC = () => {
               />
             }
             label="Show archived items" 
-          />
-      </div>
-      <br/>
-
-      <div>
-        <FormControlLabel 
-            control={
-              <Switch
-                checked={ testDataMode }
-                onChange = { toggleTestDisplay }
-                value="ignore"
-                color="primary"
-              />
-            }
-            label="Test API mock data mode" 
           />
       </div>
       <br/>

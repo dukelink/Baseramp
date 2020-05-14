@@ -30,8 +30,7 @@ export interface INavigateState {
   navStrParentID: string;
   navActiveFilter : boolean;
   navShowAdminTables : boolean;
-  lastAuditTableID : number,
-  testDataMode: boolean;
+  lastAuditTableID : number;
 };
 
 let initialState : INavigateState = {
@@ -41,8 +40,7 @@ let initialState : INavigateState = {
     navStrParentID: "",
     navActiveFilter: true,
     navShowAdminTables: false,
-    lastAuditTableID:-1,
-    testDataMode: false
+    lastAuditTableID:-1
 };
 
 type INavigateRecordFocus = Pick<OutlineNode,'table'|'tableID'|'parentTable'|'parentID'>;
@@ -95,9 +93,6 @@ const model = createSlice({
       console.log(`set acvtive item display: ${JSON.stringify(action.payload)}`)
       Object.assign(state, action.payload.navigate);
     },
-    setTestDataModeReducer(state,action:PayloadAction<{navigate: INavigateState}>) {
-      Object.assign(state, action.payload.navigate);
-    },
     deleteRecordFromVM(state,action:PayloadAction) { 
       state.navTableID = '';
     },
@@ -110,8 +105,7 @@ const model = createSlice({
 
 export const { 
   addNewBlankRecordForm, 
-  setActiveItemDisplay, 
-  setTestDataModeReducer,
+  setActiveItemDisplay,
   setFocus
 } = model.actions;
 
