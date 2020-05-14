@@ -52,18 +52,15 @@ const Main = () => {
 }
 
 const UI = () => {
-    const navigate = useSelector((state:RootState)=>(state.navigate));
     const palettetype = useSelector((state:RootState)=>(state.settings.paletteType));
 
-    // Initial one-time meta-data load just, only needed to support
-    // new user registration form...
-    useEffect(loadMetadata, []);
-
+/*
     // Set-up to poll latest DB data for possible updates by other users
+    const navigate = useSelector((state:RootState)=>(state.navigate));
     useEffect(() => {
         const intv = setInterval(()=>{
             refreshFromServer(navigate);
-        }, 2000); // 2 second polling for DB updates from other users 
+        }, 3000); // 3 second polling for DB updates from other users 
         return () => { 
             clearInterval(intv); // critical to clear out-of-scope resource!
         }
@@ -75,6 +72,10 @@ const UI = () => {
         //     out with the most current data!
         [navigate]
     )
+*/
+    // Initial one-time meta-data load just, only needed to support
+    // new user registration form...
+    useEffect(loadMetadata, []);
 
     const theme : ThemeOptions = {
         palette: {
