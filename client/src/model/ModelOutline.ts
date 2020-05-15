@@ -43,8 +43,7 @@ const parentChildTables: any = {
     'project', 'chore','requirement',
     'resource','challenge','account',
     'sale', 'sprint'], 
-  project: ['story', 'requirement'], // CYCLIC
-  requirement: ['requirement'], // CYCLIC
+  project: ['story', 'requirement'],
   challenge: ['response'],
 //    story: ['task'], // pending...
   user: [],
@@ -58,8 +57,6 @@ const parentChildTables: any = {
   'Project Sprint': [ 'story' ],
   AppTable: ['AppColumn'],
   status: ['sale'],
-////  sale: ['sale'], // CYCLIC
-////  account: ['account'],
   chore: ['checkoff'],
   // HACK: Prevent direct browsing to junction tables...
   dummy: [ 'StoryStory', 'StoryRequirement', 'StatusAppTable', 'CategoryAppTable' ] 

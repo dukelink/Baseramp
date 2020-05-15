@@ -64,14 +64,17 @@ export const FieldFK = memo((props : {
                 label = { appColTitle }
                 disabled = { AppColumn_read_only }
                 value={ (field || '') }
-                onChange = { (e : any) => onChange(fieldName,e.target.value) }>            
-                <MenuItem> 
-                {
+                onChange = { (e : any) => 
+                    onChange( fieldName, 
+                        e.target.value  // avoid 'undefined' material UI default; null 
+                            || null     // is important as it maches API/DB values!
+                    ) 
+                }>            
+                <MenuItem>{
                     // TODO: Make conditional to allow nullification only of nullable fields; 
                     //       also review styling of the 'blank' entry.
                     "(Clear entry)"
-                }
-                </MenuItem>
+                }</MenuItem>
                 { 
                 referenceTable.map((row:any) => (
                     <MenuItem 
