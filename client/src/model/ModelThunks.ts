@@ -30,8 +30,17 @@ import  { metaload, load,
           deleteRecordFromVM
         } from './ModelSlice';
 import { INavigateState } from '../features/SystemNavigator/NavigateSlice';
-import { SettingsState } from '../features/SettingsPage/SettingsSlice';
+import { SettingsState, setOutlineFilters } from '../features/SettingsPage/SettingsSlice';
 import { RecordOfAnyType } from './ModelTypes';
+
+// Initial settings on load are required by
+// buildOutline() that is called by setOutlineFilters()...
+const settings : SettingsState = {
+  showAdminTables: false, 
+  activeFilter:true, 
+  paletteType: 'light', 
+  lastAuditTableID: -1
+}
 
 export const initialLoad = (route:string="all") => 
 {
@@ -39,8 +48,11 @@ export const initialLoad = (route:string="all") =>
   .then(res => res && res.json())
   .catch(() =>{})
   .then(res => {
-      store.dispatch(load(res));
-      return res;
+    store.dispatch(load(res));
+    // Following calls buildOutline() to complete 
+    // setup of initial redux state...
+    store.dispatch(setOutlineFilters({ settings }));
+    return res;
   });
 }
 

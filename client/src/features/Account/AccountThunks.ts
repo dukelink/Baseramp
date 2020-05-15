@@ -28,7 +28,7 @@ import { setAccountState } from './AccountSlice';
 // import { Alert } from '@material-ui/lab'; - TODO: Research Material-UI Alert messages
 
 export const authLogin = (username:string,password:string)
-: AppThunk => async dispatch =>
+    : AppThunk => async dispatch =>
 {
     dispatch(clearModelReducer());
 

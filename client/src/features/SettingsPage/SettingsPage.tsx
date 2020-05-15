@@ -7,7 +7,7 @@ import { Grid, Paper } from '@material-ui/core';
 
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '../../rootReducer';
-import { setPaletteType, setActiveItemDisplay } from './SettingsSlice';
+import { setPaletteType, setOutlineFilters } from './SettingsSlice';
 
 const Settings: React.FC = () => {
 
@@ -16,13 +16,13 @@ const Settings: React.FC = () => {
   const { activeFilter, showAdminTables, paletteType } = settings;
 
   function toggleAdminDisplay() {
-    dispatch(setActiveItemDisplay({ settings:
+    dispatch(setOutlineFilters({ settings:
         {...settings, showAdminTables: !showAdminTables } }
     )); 
   }
   //
   function toggleActiveDisplay() {
-    dispatch(setActiveItemDisplay({ settings:
+    dispatch(setOutlineFilters({ settings:
         {...settings, activeFilter: !activeFilter } }
     )); 
   }

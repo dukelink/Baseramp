@@ -25,9 +25,13 @@ import { PaletteType } from '@material-ui/core';
 import { Records, AuditUpdate } from '../../model/ModelTypes';
 
 export interface SettingsState {
-  paletteType: PaletteType;
+  // NOTE/REVIEW: Following two "outline filters" MAY NOT be
+  // optional fields as these parameters are passed to
+  // reducers that utilize these values and call buildOutline()...
   activeFilter: boolean;
   showAdminTables: boolean;
+
+  paletteType: PaletteType;
   lastAuditTableID: number;
 }
 
@@ -58,7 +62,7 @@ const settingsSlice = createSlice({
             Object.values(audit_updates).slice(-1)[0].audit_id
               || settings.lastAuditTableID; // REVIEW: Consider MAX for safety's sake!
     },
-    setActiveItemDisplay(state,action:PayloadAction<{settings : SettingsState}>) {
+    setOutlineFilters(state,action:PayloadAction<{settings : SettingsState}>) {
       Object.assign(state, action.payload.settings);
     },
     setPaletteType(state, action: PayloadAction<PaletteType>) {
@@ -67,7 +71,7 @@ const settingsSlice = createSlice({
   }
 })
 
-export const { setPaletteType, setActiveItemDisplay } = settingsSlice.actions
+export const { setPaletteType, setOutlineFilters } = settingsSlice.actions;
 
-export default settingsSlice.reducer
+export default settingsSlice.reducer;
 

@@ -47,17 +47,13 @@ const model = createSlice({
     },
     load(model, action:PayloadAction<Records<any>>) { 
       loadData(model,action.payload);
-      model.outline = buildOutline(model.derivedModel, 
-        { 
-          activeFilter:true, 
-          showAdminTables: false, 
-          paletteType: 'light', 
-          lastAuditTableID: -1
-        }); 
     },
     refreshRecordInVM(
-        model : Model, 
-        action:PayloadAction<{navigate:INavigateState,settings:SettingsState,record:RecordOfAnyType}>) 
+      model : Model, 
+      action: PayloadAction<{
+        navigate: INavigateState,
+        settings: SettingsState,
+        record: RecordOfAnyType}> ) 
     {
       const { navigate, settings, record } = action.payload;
       const { navTable, navTableID } = navigate;
@@ -129,13 +125,15 @@ const model = createSlice({
       action : PayloadAction<{navigate:INavigateState,settings:SettingsState}>) 
     {
       const { navTable, navTableID } = action.payload.navigate;
-      // REVIEW: 'delete' results in 'sparse' array...
-      // I assume this is faster and OK???
+      // NOTE: 'delete' results in 'sparse' array, 
+      //       which has proven to be OK for now...
       delete model.apiModel[navTable][navTableID]; 
       buildDerived(model);
       model.outline = buildOutline(model.derivedModel, action.payload.settings);
     },
-    setActiveItemDisplay(model, action: PayloadAction<{settings:SettingsState}>) {
+    // NOTE: Do not export the following as it is merely a side-effect
+    //       of the 'primary' action method in SettingsSlice...
+    setOutlineFilters(model, action: PayloadAction<{settings:SettingsState}>) {
       model.outline = buildOutline(model.derivedModel, action.payload.settings);
     },
     clearModelReducer(model) {
