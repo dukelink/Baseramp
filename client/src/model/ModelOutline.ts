@@ -90,7 +90,7 @@ export function buildOutline(
       .filter((item) => (!activeFilter || !item.closedItem))
       .map<OutlineNode>((outline: OutlineNode) => {
         path = path + outline.table + (outline.tableID||'');
-        outline.itemKey = path;
+        outline.itemKey = path + (outline.parentID||'');
         outline.children = sequenceOutline(outline.children,path); 
         return outline;
       })
