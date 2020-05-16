@@ -38,22 +38,29 @@ function OutlineItemLabel(props: { item : OutlineNode })
 {
   const classes : any = useTreeItemStyles();
   const { item } = props; 
+
   const labelClassName = 
     item.inProgress 
       ? classes.labelIconInProgress 
         : ( ( !item.tableID || item.closedItem ) 
         ? classes.labelIcon : classes.labelIconNotInProgress );
 
-    let childCount = 
-      Object.entries(item.totalChildRecords)
-        .filter((x)=>x[0]===item.table)
-        .map(x=>Object.keys(x[1]).length/* for debug use: .join(', ')*/).join();
+  let childCount : (number|string) = item.children
+    .filter( item => item.children.length || item.showTable ).length;
+  if (childCount===1)
+    childCount = 0;
 
-    let grandChildCounts = 
-      Object.entries(item.totalChildRecords)
-      .filter((x)=>x[0]!==item.table)
-      .map(x=>x[0][0]+x[0][1]+':'+Object.keys(x[1]).length/* for debug use: .join(', ')*/)
-      .join(', ');
+  let grandChildCounts = 
+    Object.entries(item.totalChildRecords)
+    .filter((x) => x[0]!==item.table && x[0][0].toLowerCase()===x[0][0])
+    .sort((f,s) => (Object.keys(s[1]).length - Object.keys(f[1]).length))
+    .filter((x,index) => index < 3)
+    .map( x => x[0][0] + x[0][1] //+ x[0][2]
+      + ':' + Object.keys(x[1]).length/* for debug use: .join(', ')*/)
+    .join(', ');
+  if (Object.keys(item.totalChildRecords)
+      .filter((x) => x[0]!==item.table).length > 3)
+    grandChildCounts += ", ...";    
 
   return (
     <div className={classes.labelRoot}>
@@ -71,7 +78,11 @@ function OutlineItemLabel(props: { item : OutlineNode })
               classes.labelTextClosedItem : classes.labelText }>
         { item.itemTitle }
         { !childCount ? '' : <sup>&nbsp;({childCount})</sup> }
-        { !grandChildCounts ? '' : <sup>&nbsp;({grandChildCounts})</sup> }
+        { !grandChildCounts ? '' : 
+          <sup>&nbsp;
+              ({ grandChildCounts })
+          </sup>
+        }
       </Typography> 
     </div> 
   )

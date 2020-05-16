@@ -99,7 +99,7 @@ export const SystemNavigator = () => {
             display: mode!=='Edit' ? 'inline-block' : 'none' }}>
         <Paper className={classes.paperFullHeight} component="div" >
           <Outline outline={ outline }/>
-          <VerticalSpace pixels={80}/>
+          <VerticalSpace vh={75}/>
         </Paper>        
       </Grid>
 
