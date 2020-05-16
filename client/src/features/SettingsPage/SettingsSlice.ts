@@ -32,7 +32,7 @@ export interface SettingsState {
   showAdminTables: boolean;
 
   paletteType: PaletteType;
-  lastAuditTableID: number;
+  lastAuditTableID ?: number;
 }
 
 const initialState: SettingsState = {

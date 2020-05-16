@@ -38,8 +38,8 @@ import { RecordOfAnyType } from './ModelTypes';
 const settings : SettingsState = {
   showAdminTables: false, 
   activeFilter:true, 
-  paletteType: 'light', 
-  lastAuditTableID: -1
+  paletteType: 'light'
+  // lastAuditTableID -- don't overwrite SettingsSlice -1 init, nor it's load() logic
 }
 
 export const initialLoad = (route:string="all") => 
