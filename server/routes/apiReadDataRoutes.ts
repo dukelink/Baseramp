@@ -44,13 +44,18 @@ const userTables = [
   'account',
   'sale',
   'chore',
-  'checkoff',
+  'checkoff'
+];
+
+/*
+// See hard-coded aggregates and left joins after around line 200 below
+const M2Mtables = [
   'StoryStory',
   'StoryRequirement',
   'StatusAppTable',
   'CategoryAppTable'
 ];
-
+*/
 const adminTables = [
   'status',
   'user', 
@@ -209,26 +214,78 @@ export const addApiReadDataRoutes = async (router : Router ) =>
           //const query =  knex.select('*').from(tableName);
 
           console.log(`PATH ${path}, user_id ${user_id}`)
-
+       
           const ownedRows = 
             knex
-              .select('audit_table_id')
-              .max({latest_audit_id:'audit_id'})
+              .select('audit_table_id',
+                knex.raw(`
+                  max(case when audit_field_changes like '%_StoryStory_%'
+                  then audit_id else -1 end) as latest_StoryStory_audit_id`),
+                knex.raw(`
+                  max(case when audit_field_changes like '%_StoryRequirement_%'
+                  then audit_id else -1 end) as latest_StoryRequirement_audit_id`),
+                knex.raw(`
+                  max(case when audit_field_changes like '%_StoryRequirement_%'
+                  then audit_id else -1 end) as latest_StatusAppTable_audit_id`),
+                knex.raw(`
+                  max(case when audit_field_changes like '%_StoryRequirement_%'
+                  then audit_id else -1 end) as latest_CategoryAppTable_audit_id`)
+              )
+              .max({latest_audit_id:'audit_id'})  
               .from('audit')
               .innerJoin('AppTable', 'audit_AppTable_id', 'AppTable_id')
               .where('AppTable_title', '=', tableName)
               .where('audit_user_id', '=', user_id)
               .groupBy('audit_table_id');
 
+//console.log('******************************')
+//console.log(JSON.stringify(ownedRows.toString()))
+
+/*
+// Get field names used to filter 
+select *
+from AppColumn
+inner join AppTable
+on AppTable_id = AppColumn_AppTable_id
+where 
+ left(AppColumn_column_name,len(AppTable_table_name)*2+1) = AppTable_table_name+'_'+AppTable_table_name
+and (
+ AppColumn_column_name
+	like '%StoryStory%'
+ or AppColumn_column_name
+	like '%StoryRequirement%'
+ or AppColumn_column_name
+	like '%StatusAppTable%'
+ or AppColumn_column_name
+	like '%CategoryAppTable%'
+)
+
+story_StoryRequirement_requirement_id
+story_StoryStory_story_id
+status_StatusAppTable_AppTable_id
+category_CategoryAppTable_AppTable_id
+*/   
+
           console.log(`NOT ADMIN - filtered; PATH=${path}, tableName=${tableName}, user_id=${user_id}`)
           const query = knex.raw('with auditLastOwned as (?) ?', [
             ownedRows,
-            knex.select(tableName+'.*','audit.audit_field_changes')
+            knex.select(tableName+'.*',
+              'audit_StoryStory.audit_field_changes as StoryStory_ids',
+              'audit_StoryRequirement.audit_field_changes as StoryRequirement_ids',
+              'audit_StatusAppTable.audit_field_changes as StatusAppTable_ids',
+              'audit_CategoryAppTable.audit_field_changes as CategoryAppTable_ids'
+            )
             .from(tableName)
             .innerJoin( 'auditLastOwned',
               'auditLastOwned.audit_table_id','=',tableName+'_id' )
-            .innerJoin('audit',
-              'audit.audit_id','=','auditLastOwned.latest_audit_id')
+            .leftJoin('audit as audit_StoryStory',
+              'audit_StoryStory.audit_id','=','auditLastOwned.latest_StoryStory_audit_id')
+            .leftJoin('audit as audit_StoryRequirement',
+              'audit_StoryRequirement.audit_id','=','auditLastOwned.latest_StoryRequirement_audit_id')
+            .leftJoin('audit as audit_StatusAppTable',
+              'audit_StatusAppTable.audit_id','=','auditLastOwned.latest_StatusAppTable_audit_id')
+            .leftJoin('audit as audit_CategoryAppTable',
+              'audit_CategoryAppTable.audit_id','=','auditLastOwned.latest_CategoryAppTable_audit_id')
           ]);
 
 //console.log('//////////////////////////////////')
@@ -239,13 +296,30 @@ export const addApiReadDataRoutes = async (router : Router ) =>
             console.log(`${tableName} rows read = ${data.length}`)
             results[tableName] = data.reduce(
               (prevVal,currVal) => {
-                const lastUpdatesWithVirtualFields = currVal.audit_field_changes;
-                if (lastUpdatesWithVirtualFields) {
-                  delete currVal.audit_field_changes;
-                  // Incorporate many-to-many, virtual fields if applicable...
-                  Object.assign(currVal,JSON.parse(lastUpdatesWithVirtualFields));
+                const { StoryStory_ids, StoryRequirement_ids, StatusAppTable_ids, CategoryAppTable_ids } = currVal;
+                let latest_m2m_updates = {};
+                if (StoryStory_ids) {
+                  Object.assign(latest_m2m_updates, 
+                    { story_StoryStory_story_id : JSON.parse(StoryStory_ids).story_StoryStory_story_id } );
+                  delete currVal.StoryStory_ids;
                 }
-                prevVal[currVal[tableName+'_id']] = currVal;
+                if (StoryRequirement_ids) {
+                  Object.assign(latest_m2m_updates, 
+                    { story_StoryRequirement_requirement_id : JSON.parse(StoryRequirement_ids).story_StoryRequirement_requirement_id } );
+                  delete currVal.StoryRequirement_ids;
+                }
+                if (StatusAppTable_ids) {
+                  Object.assign(latest_m2m_updates, 
+                    { status_StatusAppTable_AppTable_id : JSON.parse(StatusAppTable_ids).status_StatusAppTable_AppTable_id } );
+                  delete currVal.StatusAppTable_ids;
+                }
+                if (CategoryAppTable_ids) {
+                  Object.assign(latest_m2m_updates, 
+                    { category_CategoryAppTable_AppTable_id : JSON.parse(CategoryAppTable_ids).category_CategoryAppTable_AppTable_id } );
+                  delete currVal.CategoryAppTable_ids;
+                }
+                // Incorporate many-to-many, virtual fields with latest record...
+                prevVal[currVal[tableName+'_id']] = Object.assign(latest_m2m_updates, currVal);;
                 return prevVal;
               }, {});
           })
