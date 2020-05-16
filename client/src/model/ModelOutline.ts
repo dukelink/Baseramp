@@ -43,7 +43,7 @@ const parentChildTables: any = {
     'project', 'chore','requirement',
     'resource','challenge','account',
     'sale', 'sprint'], 
-  project: ['story', 'requirement'],
+  project: ['story'],
   challenge: ['response'],
 //    story: ['task'], // pending...
   user: [],
