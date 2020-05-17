@@ -32,6 +32,7 @@ export interface RecordDerived {
 export interface ViewModelDerived  { [key:string]:Records<RecordDerived>; } 
 
 export interface AppTableRow {
+  _id:number, // helpful reverse look of id from table name!
   AppTable_id: string;
   AppTable_title: string;
   AppTable_description?: string;

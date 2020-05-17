@@ -46,7 +46,6 @@ const parentChildTables: any = {
   project: ['story'],
   challenge: ['response'],
 //    story: ['task'], // pending...
-  user: [],
   sprint: [
     'story',
     // NOTE: A sprint-project virtual table will be 
@@ -58,6 +57,7 @@ const parentChildTables: any = {
   AppTable: ['AppColumn'],
   status: ['sale'],
   chore: ['checkoff'],
+  // resource: [], // Force a top level table! SEE BELOW
   // HACK: Prevent direct browsing to junction tables...
   dummy: [ 'StoryStory', 'StoryRequirement', 'StatusAppTable', 'CategoryAppTable' ] 
 }
@@ -66,7 +66,7 @@ const parentChildTables: any = {
 const childTableSet = new Set(
   Object.values(parentChildTables)
   .flat()
-  .filter( (tbl) => (!['category'].includes(tbl)) )  // HACK: CYCLIC; TODO: Generalize
+  .filter( (tbl) => (!['category','resource'].includes(tbl)) )  // HACK: CYCLIC; TODO: Generalize
 );
 
 export function buildOutline(
@@ -75,8 +75,11 @@ export function buildOutline(
   const { activeFilter } = settings;
   let outline = buildTableHeadingsOutline(Object.keys(derivedModel));
 
+
   outline = sequenceOutline(outline) as OutlineNode[];
   addRecordTallies(outline);
+
+
   return outline;
 
   // REVIEW: Is this currently being used?
@@ -278,8 +281,9 @@ export function buildOutline(
         const childRows = buildRowsOutline(tableHeading, parentTable, parentID);
 
         // HACK: CYCLIC outline headings may be removed
-        if (  tableHeading===parentTable 
-          || (!parentTable && tableHeading==='category' && childRows.length) ) 
+        if (    (tableHeading===parentTable && childRows.length) 
+            ||  (!parentTable && tableHeading==='category' && childRows.length) 
+          ) 
           prev.push(...childRows);
         else
           prev.push({

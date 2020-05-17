@@ -56,6 +56,7 @@ const M2Mtables = [
   'CategoryAppTable'
 ];
 */
+
 const adminTables = [
   'status',
   'user', 
@@ -225,10 +226,10 @@ export const addApiReadDataRoutes = async (router : Router ) =>
                   max(case when audit_field_changes like '%_StoryRequirement_%'
                   then audit_id else -1 end) as latest_StoryRequirement_audit_id`),
                 knex.raw(`
-                  max(case when audit_field_changes like '%_StoryRequirement_%'
+                  max(case when audit_field_changes like '%_StatusAppTable_%'
                   then audit_id else -1 end) as latest_StatusAppTable_audit_id`),
                 knex.raw(`
-                  max(case when audit_field_changes like '%_StoryRequirement_%'
+                  max(case when audit_field_changes like '%_CategoryAppTable_%'
                   then audit_id else -1 end) as latest_CategoryAppTable_audit_id`)
               )
               .max({latest_audit_id:'audit_id'})  

@@ -113,9 +113,10 @@ export const useFieldMetadata = (
       m2m_selected_ids = currEditRecord[m2mFieldName] || [];
     }
 
-    // TODO: '?.' only needed pre-login when 'role' not found for new user setup...
+    // REVIEW: '?.' only needed pre-login when 'role' not found for new user setup...
     referenceTable = Object.values(model?.apiModel[referenceTableName]||{})
       .filter((rec:RecordOfAnyType) => (
+          // RULES: ...
           // Don't filter out any foreign keys if Active record only filter is OFF...
           !activeFilter ||
           // Otherwise, filter out any foreign keys that ARE in the inactive list...
@@ -127,7 +128,7 @@ export const useFieldMetadata = (
           || // 1:M selected test...
             rec[referenceTableName+'_id'] === fieldValue
       ))
-      // If reference table is AppTable then
+      // RULE: If reference table is AppTable then
       // scope tables presented to only those with 
       // a foreign key to the current navTable...
       .filter((rec:RecordOfAnyType)=>(
@@ -136,7 +137,20 @@ export const useFieldMetadata = (
                 rec[referenceTableName+'_title']+'_'+navTable+'_id'
               ] !== undefined)
       )
-      // If many-to-many, cyclic foreign key, then filter out current record
+      // RULE: If reference table is Category then
+      // scope categories presented to only those that
+      // have a 'feature' targeting the current navTable
+      // (these are stored within CategoryAppTable)...
+      .filter((rec:RecordOfAnyType) => {
+        const navTable_table_id = model.metaModel.AppTable[navTable]._id;
+        return (
+          referenceTableName !== 'category' ||
+            (rec['category_CategoryAppTable_AppTable_id'] || [])
+              .includes(navTable_table_id)
+        )
+      })
+      // RULE: If many-to-many, cyclic foreign key, 
+      //       then filter out current record
       .filter((rec:RecordOfAnyType)=>(
         navTable!==referenceTableName 
         || navTableID !== rec[referenceTableName+'_id']?.toString()
