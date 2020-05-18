@@ -121,13 +121,26 @@ export const addApiWriteDataRoutes = (router : Router ) =>
 
     updateJunctionTables(primaryKeyID,virtual);
 
+    // TODO: We ALWAYS store computed columns for updated records
+    // in the audit trail because we do not yet do change detection
+    // to see if these columns are modified...
+    const { AppColumn } = cacheMetadata;
+    const computedColumns = 
+      (Object.values(AppColumn) as any[])
+      .filter( (col : any) => col.AppColumn_AppTable_id === tableName
+                && col.AppColumn_is_computed === 1 )
+      .reduce( (prev,col) => (
+        {...prev, [col.AppColumn_column_name] 
+          : fullRecordReadback[col.AppColumn_column_name]}),
+        {});
+
     await recordAuditTrail(
       'UPDATE', 
       tableName,
       primaryKeyID,
       req.user.user_id,
       // HACK: return many-to-many lists via ...req.body...
-      { ...req.body, ...recordDelta } 
+      { ...req.body, ...recordDelta, ...computedColumns } 
     );
  
     res.send({...req.body, ...fullRecordReadback});      

@@ -165,6 +165,7 @@ export function tableSelect(tableName : string, path?:string)
           'AppColumn.AppColumn_data_type',
           'AppColumn.AppColumn_character_maximum_length',
           'AppColumn.AppColumn_column_default',
+          'AppColumn.AppColumn_is_computed',
           'AppColumn_related.AppColumn_column_name as AppColumn_related_pk_id',
           'AppTable_junction.AppTable_table_name as AppColumn_AppTable_junction_id'
         ).from('AppColumn')

@@ -37,20 +37,22 @@ DROP TABLE IF EXISTS TABLE_COLUMNS;
 **
 */
 SELECT 
-	table_name,
-	column_name,
-	is_nullable,
-	ordinal_position,
-	case data_type
+	TABLE_NAME,
+	COLUMN_NAME,
+	IS_NULLABLE,
+	ORDINAL_POSITION,
+	case DATA_TYPE
 		when 'nvarchar' then 'character varying'
 		when 'int' then 'integer'
-		else data_type
-	end as data_type,
-	case character_maximum_length
+		else DATA_TYPE
+	end as DATA_TYPE,
+	case CHARACTER_MAXIMUM_LENGTH
 		when -1 then null
-		else character_maximum_length
-	end as character_maximum_length,
-	column_default
+		else CHARACTER_MAXIMUM_LENGTH
+	end as CHARACTER_MAXIMUM_LENGTH,
+	COLUMN_DEFAULT,
+	COLUMNPROPERTY(OBJECT_ID(TABLE_SCHEMA+'.'+TABLE_NAME),COLUMN_NAME,'IsComputed') 
+    AS IS_COMPUTED
 INTO TABLE_COLUMNS
 FROM INFORMATION_SCHEMA.COLUMNS
 where table_catalog=DB_NAME() /* mssql function */
@@ -58,6 +60,8 @@ where table_catalog=DB_NAME() /* mssql function */
 	and table_name not like 'knex_%'
 	and table_name <> 'sysdiagrams'
 ORDER BY TABLE_NAME,ORDINAL_POSITION;
+
+
 
 ALTER TABLE AppColumn NOCHECK CONSTRAINT appcolumn_appcolumn_related_pk_id_foreign;
 ALTER TABLE AppColumn NOCHECK CONSTRAINT appcolumn_appcolumn_apptable_id_foreign;
@@ -114,7 +118,8 @@ INSERT INTO AppColumn
 	AppColumn_is_nullable,
 	AppColumn_data_type,
 	AppColumn_character_maximum_length,
-	AppColumn_column_default
+	AppColumn_column_default,
+	AppColumn_is_computed
 )
 SELECT -- TODO: Test/fixup for Postgresql or use Knex select query...
 	ISNULL(cm_exact.column_metadata_title, 
@@ -141,7 +146,8 @@ SELECT -- TODO: Test/fixup for Postgresql or use Knex select query...
 	tc.is_nullable,
 	tc.data_type,
 	tc.character_maximum_length,
-	tc.column_default
+	tc.column_default,
+	tc.IS_COMPUTED
 FROM TABLE_COLUMNS tc
 INNER JOIN AppTable
 ON tc.table_name = AppTable_table_name
