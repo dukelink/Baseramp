@@ -60,8 +60,7 @@ const M2Mtables = [
 const adminTables = [
   'status',
   'user', 
-  'role',
-  'audit'
+  'role'
 ];
 
 const metaTables = [
@@ -181,14 +180,6 @@ export function tableSelect(tableName : string, path?:string)
       query = query.whereNot('user_login','like','delete-%');                
       break;
     }
-    case 'audit': 
-    {
-      // Just fetch the last (highest ID) audit record,
-      // so the client has a starting point for periodic 
-      // audit trail update data requests...
-      query = query.whereRaw('audit_id = (select max(audit_id) from audit)');
-    }
-
     default:
       break;
   }
@@ -369,8 +360,10 @@ category_CategoryAppTable_AppTable_id
     // records created under "my" login 
     // which is currently how we identify 
     // "owned" records...
-    const query = knex
-      .select(
+    const query = ( (knex as any)[
+        (fromID==='-1' ? 'first' : 'select' )] as typeof knex.select )  
+      ( // TODO/REVIEW: Does 'first' (above) do a 'top 1' or does it "over query"!!!
+        // (Couldn't find sufficient docs/examples to explicitly introduce a 'top 1' clause)
         'audit_id',
         'AppTable_table_name as table_name', 
         'audit_table_id as table_id',
@@ -388,13 +381,18 @@ category_CategoryAppTable_AppTable_id
       // hold up on trying to 'sync' metadata for now...
       // .whereNotIn('AppTable_table_name',['AppTable','AppColumn']) 
       // apply updates in order
-      .orderBy('audit_id');
+      .orderBy('audit_id', fromID==='-1'?'desc':'asc');
 
     // NOTE: Can serialize generated query text to assist with troubleshooting
     // console.log(`audit query = ${query.toString()}`);
 
     query
-      .then( (data) => { res.send(data) } )      
+      .then( (data) => { 
+        if (fromID==='-1')
+          res.send([ data ]);
+        else
+          res.send(data) 
+      } )      
       .catch( (error) => { knexErrorHandler(req,res,error) } ); 
   });
 }

@@ -25,14 +25,10 @@ import { PaletteType } from '@material-ui/core';
 import { Records, AuditUpdate } from '../../model/ModelTypes';
 
 export interface SettingsState {
-  // NOTE/REVIEW: Following two "outline filters" MAY NOT be
-  // optional fields as these parameters are passed to
-  // reducers that utilize these values and call buildOutline()...
   activeFilter: boolean;
   showAdminTables: boolean;
-
   paletteType: PaletteType;
-  lastAuditTableID ?: number;
+  lastAuditTableID: number;
 }
 
 const initialState: SettingsState = {
@@ -46,13 +42,6 @@ const settingsSlice = createSlice({
   name: 'common', // critical if reducer logic is shared in other slices!
   initialState,
   reducers: {
-    load(state, action:PayloadAction<Records<any>>) { 
-      const records = action.payload;
-      state.lastAuditTableID = Number.parseInt(
-            Object.keys(records['audit'])[0] // (highest audit_id)
-        ) || -1;  // -1 is just any low value that we can spot as 'uninitialized'
-                  // (Unlikely to occur as the audit table will always have some data)
-    },   
     refreshVMfromAuditRecords(state, 
       action:PayloadAction<{settings:SettingsState,audit_updates:AuditUpdate[]}>)
     {

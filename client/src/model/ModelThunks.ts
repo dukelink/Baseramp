@@ -38,8 +38,8 @@ import { RecordOfAnyType } from './ModelTypes';
 const settings : SettingsState = {
   showAdminTables: false, 
   activeFilter:true, 
-  paletteType: 'light'
-  // lastAuditTableID -- don't overwrite SettingsSlice -1 init, nor it's load() logic
+  paletteType: 'light',
+  lastAuditTableID: -1
 }
 
 export const initialLoad = (route:string="all") => 
@@ -48,10 +48,14 @@ export const initialLoad = (route:string="all") =>
   .then(res => res && res.json())
   .catch(() =>{})
   .then(res => {
+    console.time('store.dispatch(load())');
     store.dispatch(load(res));
+    console.timeEnd('store.dispatch(load())');
     // Following calls buildOutline() to complete 
     // setup of initial redux state...
+    console.time('store.dispatch(setOutlineFilters())');
     store.dispatch(setOutlineFilters({ settings }));
+    console.timeEnd('store.dispatch(setOutlineFilters())');
     return res;
   });
 }
@@ -96,32 +100,30 @@ export const updateRecord =
 export const refreshFromServer = (settings:SettingsState) =>
 //  : AppThunk => async dispatch => 
 {
-  if (settings.lastAuditTableID !== -1) {
-    Fetch(Environment.serverURL + `audit_updates/${settings.lastAuditTableID}`)
-    .then(res => res && res.json())
-    .catch(() =>{})
-    .then(res => {
-        const audit_updates: any = res;
+  Fetch(Environment.serverURL + `audit_updates/${settings.lastAuditTableID}`)
+  .then(res => res && res.json())
+  .catch(() =>{})
+  .then(res => {
+      const audit_updates: any = res;
 
-        if (audit_updates?.length) {
-          //console.log(`refreshFromServer(${JSON.stringify(navigate)}): ${JSON.stringify(audit_updates)}`);
-          store.dispatch(refreshVMfromAuditRecords({settings,audit_updates}));
-        }
+      console.log(`refreshFromServer(${JSON.stringify(audit_updates)})`);
+      if (audit_updates?.length) {
+        store.dispatch(refreshVMfromAuditRecords({settings,audit_updates}));
+      }
 
-        //
-        // MINOR HACK: Watch for any edits to metadata tables,
-        // either by ourself or other users, and reload
-        // the denormalized-keys metaData in Redux...
-        //
-        if (audit_updates?.length && 
-            (audit_updates[0].table_name==='AppTable' 
-            || audit_updates[0].table_name==='AppColumn')) {
-          loadMetadata();
-        }
+      //
+      // MINOR HACK: Watch for any edits to metadata tables,
+      // either by ourself or other users, and reload
+      // the denormalized-keys metaData in Redux...
+      //
+      if (audit_updates?.length && 
+          (audit_updates[0].table_name==='AppTable' 
+          || audit_updates[0].table_name==='AppColumn')) {
+        loadMetadata();
+      }
 
-        return res;
-    });
-  }
+      return res;
+  });
 }
 
 export const insertRecord = 
