@@ -59,16 +59,6 @@ const model = createSlice({
       const { navTable, navTableID } = navigate;
       Object.assign(model.apiModel[navTable][navTableID], record); 
       buildDerived(model);
-      /*
-      switch (navTable) {
-        case 'AppTable' :
-          Object.assign(model.metaModel.AppTable[navTableID], record);
-          break;
-        case 'AppColumn' :
-          Object.assign(model.metaModel.AppColumn[navTableID], record);
-          break;
-      } 
-      */
       model.outline = buildOutline(model.derivedModel,settings);
     },
     refreshVMfromAuditRecords(
@@ -85,20 +75,24 @@ const model = createSlice({
         const record = JSON.parse(field_changes);
         if (['INSERT','UPDATE'].includes(update_type)) 
         {
-          // Update model...
-          const recordRef = model.apiModel[table_name][tableID];
-          if (!recordRef) // INSERT case (should we assert this on update_type?)
-            model.apiModel[table_name][tableID] = record;
-          else {          // UPDATE case
-            //const newRec : RecordOfAnyType = 
-            Object.assign(recordRef, record);  //  Important: this is the operative code for audit updates
-            /* REVIEW...
-            // Meta data UPDATES only at this time (no INSERT/DELETEs)...
-            if (table_name==='AppTable') 
-              Object.assign(model.metaModel.AppTable[tableID], newRec);
-            else if (table_name==='AppColumn')
-              Object.assign(model.metaModel.AppColumn[tableID], newRec);
-            */
+          const tableToUpdate = model.apiModel[table_name];
+          if (tableToUpdate) // Only update tables loaded
+          {
+            // Update model...
+            const recordRef = model.apiModel[table_name][tableID];
+            if (!recordRef) // INSERT case (should we assert this on update_type?)
+              model.apiModel[table_name][tableID] = record;
+            else {          // UPDATE case
+              //const newRec : RecordOfAnyType = 
+              Object.assign(recordRef, record);  //  Important: this is the operative code for audit updates
+              /* REVIEW...
+              // Meta data UPDATES only at this time (no INSERT/DELETEs)...
+              if (table_name==='AppTable') 
+                Object.assign(model.metaModel.AppTable[tableID], newRec);
+              else if (table_name==='AppColumn')
+                Object.assign(model.metaModel.AppColumn[tableID], newRec);
+              */
+            }
           }
         } 
         else if (update_type==='DELETE')

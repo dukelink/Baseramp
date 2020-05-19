@@ -19,7 +19,6 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Environment } from '../environment';
 import store, { AppThunk } from  '../store';  // REVIEW: Are there any anti-patterns associated with thunks being state-aware?
 import { Fetch } from '../utils/Fetch';
 import { recordDelta } from '../utils/utils';
@@ -44,7 +43,7 @@ const settings : SettingsState = {
 
 export const initialLoad = (route:string="all") => 
 {
-  Fetch(Environment.serverURL + route)
+  Fetch(route)
   .then(res => res && res.json())
   .catch(() =>{})
   .then(res => {
@@ -63,7 +62,7 @@ export const initialLoad = (route:string="all") =>
 export const loadMetadata = () => 
 {
   //console.log('loadMetadata()');
-  Fetch(Environment.serverURL + 'meta')
+  Fetch('meta')
   .then(res => res && res.json())
   .catch(() =>{})
   .then(res => {
@@ -81,7 +80,7 @@ export const updateRecord =
   let record : RecordOfAnyType = {};
 
   if (Object.keys(recordDelta).length) {
-    await Fetch(Environment.serverURL + navTable + '/' + navTableID, {
+    await Fetch(navTable + '/' + navTableID, {
         method: 'PUT',
         body: JSON.stringify(recordDelta),
         headers: { 'Content-Type': 'application/json' }
@@ -100,7 +99,7 @@ export const updateRecord =
 export const refreshFromServer = (settings:SettingsState) =>
 //  : AppThunk => async dispatch => 
 {
-  Fetch(Environment.serverURL + `audit_updates/${settings.lastAuditTableID}`)
+  Fetch(`audit_updates/${settings.lastAuditTableID}`)
   .then(res => res && res.json())
   .catch(() =>{})
   .then(res => {
@@ -137,7 +136,7 @@ export const insertRecord =
   let record = recordDelta(_record,{}); 
 
   if (Object.keys(record).length) {
-    await Fetch(Environment.serverURL + navTable, { 
+    await Fetch(navTable, { 
       method: 'POST', 
       body: JSON.stringify(record),
       headers: { 'Content-Type': 'application/json' }                        
@@ -164,7 +163,7 @@ export const deleteRecord = (navigate: INavigateState, settings: SettingsState)
   const { navTable, navTableID } = navigate;
   let err = false;
 
-  await Fetch( Environment.serverURL + navTable + '/' + navTableID,
+  await Fetch(navTable + '/' + navTableID,
       { method: 'DELETE' }
   ).then().catch((error) =>{ err = true; });
 

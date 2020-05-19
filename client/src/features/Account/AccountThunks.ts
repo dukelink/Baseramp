@@ -19,7 +19,6 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Environment } from '../../environment';
 import { AppThunk } from  '../../store';  // REVIEW: Are there any anti-patterns associated with thunks being state-aware?
 import { Fetch } from '../../utils/Fetch';
 import { clearModelReducer } from '../../model/ModelSlice';
@@ -32,7 +31,7 @@ export const authLogin = (username:string,password:string)
 {
     dispatch(clearModelReducer());
 
-    await Fetch( Environment.serverURL + 'login',
+    await Fetch('login',
     { method: 'POST', 
         body: JSON.stringify({
             username,password
@@ -55,9 +54,7 @@ export const authLogout = ()
     dispatch(setAccountState());
     dispatch(clearModelReducer());
 
-    await Fetch( 
-        Environment.serverURL + 'logout',
-        { method: 'GET' }
-    ).catch(()=>{});
+    await Fetch('logout',{ method: 'GET' })
+        .catch(()=>{}); // masking any logout issues is OK
 }
  

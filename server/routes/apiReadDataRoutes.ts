@@ -58,10 +58,13 @@ const M2Mtables = [
 */
 
 const adminTables = [
-  'status',
+  'status'
+];
+
+const securityTables = [
   'user', 
   'role'
-];
+]
 
 const metaTables = [
   'AppTable',
@@ -95,7 +98,7 @@ let getRoutes = [
         } } )
   ) ) ];
 
-// TODO: Pull from cache...
+// TODO: Pull from cache?
 getRoutes.push(    
   (new apiRoute('/meta','get',
     metaTables
@@ -106,12 +109,19 @@ getRoutes.push(
   ))
 )
 
+getRoutes.push(    
+  (new apiRoute('/security','get',
+    securityTables
+      .map( (tableName) => {
+        return {
+          name: tableName
+        }}), true
+  ))
+)
+
 export function tableSelect(tableName : string, path?:string) 
 {
-  let query = knex.select('*').from(tableName);
-
   switch (tableName) {
-
     //
     // TODO: Metadata has been reshaped to use table names instead of surrogate keys
     //       as a likely new convention to afford the greatest simplicity to consume
@@ -177,13 +187,24 @@ export function tableSelect(tableName : string, path?:string)
     //
     case 'user':
     {
-      query = query.whereNot('user_login','like','delete-%');                
+      // No need to include user password even though it is hashed
+      // and even though we only download user data to admin users...
+      return knex.select(
+        'user_id', 
+        'user_title', 
+        'user_login', 
+        'user_active', 
+        'user_email', 
+        'user_phone', 
+        'user_role_id',
+        knex.raw(`'********' as user_password_hash`)
+      )
+      .from('user')
+      .whereNot('user_login','like','delete-%');            
       break;
     }
-    default:
-      break;
   }
-  return query;
+  return knex.select('*').from(tableName);
 }
 
 export const addApiReadDataRoutes = async (router : Router ) => 
@@ -318,7 +339,11 @@ category_CategoryAppTable_AppTable_id
           })
           .catch((error)=>{knexErrorHandler(req,res,error)});       
 
-        } else {
+        } else 
+        
+        if ( !securityTables.includes(tableName) 
+          || (req.user as any)?.role_title === 'Admin' )
+        {
           
           console.log(`ADMIN - NOT filtered; PATH=${path}, tableName=${tableName}`)
           await tableSelect(tableName,path)
@@ -389,9 +414,19 @@ category_CategoryAppTable_AppTable_id
     query
       .then( (data) => { 
         if (fromID==='-1')
-          res.send([ data ]);
-        else
-          res.send(data) 
+          data = [ data ]; // adjust for 'first' vs 'select' query
+        
+        // Strip out password hashes - never needed by client
+        data.map((auditRec)=>{
+          const field_changes = JSON.parse(auditRec.field_changes);
+          if (field_changes.user_password_hash) {
+            delete field_changes.user_password_hash;
+            auditRec.field_changes = JSON.stringify(field_changes);
+          }
+          return auditRec;
+        });
+
+        res.send(data) 
       } )      
       .catch( (error) => { knexErrorHandler(req,res,error) } ); 
   });

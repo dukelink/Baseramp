@@ -1,3 +1,4 @@
+import { Environment } from '../environment';
 import store from  '../store';  // REVIEW: Are there any anti-patterns associated with thunks being state-aware?
 
 // TODO: if response format is json, we could include
@@ -10,16 +11,11 @@ import store from  '../store';  // REVIEW: Are there any anti-patterns associate
 //
 export var Fetch = (resource:any,init:RequestInit={},defaultMessage=true):Promise<Response | void> => 
 { 
-    // Add in a querystring parameter for current user id globally
-    // so that API can detect user changes, since current authentication
-    // strategy updates cookies for whatever the latest login was within
-    // any browser tag.  If the auth user doesn't match the apps idea
-    // of who is logged in, then we can reject the request with a particular
-    // http code and automatically log users out for now...
     // NOTE/REVIEW: not SSR compatible; but convinient for easy/quick/fast
     // access to Redux global store...
     const state = store.getState(); 
     const user_id = state.userLogin?.user_id
+    resource = Environment.serverURL + resource;
     if (user_id)
         resource += '?user_id='+user_id;
 

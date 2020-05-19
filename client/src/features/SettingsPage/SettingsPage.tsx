@@ -8,6 +8,7 @@ import { Grid, Paper } from '@material-ui/core';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '../../rootReducer';
 import { setPaletteType, setOutlineFilters } from './SettingsSlice';
+import { loadOrUnloadSecurityTables } from './SettingsThunks';
 
 const Settings: React.FC = () => {
 
@@ -16,9 +17,9 @@ const Settings: React.FC = () => {
   const { activeFilter, showAdminTables, paletteType } = settings;
 
   function toggleAdminDisplay() {
-    dispatch(setOutlineFilters({ settings:
-        {...settings, showAdminTables: !showAdminTables } }
-    )); 
+    dispatch(loadOrUnloadSecurityTables(
+      {...settings, showAdminTables: !showAdminTables }
+    ));
   }
   //
   function toggleActiveDisplay() {

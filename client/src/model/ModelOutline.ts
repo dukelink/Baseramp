@@ -57,6 +57,7 @@ const parentChildTables: any = {
   AppTable: ['AppColumn'],
   status: ['sale'],
   chore: ['checkoff'],
+  user: [], 
   // resource: [], // Force a top level table! SEE BELOW
   // HACK: Prevent direct browsing to junction tables...
   dummy: [ 'StoryStory', 'StoryRequirement', 'StatusAppTable', 'CategoryAppTable' ] 
@@ -73,12 +74,12 @@ export function buildOutline(
     derivedModel: ViewModelDerived, 
     settings: SettingsState ) {
   const { activeFilter } = settings;
+
+  console.time('buildTableHeadingsOutline');
   let outline = buildTableHeadingsOutline(Object.keys(derivedModel));
-
-
+  console.timeEnd('buildTableHeadingsOutline');
   outline = sequenceOutline(outline) as OutlineNode[];
   addRecordTallies(outline);
-
 
   return outline;
 
