@@ -224,12 +224,12 @@ export const addApiReadDataRoutes = async (router : Router ) =>
         const user_id = (req.user as any)?.user_id;
 
         // User tables filter rows by user 'ownership'
-        if (userTables.includes(tableName)) {
+        if (!metaTables.includes(tableName) && !securityTables.includes(tableName)) {
           //const query =  knex.select('*').from(tableName);
 
           console.log(`PATH ${path}, user_id ${user_id}`)
        
-          const ownedRows = 
+          let ownedRows = 
             knex
               .select('audit_table_id',
                 knex.raw(`
@@ -248,37 +248,14 @@ export const addApiReadDataRoutes = async (router : Router ) =>
               .max({latest_audit_id:'audit_id'})  
               .from('audit')
               .innerJoin('AppTable', 'audit_AppTable_id', 'AppTable_id')
-              .where('AppTable_title', '=', tableName)
-              .where('audit_user_id', '=', user_id)
-              .groupBy('audit_table_id');
+              .where('AppTable_title', '=', tableName);
 
-//console.log('******************************')
-//console.log(JSON.stringify(ownedRows.toString()))
-
-/*
-// Get field names used to filter 
-select *
-from AppColumn
-inner join AppTable
-on AppTable_id = AppColumn_AppTable_id
-where 
- left(AppColumn_column_name,len(AppTable_table_name)*2+1) = AppTable_table_name+'_'+AppTable_table_name
-and (
- AppColumn_column_name
-	like '%StoryStory%'
- or AppColumn_column_name
-	like '%StoryRequirement%'
- or AppColumn_column_name
-	like '%StatusAppTable%'
- or AppColumn_column_name
-	like '%CategoryAppTable%'
-)
-
-story_StoryRequirement_requirement_id
-story_StoryStory_story_id
-status_StatusAppTable_AppTable_id
-category_CategoryAppTable_AppTable_id
-*/   
+          // User tables filter rows by user 'ownership'
+          if (userTables.includes(tableName))
+            ownedRows = ownedRows
+              .where('audit_user_id', '=', user_id);
+          
+          ownedRows = ownedRows.groupBy('audit_table_id');
 
           console.log(`NOT ADMIN - filtered; PATH=${path}, tableName=${tableName}, user_id=${user_id}`)
           const query = knex.raw('with auditLastOwned as (?) ?', [
@@ -339,9 +316,9 @@ category_CategoryAppTable_AppTable_id
           })
           .catch((error)=>{knexErrorHandler(req,res,error)});       
 
-        } else 
+        } 
         
-        if ( !securityTables.includes(tableName) 
+        else if ( !securityTables.includes(tableName) 
           || (req.user as any)?.role_title === 'Admin' )
         {
           

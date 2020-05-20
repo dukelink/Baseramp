@@ -38,7 +38,7 @@ export interface OutlineNode {
   totalChildRecords : RecordOfAnyType 
 }
 
-const parentChildTables: any = { 
+const parentChildTables = { 
   category: ['category', // CYCLIC: category
     'project', 'chore','requirement',
     'resource','challenge','account',
@@ -142,7 +142,6 @@ export function buildOutline(
     ) {
     let rowsObj = derivedModel[tableHeading];
 
-    //if (typeof rows === 'object') 
     let rows = Object.values(rowsObj); // conversion to table objects
 
     if (parentTable && parentID)
@@ -181,7 +180,8 @@ export function buildOutline(
         parentID,
         showTable: true,
         children: buildTableHeadingsOutline(
-          (parentChildTables[tableHeading] || []),
+          ((parentChildTables as {[key:string]:any})
+            [tableHeading] as Array<string> || []),
           tableHeading,
           row.record[tableHeading + '_id'] 
         ),

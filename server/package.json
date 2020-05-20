@@ -20,7 +20,8 @@
     "mssql": "^6.2.0",
     "passport": "^0.4.1",
     "passport-http": "^0.3.0",
-    "passport-local": "^1.0.0"
+    "passport-local": "^1.0.0",
+    "typescript": "3.9.3"
   },
   "scripts": {
     "start": "node ./dist/bin/www.js",

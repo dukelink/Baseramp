@@ -151,6 +151,20 @@ export const useFieldMetadata = (
               rec[referenceTableName+'_id'] === fieldValue
         )
       })
+      // RULE: If reference table is Status then
+      // scope statuses presented to only those that
+      // have are set to apply to the current navTable
+      // (these are stored within StatusAppTable)...
+      .filter((rec:RecordOfAnyType) => {
+        const navTable_table_id = model.metaModel.AppTable[navTable]._id;
+        return (
+          referenceTableName !== 'status' ||
+            (rec['status_StatusAppTable_AppTable_id'] || [])
+              .includes(navTable_table_id)
+            || // 1:M selected test...
+              rec[referenceTableName+'_id'] === fieldValue
+        )
+      })
       // RULE: If many-to-many, cyclic foreign key, 
       //       then filter out current record
       .filter((rec:RecordOfAnyType)=>(
