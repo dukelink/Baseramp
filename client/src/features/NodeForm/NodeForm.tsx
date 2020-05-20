@@ -57,14 +57,6 @@ const InnerRender = memo(
     !state[navTable+"_id"] 
     || ((state[navTable+"_id"]||'').toString() !== navTableID))
     && navTable!=='user' && navTableID!=="-1"; // REVIEW: render new user signup form
-/* 
-  if (empty)
-    console.log(`EMPTY: ${((state[navTable+"_id"]||'').toString() !== navTableID.toString())}
-    state[navTable+"_id"]=${(state[navTable+"_id"]||'').toString()}, 
-    navTableID=${JSON.stringify(navTableID)}`);
-  else
-    console.log('NOT EMPTY');
-*/
   return( empty ? <></> : <>
   { // Make sure there is a form to render...
     (!state || (navTableID!=='-1' && !Object.keys(state).length)) ||

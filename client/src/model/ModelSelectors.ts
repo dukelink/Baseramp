@@ -147,6 +147,8 @@ export const useFieldMetadata = (
           referenceTableName !== 'category' ||
             (rec['category_CategoryAppTable_AppTable_id'] || [])
               .includes(navTable_table_id)
+            || // 1:M selected test...
+              rec[referenceTableName+'_id'] === fieldValue
         )
       })
       // RULE: If many-to-many, cyclic foreign key, 
