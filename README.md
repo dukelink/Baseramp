@@ -6,7 +6,7 @@ Version 1.0 and a contributor guide will be forthcoming. Here are some slide, an
 
 <!--a href=""-->
   <img 
-  src="https://baseramp-secondary.z21.web.core.windows.net/docs/Baseramp%20Project%20Manager.svg" 
+  src="https://baseramp-secondary.z21.web.core.windows.net/docs/Baseramp Project Manager.svg" 
   width="1024px" raw=true
   alt="Baseramp Tracker Into Slide">
 <!--/a-->
