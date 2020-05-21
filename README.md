@@ -8,6 +8,18 @@ Version 1.0 and a contributor guide will be forthcoming. Here are some slide, an
 <h1>HELLO</h1>
 </div>
 
+<svg xmlns="http://www.w3.org/2000/svg"
+     width="800px" height="300px" viewBox="0 0 800 300">
+
+  <text x="25" y="155" 
+        font-family="'Lucida Grande', sans-serif" 
+        font-size="132">
+
+    Regular ol' text here. Hi.
+
+  </text>
+
+</svg>
 
 <!--a href=""-->
 <img alt="Baseramp Tracker Into Slide 0"
