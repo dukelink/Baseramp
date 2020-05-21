@@ -426,6 +426,25 @@ Server: (npx sloc routes app.ts)
 Number of files read :  7
 ```
 
+````
+5/20/2020 - Various detail features...
+  161.14 KB  build\static\js\2.1f909d0f.chunk.js
+  12.13 KB   build\static\js\main.39fd9921.chunk.js
+  783 B      build\static\js\runtime-main.fd5b1e98.js
+  583 B      build\static\css\2.47271137.chunk.css
+  434 B      build\static\css\main.2c61f976.chunk.css
+            Physical :  3984
+              Source :  2759
+             Comment :  945
+ Single-line comment :  364
+       Block comment :  581
+               Mixed :  77
+ Empty block comment :  100
+               Empty :  457
+               To Do :  26
+Number of files read :  38  
+````
+
 # HELPFUL SNIPPETS:
 
 npx sloc src -- get lines of code reports, presented above

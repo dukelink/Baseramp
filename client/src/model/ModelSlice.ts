@@ -95,8 +95,11 @@ const model = createSlice({
             }
           }
         } 
-        else if (update_type==='DELETE')
-          delete model.apiModel[table_name][tableID]; 
+        else if (update_type==='DELETE') {
+          let tableToRemoveFrom = model.apiModel?.[table_name];
+          if (tableToRemoveFrom && tableToRemoveFrom[tableID])
+            delete tableToRemoveFrom[tableID]; 
+        }
       })
       buildDerived(model);
       model.outline = buildOutline(model.derivedModel, settings); // should we make navigate optional and save w/in derived structures?
