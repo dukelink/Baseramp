@@ -5,39 +5,14 @@ Baseramp Tracker - An open source Project Management software built as a Single 
 Version 1.0 and a contributor guide will be forthcoming. Here are some slide, and a video to describe and demo the project:
 
 <!--a href=""-->
-  <img 
-  src="https://baseramp.blob.core.windows.net/%24web/slide1.svg?sv=2019-10-10&ss=bqtf&srt=sco&sp=rwdlacuptfx&se=2020-05-22T05:35:06Z&sig=9pDkGTI9EoUZ3I7GMCi0K9E36BUqIN2UpBNzZSJzmnc%3D&_=1590096931744" 
-  width="1024px" raw=true
-  alt="Baseramp Tracker Into Slide">
+  <img alt="Baseramp Tracker Into Slide"
+  src="https://baseramp.blob.core.windows.net/%24web/slide0.svg?sv=2019-10-10&ss=bqtf&srt=sco&sp=rwdlacuptfx&se=2020-05-22T05:35:06Z&sig=9pDkGTI9EoUZ3I7GMCi0K9E36BUqIN2UpBNzZSJzmnc%3D&_=1590096931744" 
+  width="1024px" raw=true>
 <!--/a-->
 
-<img alt="Baseramp Tracker Slide 1"
-src="https://baseramp-secondary.z21.web.core.windows.net/docs/Baseramp%20Project%20Manager%20(1).svg" 
-width="1024px">
-
-<img alt="Baseramp Tracker Slide 2"
-src="https://baseramp-secondary.z21.web.core.windows.net/docs/Baseramp%20Project%20Manager%20(2).svg" 
-width="1024px">
-
-<img alt="Baseramp Tracker Slide 3"
-src="https://baseramp-secondary.z21.web.core.windows.net/docs/Baseramp%20Project%20Manager%20(3).svg" 
-width="1024px">
-
-<img alt="Baseramp Tracker Slide 4"
-src="https://baseramp-secondary.z21.web.core.windows.net/docs/Baseramp%20Project%20Manager%20(4).svg" 
-width="1024px">
-
-<img alt="Baseramp Tracker Slide 5"
-src="https://baseramp-secondary.z21.web.core.windows.net/docs/Baseramp%20Project%20Manager%20(5).svg" 
-width="1024px">
-
-<img alt="Baseramp Tracker Slide 6"
-src="https://baseramp-secondary.z21.web.core.windows.net/docs/Baseramp%20Project%20Manager%20(6).svg" 
-width="1024px">
-
-<img alt="Baseramp Tracker Slide 7"
-src="https://baseramp-secondary.z21.web.core.windows.net/docs/Baseramp%20Project%20Manager%20(7).svg" 
-width="1024px">
+  <img alt="Baseramp Tracker Into Slide"
+  src="https://baseramp.blob.core.windows.net/%24web/slide1.svg?sv=2019-10-10&ss=bqtf&srt=sco&sp=rwdlacuptfx&se=2020-05-22T05:35:06Z&sig=9pDkGTI9EoUZ3I7GMCi0K9E36BUqIN2UpBNzZSJzmnc%3D&_=1590096931744" 
+  width="1024px" raw=true>
 
 
 # Video Into to Project
