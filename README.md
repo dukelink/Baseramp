@@ -100,13 +100,10 @@
 ### What are some additional features planned before initial release?
 
 * Simple notes formatting, probably utilizing markdown format
-
+* Full-text search
 * Basic reports to support the initial set of application templates
-
 * A few initial APIs to integrate with popular cloud services
-
 * Offline data storage, supporting read-only usage at a minimum
-
 * Two-factor authentication with password recovery
 <br/>
 <br/>
@@ -116,21 +113,29 @@
 
 <hr/>
 
-### Reach out today if interested!
+
+## Reach out today if interested!
+
+<table border="0">
+<tbody>
+<tr>
+<td>
 
 * duke.lotherington@gmail.com
 
 * https://www.linkedin.com/in/duke-lotherington-92502816/
 
 * https://github.com/dukelink
-<br/>
-<br/>
-<hr/>
-<br/>
-<br/>
 
+</td>
+<td>
+<p align='center'><img src="./docs/MojavePhoto2.jpg" width="250px"></p>
+</td>
+</tr>
+</tbody>
+</table>
 
-
+<hr>
 
 
 
