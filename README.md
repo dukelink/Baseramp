@@ -1,47 +1,139 @@
-# Baseramp Tracker Intro
+# Baseramp Tracker
 
-Baseramp Tracker - An open source Project Management software built as a Single Page Application (SPA) and Progressive Web Application (PWA) using Typescript, React, and an extensible SQL database model.
+## _A system centered on personal ownership of your data!_
 
-Version 1.0 and a contributor guide will be forthcoming. Here are some slide, and a video to describe and demo the project:
+<br/>
 
-<!--a href=""-->
-<img alt="Baseramp Tracker Into Slide 0"
- src="https://baseramp.blob.core.windows.net/%24web/slide0.svg?sv=2019-10-10&ss=bqtf&srt=sco&sp=rwdlacuptfx&se=2020-05-22T05:35:06Z&sig=9pDkGTI9EoUZ3I7GMCi0K9E36BUqIN2UpBNzZSJzmnc%3D&_=1590097644814" width="1024px" raw=true>
-<!--/a-->
+<hr/>
 
-<img alt="Baseramp Tracker Into Slide 1"
- src="https://baseramp.blob.core.windows.net/%24web/slide1.svg?sv=2019-10-10&ss=bqtf&srt=sco&sp=rwdlacuptfx&se=2020-05-22T05:35:06Z&sig=9pDkGTI9EoUZ3I7GMCi0K9E36BUqIN2UpBNzZSJzmnc%3D&_=1590097692200" width="1024px" raw=true>
+### What does Baseramp Tracker do?
 
-<img alt="Baseramp Tracker Into Slide 2"
- src="https://baseramp.blob.core.windows.net/%24web/slide2.svg?sv=2019-10-10&ss=bqtf&srt=sco&sp=rwdlacuptfx&se=2020-05-22T05:35:06Z&sig=9pDkGTI9EoUZ3I7GMCi0K9E36BUqIN2UpBNzZSJzmnc%3D&_=1590097722178" width="1024px" raw=true>
+* Consolidates your data into a personal SQL database
 
-<img alt="Baseramp Tracker Into Slide 3"
- src="https://baseramp.blob.core.windows.net/%24web/slide3.svg?sv=2019-10-10&ss=bqtf&srt=sco&sp=rwdlacuptfx&se=2020-05-22T05:35:06Z&sig=9pDkGTI9EoUZ3I7GMCi0K9E36BUqIN2UpBNzZSJzmnc%3D&_=1590097767025" width="1024px" raw=true>
+* With pre-built tables available for common applications:
+  * To Do Lists
+  * Recurring Chores
+  * Project Management
+  * Research & Note Taking
+  * Password & Account Management
+  * Flash Cards for Intermittent Learning
+  * Contact Lists
+  * etc.
 
-<img alt="Baseramp Tracker Into Slide 4"
- src="https://baseramp.blob.core.windows.net/%24web/slide4.svg?sv=2019-10-10&ss=bqtf&srt=sco&sp=rwdlacuptfx&se=2020-05-22T05:35:06Z&sig=9pDkGTI9EoUZ3I7GMCi0K9E36BUqIN2UpBNzZSJzmnc%3D&_=1590097794651" width="1024px" raw=true>
+* Making it easier to access, control, use and retain all of your information
+<br/>
+<br/>
+<hr/>
+<br/>
+<br/>
 
-<img alt="Baseramp Tracker Into Slide 5"
- src="https://baseramp.blob.core.windows.net/%24web/slide5.svg?sv=2019-10-10&ss=bqtf&srt=sco&sp=rwdlacuptfx&se=2020-05-22T05:35:06Z&sig=9pDkGTI9EoUZ3I7GMCi0K9E36BUqIN2UpBNzZSJzmnc%3D&_=1590097846444" width="1024px" raw=true>
+<hr/>
 
-<img alt="Baseramp Tracker Into Slide 6"
- src="https://baseramp.blob.core.windows.net/%24web/slide6.svg?sv=2019-10-10&ss=bqtf&srt=sco&sp=rwdlacuptfx&se=2020-05-22T05:35:06Z&sig=9pDkGTI9EoUZ3I7GMCi0K9E36BUqIN2UpBNzZSJzmnc%3D&_=1590097875951" width="1024px" raw=true>
+### How does Baseramp Tracker work?
 
-<img alt="Baseramp Tracker Into Slide 7"
- src="https://baseramp.blob.core.windows.net/%24web/slide7.svg?sv=2019-10-10&ss=bqtf&srt=sco&sp=rwdlacuptfx&se=2020-05-22T05:35:06Z&sig=9pDkGTI9EoUZ3I7GMCi0K9E36BUqIN2UpBNzZSJzmnc%3D&_=1590097897135" width="1024px" raw=true>
+* By enabling non-programmers to spin up a private database
+
+* Hosted on physical hardward or your private cloud platform account
+
+* With a Progressive Web App, dockable on PC and mobile desktops
+
+* And easy configuration without programming
+<br/>
+<br/>
+<hr/>
+<br/>
+<br/>
+
+<hr/>
+
+### Data ownership benefits you by:
+
+* Avoiding numerous paid subscription
+
+* Stopping the exchange of your data for so called "free" services
+
+* Helping you regain a margin of online privacy
+
+* Preventing long term data loss and fragmentation
+<br/>
+<br/>
+<hr/>
+<br/>
+<br/>
+
+<hr/>
+
+### How is Baseramp Tracker made easy to operate?
+
+* By using a familiar **outlining** method to organize your data
+
+* Built-in logic that "understands" database structures
+
+* Enabling the automatic creation and validation of data entry forms
+
+* Plus a growing catalog of plug-in templates for common applications
+<br/>
+<br/>
+<hr/>
+<br/>
+<br/>
+
+<hr/>
+
+### What is the status of Baseramp Tracker development?
+
+* The system is still under development but already useful "in production"
+
+* Currently in use by family, friends, and collegeaus
+
+* Open for comment and public "alpha testing" from our test server
+
+* Programmers may clone or fork and try out the code
+<br/>
+<br/>
+<hr/>
+<br/>
+<br/>
+
+<hr/>
+
+### What are some additional features planned before initial release?
+
+* Simple notes formatting, probably utilizing markdown format
+
+* Basic reports to support the initial set of application templates
+
+* A few initial APIs to integrate with popular cloud services
+
+* Offline data storage, supporting read-only usage at a minimum
+
+* Two-factor authentication with password recovery
+<br/>
+<br/>
+<hr/>
+<br/>
+<br/>
+
+<hr/>
+
+### Reach out today if interested!
+
+* duke.lotherington@gmail.com
+
+* https://www.linkedin.com/in/duke-lotherington-92502816/
+
+* https://github.com/dukelink
+<br/>
+<br/>
+<hr/>
+<br/>
+<br/>
 
 
-# Video Into to Project
 
-[Baseramp Tracker Intro Video](https://youtu.be/8a5TfmJIXd8)
 
-<a href="https://www.youtube.com/watch?v=8a5TfmJIXd8">
-  <img 
-  src="./docs/BaseRampVidoPic.jpg" 
-  width="1024px" 
-  alt="Baseramp Tracker Into Video">
-</a>
 
-# Database ERD
 
-![Baseramp Tracker ERD](./docs/ERD.jpg)
+
+
+
