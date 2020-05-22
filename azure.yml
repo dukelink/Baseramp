@@ -1,0 +1,11 @@
+version: '2.1'
+services:
+    server:
+        image: wlotherington243/ec2-projects-2:latest 
+        environment: 
+            - MS_SQL_PW=glA1234b
+            - MS_SQL_URI=lotherington.database.windows.net
+            - MS_SQL_USER=duke
+            - MS_SQL_DB=Projects
+        ports:
+            - 8080:8080
