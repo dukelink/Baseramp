@@ -8,6 +8,11 @@
 
 ### What does Baseramp Tracker do?
 
+<table border="0">
+<tbody>
+<tr>
+<td>
+
 * Consolidates your data into a personal SQL database
 
 * With pre-built tables available for common applications:
@@ -21,28 +26,6 @@
   * etc.
 
 * Making it easier to access, control, use and retain all of your information
-<br/>
-<br/>
-<hr/>
-<br/>
-<br/>
-
-<hr/>
-
-### How does Baseramp Tracker work?
-
-<table border="0">
-<tbody>
-<tr>
-<td>
-
-* By enabling non-programmers to spin up a private database
-
-* Hosted on physical hardward or your private cloud platform account
-
-* With a Progressive Web App, dockable on PC and mobile desktops
-
-* And easy configuration without programming
 
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 </td>
@@ -54,7 +37,23 @@
 </tbody>
 </table>
 
+<br/>
+<br/>
+<hr/>
+<br/>
+<br/>
 
+<hr/>
+
+### How does Baseramp Tracker work?
+
+* By enabling non-programmers to spin up a private database
+
+* Hosted on physical hardward or your private cloud platform account
+
+* With a Progressive Web App, dockable on PC and mobile desktops
+
+* And easy configuration without programming
 
 
 <br/>
