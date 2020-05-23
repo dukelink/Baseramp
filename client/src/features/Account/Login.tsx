@@ -26,6 +26,7 @@ import { useDispatch } from 'react-redux';
 import { authLogin } from './AccountThunks';
 import { StateType } from './AccountPage';
 import { Redirect } from 'react-router';
+import { VerticalSpace } from '../../utils/utils';
 
 const useStyles = makeStyles(theme => ({
     container: {
@@ -92,14 +93,16 @@ export const Login = (props:{state:StateType, setState: React.Dispatch<React.Set
       <br></br>
       <br></br>
       <br></br>
-      <p style={{ fontSize: '18px' }}>
+      <span style={{ fontSize: '18px' }}>
         Are you a first time visitor, interested in learning more about Baseramp?
-        <br/>
-        <a style={{ fontSize: '18px' }}
+        <br></br>
+        <a style={{ fontSize: '18px', textDecoration: 'none', position: 'relative', top: '10px' }}
           href={"#"} onClick={ () => {setRedirect(true)} }> 
-          Click here for the Info tab...
+          <em>Click here for the 
+            &nbsp;<span style={{ textDecoration: 'underline' }}>Information</span>&nbsp;
+            tab...</em>
         </a>
-      </p>
+      </span>
     </>;
   }
   

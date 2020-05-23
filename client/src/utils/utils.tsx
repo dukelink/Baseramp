@@ -91,7 +91,11 @@ export function useWindowSize() {
 export const VerticalSpace = (props:{pixels?:number, vh?:number}) => (
   <div style={{
       display: 'inline-block', 
-      height: props.pixels ? props.pixels+'px' :
+      height: props.pixels 
+        ? props.pixels+'px' :
+        (props.vh ? props.vh+'vh' : ''), 
+      maxHeight: props.pixels 
+        ? props.pixels+'px' :
         (props.vh ? props.vh+'vh' : ''), 
       width: '100%' }}>
     &nbsp; {/* Some browsers need content for spacer to work... */}
