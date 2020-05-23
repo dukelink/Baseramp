@@ -19,7 +19,7 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import React, { Component } from 'react';
+import React, { Component, useRef } from 'react';
 import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/core/styles';
 import { AppBar, Tabs, Tab } from '@material-ui/core';
@@ -61,6 +61,8 @@ function a11yProps(index:any) {
   };
 }
 
+const menuHeight = 60;
+
 const useStyles = makeStyles(theme => ({
   root: {
     flexGrow: 1,
@@ -82,7 +84,7 @@ const useStyles = makeStyles(theme => ({
   },
   menuItem: {
     color:'white',
-    height:'60px',
+    height: menuHeight+'px',
     width:'inherit',
     minWidth: '100px',
     textDecoration:'none',
@@ -123,11 +125,6 @@ class AppRoute extends Component<any>
       </Route>
 
       { (() => {    
-        if (path==='/Info') 
-          return <>
-            <InfoPanel/>
-          </>
-        else
           return  <>
               {/* But every route shares all (route associated) panels in order to save micro-state on panel content
                   such as cursor focus and control state that isn't covered 100% by 'props' controlled components. */}
@@ -190,24 +187,29 @@ const AppBarMenu = (props:{menuItem:number, path:string, children?:any}) =>
           <MyLabel to='/Info' path={path}>
             <div style={{padding:10}}>Info</div>
           </MyLabel>
-          } {...a11yProps(3)} style={{visibility:!isLoggedIn?'initial':'hidden'}} />
+          } {...a11yProps(3)} style={{visibility:!isLoggedIn?'initial':'initial'}} />
       </Tabs> 
     </AppBar> ); 
 }
 
 function InfoPanel()
 {
+  const { pathname } = document.location;
+  const infoPath = useRef('');
   const [ width, height ] = useWindowSize();
-  const infoPath = process.env.PUBLIC_URL 
-    + (width<960 ? '/info/mobile.html' : '/info/index.html');
 
-console.log(`InfoPanel: width=${width} height=${height} infoPath=${infoPath}`)
-  return (
+  if (pathname==='/Info') 
+  {
+    infoPath.current = process.env.PUBLIC_URL 
+      + (width<960 ? '/info/mobile.html' : '/info/index.html');
+    console.log(`InfoPanel: width=${width} height=${height} infoPath=${infoPath}`);
+  }
+  return <>{ 
+    infoPath.current &&
     <Iframe 
-      url = { infoPath } width="100%"
-      height = { (height - 60 /* menu height */).toString()+'px' }
-    />
-  )
+      url = { infoPath.current } width="100%"
+      height = { (height - menuHeight) +'px' } />
+  }</>
 }
 
 const TabPanels = (props:{menuItem:number}) =>
