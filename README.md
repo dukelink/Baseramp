@@ -1,6 +1,6 @@
 # Baseramp
 
-## _A system centered on personal use and ownership of your data!_
+## _A system for personal use and ownership of your data!_
 
 <br/>
 <hr/>
@@ -163,7 +163,7 @@
 <tr>
 <td>
 
-### What are some additional features planned before initial release?
+### What more is planned for the initial release?
 
 * Simple notes formatting, probably utilizing markdown format
 * Full-text search

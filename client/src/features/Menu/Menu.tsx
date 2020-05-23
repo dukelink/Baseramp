@@ -26,10 +26,11 @@ import { AppBar, Tabs, Tab } from '@material-ui/core';
 import Typography from '@material-ui/core/Typography';
 import Settings from '../SettingsPage/SettingsPage';
 import { SystemNavigator } from '../SystemNavigator/SystemNavigator'; 
-import { SampleForm } from '../SamplePage/SampleForm';
 import { AccountPage } from '../Account/AccountPage';
 import { BrowserRouter as Router, Switch, Link, Route } from "react-router-dom";
 import { useAuthStatus } from '../Account/AccountSlice';
+import Iframe from 'react-iframe';
+import { useWindowSize } from '../../utils/utils';
 
 function TabPanel(props:any) {
   const { children, value, index, ...other } = props;
@@ -71,12 +72,12 @@ const useStyles = makeStyles(theme => ({
     ** TODO: Restore once I figure out how to track properly following responsively hidden menu pad....
     */
     "& header span": {
-      backgroundColor: "transparent",
-      height: '60px'
+      backgroundColor: "transparent"
     },
-    "& button" : {
+    "& button.MuiTab-root" : {
       opacity: 1,
-      padding: 0 
+      padding: 0,
+      width: '25%'
     }
   },
   menuItem: {
@@ -103,6 +104,7 @@ export const SimpleTabs = (props:any) => {
           <AppRoute exact path='/' menuItem={0}></AppRoute> 
           <AppRoute exact path='/Navigator' menuItem={1}></AppRoute>
           <AppRoute exact path='/Settings' menuItem={2}></AppRoute>
+          <AppRoute exact path='/Info' menuItem={3}></AppRoute>
         </Switch>
       </Router>     
     </div>
@@ -121,13 +123,17 @@ class AppRoute extends Component<any>
       </Route>
 
       { (() => {    
-        if (path==='/SampleForm') return <SampleForm/>
-        return  <>
-            {/* But every route shares all (route associated) panels in order to save micro-state on panel content
-                such as cursor focus and control state that isn't covered 100% by 'props' controlled components. */}
-            <TabPanels menuItem = { menuItem } />
+        if (path==='/Info') 
+          return <>
+            <InfoPanel/>
           </>
-      })() }
+        else
+          return  <>
+              {/* But every route shares all (route associated) panels in order to save micro-state on panel content
+                  such as cursor focus and control state that isn't covered 100% by 'props' controlled components. */}
+              <TabPanels menuItem = { menuItem } />
+            </>
+        })() }
     </> 
   }
 } 
@@ -157,21 +163,51 @@ const AppBarMenu = (props:{menuItem:number, path:string, children?:any}) =>
   return (
     <AppBar position="static">
       <Tabs value={ menuItem } aria-label="Application Tabs">
+
          <Tab label={
             isLoggedIn ?
-              <MyLabel to='/' path={path}><>Account<br/>& Log Off</></MyLabel>
-            : <MyLabel to='/' path={path}><>Account<br/>Log In</></MyLabel>
+              <MyLabel to='/' path={path}>
+                <div style={{padding:10}}>Logout</div>
+              </MyLabel>
+            : <MyLabel to='/' path={path}>
+                <div style={{padding:10}}>Login</div>
+            </MyLabel>
           } {...a11yProps(0)} /> 
+
         <Tab disabled={!isLoggedIn} label={
-           <MyLabel to='/Navigator' path={path}><>System<br/>Navigator</></MyLabel>
-          } {...a11yProps(1)} />
+           <MyLabel to='/Navigator' path={path}>
+            <div style={{padding:10}}>Navigate</div>
+           </MyLabel>
+          } {...a11yProps(1)} style={{display:isLoggedIn?'initial':'none'}} />
+
         <Tab disabled={!isLoggedIn} label={
             <MyLabel to='/Settings' path={path}>
               <div style={{padding:10}}>Settings</div>
             </MyLabel>
-          } {...a11yProps(2)} />
+          } {...a11yProps(2)} style={{display:isLoggedIn?'initial':'none'}} />
+
+        <Tab label={
+          <MyLabel to='/Info' path={path}>
+            <div style={{padding:10}}>Info</div>
+          </MyLabel>
+          } {...a11yProps(3)} style={{visibility:!isLoggedIn?'initial':'hidden'}} />
       </Tabs> 
     </AppBar> ); 
+}
+
+function InfoPanel()
+{
+  const [ width, height ] = useWindowSize();
+  const infoPath = process.env.PUBLIC_URL 
+    + (width<960 ? '/info/mobile.html' : '/info/index.html');
+
+console.log(`InfoPanel: width=${width} height=${height} infoPath=${infoPath}`)
+  return (
+    <Iframe 
+      url = { infoPath } width="100%"
+      height = { (height - 60 /* menu height */).toString()+'px' }
+    />
+  )
 }
 
 const TabPanels = (props:{menuItem:number}) =>
@@ -181,6 +217,7 @@ const TabPanels = (props:{menuItem:number}) =>
     <TabPanel value={menuItem} index={0}><AccountPage/></TabPanel>
     <TabPanel value={menuItem} index={1}><SystemNavigator/></TabPanel>  
     <TabPanel value={menuItem} index={2}><Settings/></TabPanel>  
+    <TabPanel value={menuItem} index={3}><InfoPanel/></TabPanel>  
   </>)
 }
 

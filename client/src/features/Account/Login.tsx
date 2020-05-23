@@ -19,12 +19,13 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import React from 'react';
+import React, { useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { Input, InputLabel, FormControl, Button } from '@material-ui/core';
 import { useDispatch } from 'react-redux';
 import { authLogin } from './AccountThunks';
 import { StateType } from './AccountPage';
+import { Redirect } from 'react-router';
 
 const useStyles = makeStyles(theme => ({
     container: {
@@ -51,7 +52,8 @@ export const Login = (props:{state:StateType, setState: React.Dispatch<React.Set
     const setState = props.setState;
     const classes = useStyles();
     const dispatch = useDispatch();
-    return <>
+    const [ redirect, setRedirect ] = useState<boolean>(false)
+    return redirect ? <Redirect push to="/info" /> : <>
       <FormControl className={classes.formControl}>
           <InputLabel htmlFor="login-input">Login</InputLabel>
           <Input
@@ -87,6 +89,17 @@ export const Login = (props:{state:StateType, setState: React.Dispatch<React.Set
           Login
         </Button>
       </div>  
+      <br></br>
+      <br></br>
+      <br></br>
+      <p style={{ fontSize: '18px' }}>
+        Are you a first time visitor, interested in learning more about Baseramp?
+        <br/>
+        <a style={{ fontSize: '18px' }}
+          href={"#"} onClick={ () => {setRedirect(true)} }> 
+          Click here for the Info tab...
+        </a>
+      </p>
     </>;
   }
   

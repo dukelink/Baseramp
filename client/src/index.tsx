@@ -58,8 +58,10 @@ const UI = () => {
     useEffect(() => {
         const intv = setInterval(()=>{
             const { pathname } = document.location;
-            if (pathname !== '/')
-                refreshFromServer(settings);
+
+//            if (pathname !== '/' && pathname !== '/Info')
+//                refreshFromServer(settings);
+
         }, 3000); // 3 second polling for DB updates from other users 
         return () => { 
             clearInterval(intv); // critical to clear out-of-scope resource!
