@@ -21,6 +21,7 @@
 
 import { Request, Response } from 'express';
 import bcrypt from "bcryptjs";
+import nodemailer from 'nodemailer';
 
 import { cacheMetadata } from './apiReadDataRoutes';
 
@@ -73,6 +74,57 @@ export const businessRules
             })
         } else
           resolve({record,virtual:[]});
+
+        if (req.method === 'POST' && record.user_login.indexOf('@')!==-1) {
+          // Send a welcome and validation email...
+          const transporter = nodemailer.createTransport({
+            host: "mail.privateemail.com",
+            port: 465,
+            secure: true, // use TLS
+            auth: {
+              user: "admin@baseramp.com",
+              pass: "testEmail--1000"
+            }
+          });
+
+          // verify connection configuration
+          transporter.verify(function(error, success) {
+            if (error) {
+              console.log(error);
+            } else {
+              console.log("Server is ready to take our messages");
+            }
+          });
+
+          let message = {
+            // listed in rfc822 message header...
+            from: 'Duke Lotherington <admin@baseramp.com>',
+            to: `admin@baseramp.com, ${record.user_title} <${record.user_login}>`, 
+//            envelope: {
+//                from: 'Duke Lotherington <admin@baseramp.com>', // used as MAIL FROM: address for SMTP
+//                to: 'admin@baseramp.com' // used as RCPT TO: address for SMTP
+//            },
+            subject: "Message title",
+            text: "Welcome to Baseramp, your test account has been activated!",
+//            html: "<p>HTML version of the message</p>"            
+          }
+
+          transporter.sendMail(message,
+            function(err,info) {
+              if (err) {
+                // check if htmlstream is still open and close it to clean up
+                console.log('Response email failed:');
+                console.log(err);
+              } else {
+                console.log('Response email info:');
+                console.log(info);
+              }
+            }
+          );
+
+        }
+
+
         break;
 
       default:
