@@ -78,7 +78,7 @@
 
 * Numerous paid subscription
 
-* Exchanging data for so called "free" services
+* Unnecessary exchange of data for so-called "free" services
 
 * Online loss of data privacy
 
