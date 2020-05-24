@@ -1,5 +1,6 @@
 /*
-    Baseramp - A database for end users, enabling personal and private data ownership,
+    Baseramp - An end user database system, 
+    enabling personal data usage and private data ownership,
     built as a Progressive Web Application (PWA) using
     Typescript, React, and an extensible SQL database model.
 
@@ -90,7 +91,6 @@ export const Login = (props:{state:StateType, setState: React.Dispatch<React.Set
           Login
         </Button>
       </div>  
-      <br></br>
       <br></br>
       <br></br>
       <span style={{ fontSize: '18px' }}>
