@@ -97,33 +97,37 @@ export const updateRecord =
   }
 }
 
+let fetchInProgress = false;
+
 export const refreshFromServer = (settings:SettingsState) =>
 //  : AppThunk => async dispatch => 
 {
-  Fetch(`audit_updates/${settings.lastAuditTableID}`)
-  .then(res => res && res.json())
-  .catch(() =>{})
-  .then(res => {
-      const audit_updates: any = res;
+  if (!fetchInProgress) {
+    fetchInProgress = true;
+    Fetch(`audit_updates/${settings.lastAuditTableID}`)
+    .then(res => res && res.json())
+    .catch(() => { fetchInProgress = false; } )
+    .then(res => {
+        const audit_updates: any = res;
+        fetchInProgress = false;
+        if (audit_updates?.length) {
+          store.dispatch(refreshVMfromAuditRecords({settings,audit_updates}));
+        }
 
-      console.log(`refreshFromServer(${JSON.stringify(audit_updates)})`);
-      if (audit_updates?.length) {
-        store.dispatch(refreshVMfromAuditRecords({settings,audit_updates}));
-      }
+        //
+        // MINOR HACK: Watch for any edits to metadata tables,
+        // either by ourself or other users, and reload
+        // the denormalized-keys metaData in Redux...
+        //
+        if (audit_updates?.length && 
+            (audit_updates[0].table_name==='AppTable' 
+            || audit_updates[0].table_name==='AppColumn')) {
+          loadMetadata();
+        }
 
-      //
-      // MINOR HACK: Watch for any edits to metadata tables,
-      // either by ourself or other users, and reload
-      // the denormalized-keys metaData in Redux...
-      //
-      if (audit_updates?.length && 
-          (audit_updates[0].table_name==='AppTable' 
-          || audit_updates[0].table_name==='AppColumn')) {
-        loadMetadata();
-      }
-
-      return res;
-  });
+        return res;
+    });
+  }
 }
 
 export const insertRecord = 

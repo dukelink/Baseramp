@@ -20,14 +20,13 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import React, { useState } from 'react';
+import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { Input, InputLabel, FormControl, Button } from '@material-ui/core';
 import { useDispatch } from 'react-redux';
 import { authLogin } from './AccountThunks';
 import { StateType } from './AccountPage';
-import { Redirect } from 'react-router';
-import { VerticalSpace } from '../../utils/utils';
+import { useHistory } from 'react-router-dom';
 
 const useStyles = makeStyles(theme => ({
     container: {
@@ -54,8 +53,9 @@ export const Login = (props:{state:StateType, setState: React.Dispatch<React.Set
     const setState = props.setState;
     const classes = useStyles();
     const dispatch = useDispatch();
-    const [ redirect, setRedirect ] = useState<boolean>(false)
-    return redirect ? <Redirect push to="/info" /> : <>
+    const history = useHistory();
+   
+    return <>
       <FormControl className={classes.formControl}>
           <InputLabel htmlFor="login-input">Login</InputLabel>
           <Input
@@ -94,14 +94,12 @@ export const Login = (props:{state:StateType, setState: React.Dispatch<React.Set
       <br></br>
       <br></br>
       <span style={{ fontSize: '18px' }}>
-        Are you a first time visitor, interested in learning more about Baseramp?
+        Are you a new visitor interested in learning more about Baseramp?
         <br></br>
-        <a style={{ fontSize: '18px', textDecoration: 'none', position: 'relative', top: '10px' }}
-          href={"#"} onClick={ () => {setRedirect(true)} }> 
-          <em>Click here for the 
-            &nbsp;<span style={{ textDecoration: 'underline' }}>Information</span>&nbsp;
-            tab...</em>
-        </a>
+        <div style={{ fontSize: '18px', textDecoration: 'none', position: 'relative', top: '10px' }}
+          onClick={ () => { history.push('/Info'); } }> 
+          <em style={{ textDecoration: 'underline', cursor: 'pointer' }}>Click here for the Information tab...</em>
+        </div>
       </span>
     </>;
   }

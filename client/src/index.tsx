@@ -59,7 +59,6 @@ const UI = () => {
     useEffect(() => {
         const intv = setInterval(()=>{
             const { pathname } = document.location;
-
             if (pathname !== '/' && pathname !== '/Info')
                 refreshFromServer(settings);
 

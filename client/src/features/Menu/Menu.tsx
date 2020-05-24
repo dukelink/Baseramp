@@ -203,7 +203,7 @@ function InfoPanel()
   {
     infoPath.current = process.env.PUBLIC_URL 
       + (width<960 ? '/info/mobile.html' : '/info/index.html');
-    console.log(`InfoPanel: width=${width} height=${height} infoPath=${infoPath}`);
+    console.log(`InfoPanel(): width=${width} height=${height} infoPath=${infoPath}`);
   }
   return <>{ 
     infoPath.current &&
