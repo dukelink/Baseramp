@@ -1,6 +1,6 @@
 /*
-    Baseramp Tracker - An open source Project Management software built
-    as a Single Page Application (SPA) and Progressive Web Application (PWA) using
+    Baseramp - A database for end users enabling personal and private data ownership,  built
+    built as a Progressive Web Application (PWA) using
     Typescript, React, and an extensible SQL database model.
 
     Copyright (C) 2019-2020  William R. Lotherington, III
