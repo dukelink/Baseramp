@@ -1,5 +1,5 @@
 /*
-    Baseramp - A database for end users enabling personal and private data ownership,  built
+    Baseramp - A database for end users, enabling personal and private data ownership,  built
     built as a Progressive Web Application (PWA) using
     Typescript, React, and an extensible SQL database model.
 

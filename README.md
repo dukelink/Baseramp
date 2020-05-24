@@ -1,6 +1,6 @@
 # Baseramp
 
-## _A database for end users enabling personal and private data ownership!_
+## _A database for end users, enabling personal and private data ownership!_
 
 <br/>
 <hr/>
