@@ -22,10 +22,14 @@
 
 import React, { useState, Dispatch, SetStateAction } from 'react';
 
-import { Grid, IconButton, Paper } from '@material-ui/core';
+import { Grid, IconButton, Paper, InputBase } from '@material-ui/core';
 import { Button } from '@material-ui/core';
 import PlayCircleFilledIcon from '@material-ui/icons/PlayCircleFilled';
-import { useNavPanelStyles } from './SystemNavigatorStyles';
+import FolderIcon from '@material-ui/icons/Folder';
+import InputIcon from '@material-ui/icons/Input';
+import SearchIcon from '@material-ui/icons/Search';
+import FolderOpenIcon from '@material-ui/icons/FolderOpen';
+import { useNavPanelStyles, useSearchStyles } from './SystemNavigatorStyles';
 
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../rootReducer'; 
@@ -54,7 +58,7 @@ export const CrudButtons = ( props: {
   const dispatch = useDispatch();
   const [ rerenderFlag, setRerenderFlat ] = useState(1);
   const otherMode = mode==='Outline' ? 'Edit' : 'Outline';
-  const otherLabel = mode==='Outline' ? 'Form' : 'Outline';
+//const otherLabel = mode==='Outline' ? 'Form' : 'Outline'; // TODO: Use for accessibility?
 
   const { navTable, navTableID, navParentTable, navStrParentID } = state.navigate;
 
@@ -92,27 +96,41 @@ export const CrudButtons = ( props: {
   const cleanFlag = (!navTableID || strOrigRecord===strRecord) && navTableID!=='-1';
 
   return (
-    <Grid item xs = {12} className = { classes.OutlineEditButton } > 
+    <Grid container xs = {12} className = { classes.OutlineEditButton } style={{backgroundColor: 'lightgrey'}}> 
       { !navTable ? 
-        <Paper className={classes.root}>
-          Select an outline item to view, edit or add...
-        </Paper> 
+        <>
+          <Grid item xs = {1} style={{cursor: 'pointer', textAlign: 'center'}}>
+            <PlayCircleFilledIcon style={{fontSize:'2.1em', position: 'relative', left: 2, top: 1, opacity: .7, color: 'black' }} className={classes.rotate80}/> 
+          </Grid>
+          <Grid item xs = {11} style={{backgroundColor: 'lightgrey'}}>
+            <SearchBox />
+          </Grid>
+{/*
+          <Grid item xs = {11}>
+            <Paper className={classes.root}>
+              Select an outline item to view, edit or add...
+            </Paper> 
+          </Grid>
+*/}
+        </>
         :
-        <div color='secondary' style = {{ width: '100%' }}>
+        <div color='secondary' style = {{ width: '100%' }}> 
           { 
           (mode !== "Both" && navTableID ) &&
             <IconButton area-label="Navigation Outline"
-              style = {{ padding: 6 }} 
+              style = {{ padding: 6, position: 'relative', top: -6  }} 
               onClick = { () => { 
                 // TODO: Move handlers out of render...
                 setMode(otherMode) } 
               }>
-            <div>
-              { otherLabel }&nbsp;
+            <PlayCircleFilledIcon style={{fontSize:'1.4em', position: 'relative', top: 1, color: 'black', opacity: .7}}
+              className = { otherMode==='Outline' ? classes.rotate80 : '' } />
+            <div style={{height: '1.4em'}}>
+              { otherMode==='Outline' ?
+                <FolderOpenIcon style={{fontSize:'1.5em', color: 'black', opacity: .7 }} />  
+                : <InputIcon style={{fontSize:'1.3em', color: 'black', opacity: .7, position: 'relative', top: 3, left: 2}} />  
+              }
             </div> 
-            <PlayCircleFilledIcon className = { 
-              otherMode==='Outline' ? classes.rotate80 : '' 
-            } />
             </IconButton>
           }
           <div  className = { classes.buttonBar }
@@ -196,4 +214,22 @@ export const CrudButtons = ( props: {
       }
     </Grid> 
   )
+
+  function SearchBox() 
+  {
+    const classes = useSearchStyles();
+    return (
+      <Paper component="form" className={classes.root}>
+        <InputBase
+          className={classes.input}
+          placeholder="Enter search text / Select item below..."
+          inputProps={{ 'aria-label': 'full-text search' }}
+        />
+        <IconButton className={classes.iconButton} aria-label="search">
+          <SearchIcon />
+        </IconButton>
+      </Paper>
+    );
+  }
 }
+

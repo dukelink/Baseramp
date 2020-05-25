@@ -101,3 +101,20 @@ export const useTreeItemStyles = makeStyles(theme => ({
     }
   }));
   
+  export const useSearchStyles = makeStyles((theme) => ({
+    root: {
+      padding: '2px 4px',
+      display: 'flex',
+      alignItems: 'center',
+      height: '2.3em',
+      marginLeft: theme.spacing(1),
+      marginRight: theme.spacing(1)
+    },
+    input: {
+      marginLeft: theme.spacing(1),
+      flex: 1,
+    },
+    iconButton: {
+      padding: 10,
+    }
+  }));
