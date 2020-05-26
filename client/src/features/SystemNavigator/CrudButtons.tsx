@@ -161,21 +161,16 @@ export const CrudButtons = (props: {
                 </Grid>
                 <Grid item xs={3} style={{ textAlign: "right" }}>
                   {mode !== "Edit" && (
-                    <Button
-                      aria-label="search"
-                      variant="contained"
-                      style={{
-                        height: 33,
-                        position: "relative",
-                        top: 1,
-                        paddingTop: 8,
-                      }}
+                    <IconButton
+                      area-label="Search"
+                      style={{ padding: 6, position: "relative", top: -6 }}
                       onClick={() => {
+                        // TODO: Move handlers out of render...
                         setMobileSearchMode(true);
                       }}
                     >
-                      <SearchIcon />
-                    </Button>
+                      <SearchIcon style={{ fontSize: '1.5em' }} />
+                    </IconButton>
                   )}
                 </Grid>
                 <Grid item xs={7}>
@@ -195,22 +190,16 @@ export const CrudButtons = (props: {
           ) : (
             <Grid container xs={12}>
               <Grid item xs={6}>
-                <Button
-                  aria-label="search"
-                  variant="contained"
-                  style={{
-                    height: 33,
-                    position: "relative",
-                    top: 1,
-                    paddingTop: 8,
-                    left: "10px",
-                  }}
+                <IconButton
+                  area-label="Search"
+                  style={{ padding: 6, position: "relative", top: -6 }}
                   onClick={() => {
+                    // TODO: Move handlers out of render...
                     setMobileSearchMode(true);
                   }}
                 >
-                  <SearchIcon />
-                </Button>
+                  <SearchIcon style={{ fontSize: '1.5em' }} />
+                </IconButton>
               </Grid>
               <Grid item xs={6}>
                 <AddDeleteSaveUndo />
