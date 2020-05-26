@@ -20,14 +20,21 @@
   along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import React, { useState, Dispatch, SetStateAction, useEffect } from "react";
+import React, {
+  useState,
+  Dispatch,
+  SetStateAction,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+} from "react";
 
 import { Grid, IconButton, Paper, InputBase } from "@material-ui/core";
 import { Button } from "@material-ui/core";
 
 import PlayCircleFilledIcon from "@material-ui/icons/PlayCircleFilled";
 import InputIcon from "@material-ui/icons/InputTwoTone";
-import SearchIcon from "@material-ui/icons/SearchTwoTone";
+import SearchIcon from "@material-ui/icons/SearchRounded";
 import AddCircleIcon from "@material-ui/icons/AddCircleTwoTone";
 import UndoIcon from "@material-ui/icons/UndoTwoTone";
 import SaveIcon from "@material-ui/icons/SaveTwoTone";
@@ -46,13 +53,16 @@ import {
   insertRecord,
   deleteRecord,
 } from "../../model/ModelThunks";
-import { addNewBlankRecordForm, setFocus } from "./NavigateSlice";
+import { addNewBlankRecordForm, setFocus, setFilter } from "./NavigateSlice";
 import { useTableAppCols } from "../../model/ModelSelectors";
-import { useWindowSize } from "../../utils/utils";
-
-import { recordDelta } from "../../utils/utils";
+import { useWindowSize, recordDelta, usePrevious } from "../../utils/utils";
 
 import { RecordOfAnyType } from "../../model/ModelTypes";
+
+const initialSearchParams = {
+  searchKeyInput: "",
+  searchKey: ""
+};
 
 export const CrudButtons = (props: {
   latestNodeformState: NodeFormEditState;
@@ -70,17 +80,18 @@ export const CrudButtons = (props: {
   const [mobileSearchMode, setMobileSearchMode] = useState(false);
   const [rerenderFlag, setRerenderFlat] = useState(1);
   const [width] = useWindowSize();
+  const [search, setSearch] = useState(initialSearchParams);
+  const priorSearch = usePrevious(search);
 
   const otherMode = mode === "Outline" ? "Edit" : "Outline";
 
   const mobileSearchLayout = width < 640;
 
-  useEffect(()=>{
-    if (mobileSearchMode && !mobileSearchLayout)
-      setMobileSearchMode(false);
+  useEffect(() => {
+    if (mobileSearchMode && !mobileSearchLayout) setMobileSearchMode(false);
   }, [mobileSearchLayout]);
 
-  console.log('CRUDBUTTONS()');
+  console.log("CRUDBUTTONS()");
 
   // TODO: Use for accessibility / altText?
   //const otherLabel = mode==='Outline' ? 'Form' : 'Outline';
@@ -169,7 +180,13 @@ export const CrudButtons = (props: {
                         setMobileSearchMode(true);
                       }}
                     >
-                      <SearchIcon style={{ fontSize: '1.5em', color: 'black', opacity: .7 }} />
+                      <SearchIcon
+                        style={{
+                          fontSize: "1.5em",
+                          color: "black",
+                          opacity: 0.7,
+                        }}
+                      />
                     </IconButton>
                   )}
                 </Grid>
@@ -189,7 +206,7 @@ export const CrudButtons = (props: {
             </Grid>
           ) : (
             <Grid container xs={12}>
-              <Grid item xs={3}/>
+              <Grid item xs={3}></Grid>
               <Grid item xs={2}>
                 <IconButton
                   area-label="Search"
@@ -199,7 +216,10 @@ export const CrudButtons = (props: {
                     setMobileSearchMode(true);
                   }}
                 >
-                  &nbsp;&nbsp;<SearchIcon style={{ fontSize: '1.5em', color: 'black', opacity: .7 }} />
+                  &nbsp;&nbsp;
+                  <SearchIcon
+                    style={{ fontSize: "1.5em", color: "black", opacity: 0.7 }}
+                  />
                 </IconButton>
               </Grid>
               <Grid item xs={7}>
@@ -214,18 +234,64 @@ export const CrudButtons = (props: {
 
   function SearchBox() {
     const classes = useSearchStyles();
+    const formRef = useRef<any>();
+    useLayoutEffect(() => {
+      const input = formRef.current.getElementsByTagName(
+        "input"
+      )[0] as HTMLInputElement;
+      if (search.searchKeyInput !== priorSearch?.searchKeyInput) 
+        input.focus();
+    });
+    console.log("SearchBox()");
+    const searchEdited = search.searchKeyInput !== search.searchKey;
+    const highlightSearch = !searchEdited
+      ? {}
+      : { backgroundColor: "yellow", color: "black" };
     return (
       <Grid container xs={12}>
         <Grid item xs={11}>
-          <Paper component="form" className={classes.root}>
+          <Paper
+            component="form"
+            className={classes.root}
+            style={{ height: 32, marginTop: 2 }}
+            onSubmit={(e) => {
+              e.preventDefault();
+              dispatch(setFilter({ navFilter: search.searchKeyInput }));
+              setSearch({...search,searchKey:search.searchKeyInput});
+            }}
+          >
+            <IconButton
+              type="submit"
+              className={classes.iconButton}
+              aria-label="search"
+              style={{
+                ...highlightSearch,
+                paddingLeft: 4,
+                paddingRight: 0,
+                height: 28,
+              }}
+            >
+              <SearchIcon />
+            </IconButton>
             <InputBase
+              ref={formRef}
               className={classes.input}
               placeholder="Enter search text / Select item below..."
               inputProps={{ "aria-label": "full-text search" }}
+              value={search.searchKeyInput}
+              onChange={setInputFieldState}
             />
-            <IconButton className={classes.iconButton} aria-label="search">
-              <SearchIcon />
-            </IconButton>
+            {searchEdited && (
+              <IconButton
+                className={classes.iconButton}
+                aria-label="search"
+                onClick={() => {
+                  setSearch({ ...search, searchKeyInput: search.searchKey });
+                }}
+              >
+                <UndoIcon style={{ color: "inherit" }} />
+              </IconButton>
+            )}
           </Paper>
         </Grid>
         <Grid item xs={1}>
@@ -238,10 +304,21 @@ export const CrudButtons = (props: {
               position: "relative",
               left: -4,
             }}
+            onClick={() => {
+              setSearch({ ...search, searchKeyInput: "", searchKey: "" });
+            }}
           />
         </Grid>
       </Grid>
     );
+  }
+
+  function setInputFieldState(e: React.SyntheticEvent | React.KeyboardEvent) {
+    const target = e.target as HTMLInputElement;
+    setSearch({
+      ...search,
+      searchKeyInput: target.value
+    });
   }
 
   function SearchBarOnly() {

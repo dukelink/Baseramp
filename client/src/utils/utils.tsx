@@ -48,7 +48,6 @@ export const properCasePluralize = (s: string):string =>
   return proper + (proper.substr(-1).match(/[sz]$/) ? 'es' : 's'); 
 }
 
-// https://reactjs.org/docs/hooks-faq.html#how-to-get-the-previous-props-or-state
 export const usePrevious = (value:any) : any =>
 {
   const ref = useRef();

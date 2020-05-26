@@ -28,13 +28,15 @@ export interface INavigateState {
   navTableID: string;
   navParentTable: string;
   navStrParentID: string;
+  navFilter: string;
 };
 
 let initialState : INavigateState = {
     navTable: "",
     navTableID: "",
     navParentTable: "",
-    navStrParentID: ""
+    navStrParentID: "",
+    navFilter: ""
 }; 
 
 type INavigateRecordFocus = Pick<OutlineNode,'table'|'tableID'|'parentTable'|'parentID'>;
@@ -57,6 +59,9 @@ const model = createSlice({
       state.navParentTable = (parentTable||"");
       state.navStrParentID = (parentID||"").toString();
     },
+    setFilter(state,action:PayloadAction<{navFilter:string}>) {
+      state.navFilter = action.payload.navFilter;
+    },
     addNewBlankRecordForm(state,action:PayloadAction<{navTable:string}>) {
       state.navTableID = '-1';
       console.log('ADD NEW BLANK RECORD');
@@ -78,7 +83,8 @@ const model = createSlice({
 
 export const { 
   addNewBlankRecordForm, 
-  setFocus
+  setFocus,
+  setFilter
 } = model.actions;
 
 export default model.reducer; 
