@@ -20,216 +20,427 @@
   along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import React, { useState, Dispatch, SetStateAction } from 'react';
+import React, { useState, Dispatch, SetStateAction, useEffect } from "react";
 
-import { Grid, IconButton, Paper, InputBase } from '@material-ui/core';
-import { Button } from '@material-ui/core';
-import PlayCircleFilledIcon from '@material-ui/icons/PlayCircleFilled';
-import FolderIcon from '@material-ui/icons/Folder';
-import InputIcon from '@material-ui/icons/Input';
-import SearchIcon from '@material-ui/icons/Search';
-import FolderOpenIcon from '@material-ui/icons/FolderOpen';
-import { useNavPanelStyles, useSearchStyles } from './SystemNavigatorStyles';
+import { Grid, IconButton, Paper, InputBase } from "@material-ui/core";
+import { Button } from "@material-ui/core";
 
-import { useDispatch, useSelector } from 'react-redux';
-import { RootState } from '../../rootReducer'; 
-import { NodeFormEditState } from '../NodeForm/NodeForm';
-import { EditMode } from './SystemNavigator';
-import { updateRecord, insertRecord, deleteRecord } from '../../model/ModelThunks';
-import { addNewBlankRecordForm, setFocus } from './NavigateSlice';
-import { useTableAppCols } from '../../model/ModelSelectors';
+import PlayCircleFilledIcon from "@material-ui/icons/PlayCircleFilledTwoTone";
+import InputIcon from "@material-ui/icons/InputTwoTone";
+import SearchIcon from "@material-ui/icons/SearchTwoTone";
+import AddCircleIcon from "@material-ui/icons/AddCircleTwoTone";
+import UndoIcon from "@material-ui/icons/UndoTwoTone";
+import SaveIcon from "@material-ui/icons/SaveTwoTone";
+import HighlightOffIcon from "@material-ui/icons/HighlightOffTwoTone";
+import DeleteIcon from "@material-ui/icons/DeleteForeverTwoTone";
+import FolderOpenIcon from "@material-ui/icons/FolderOpen";
 
-import { recordDelta } from '../../utils/utils';
+import { useNavPanelStyles, useSearchStyles } from "./SystemNavigatorStyles";
 
-import { RecordOfAnyType } from '../../model/ModelTypes';
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "../../rootReducer";
+import { NodeFormEditState } from "../NodeForm/NodeForm";
+import { EditMode } from "./SystemNavigator";
+import {
+  updateRecord,
+  insertRecord,
+  deleteRecord,
+} from "../../model/ModelThunks";
+import { addNewBlankRecordForm, setFocus } from "./NavigateSlice";
+import { useTableAppCols } from "../../model/ModelSelectors";
+import { useWindowSize } from "../../utils/utils";
 
-export const CrudButtons = ( props: {
-  latestNodeformState: NodeFormEditState,
-  setLatestNodeformState: Dispatch<SetStateAction<NodeFormEditState>>,
-  mode: EditMode, setMode: Dispatch<SetStateAction<EditMode>>,
-  origRecord: RecordOfAnyType
-  } 
-) => {
+import { recordDelta } from "../../utils/utils";
+
+import { RecordOfAnyType } from "../../model/ModelTypes";
+
+export const CrudButtons = (props: {
+  latestNodeformState: NodeFormEditState;
+  setLatestNodeformState: Dispatch<SetStateAction<NodeFormEditState>>;
+  mode: EditMode;
+  setMode: Dispatch<SetStateAction<EditMode>>;
+  origRecord: RecordOfAnyType;
+}) => {
   const { setLatestNodeformState, mode, setMode } = props;
-  const { isFormValid } = props.latestNodeformState;      
+  const { isFormValid } = props.latestNodeformState;
 
   const classes = useNavPanelStyles();
-  const state = useSelector<RootState,RootState>(state=>state);
+  const state = useSelector<RootState, RootState>((state) => state);
   const dispatch = useDispatch();
-  const [ rerenderFlag, setRerenderFlat ] = useState(1);
-  const otherMode = mode==='Outline' ? 'Edit' : 'Outline';
-//const otherLabel = mode==='Outline' ? 'Form' : 'Outline'; // TODO: Use for accessibility?
+  const [mobileSearchMode, setMobileSearchMode] = useState(false);
+  const [rerenderFlag, setRerenderFlat] = useState(1);
+  const [width] = useWindowSize();
 
-  const { navTable, navTableID, navParentTable, navStrParentID } = state.navigate;
+  const otherMode = mode === "Outline" ? "Edit" : "Outline";
+
+  const mobileSearchLayout = width < 640;
+
+  useEffect(()=>{
+    if (mobileSearchMode && !mobileSearchLayout)
+      setMobileSearchMode(false);
+  }, [mobileSearchLayout]);
+
+  console.log('CRUDBUTTONS()');
+
+  // TODO: Use for accessibility / altText?
+  //const otherLabel = mode==='Outline' ? 'Form' : 'Outline';
+
+  const {
+    navTable,
+    navTableID,
+    navParentTable,
+    navStrParentID,
+  } = state.navigate;
 
   const tableVisibleFieldNames = useTableAppCols(navTable)
-    .filter( appCol => 
-      // REVIEW:
-      // Filters out ui hidden since they are not needed to drive UI,
-      // and MORE IMPORTANTLY, I want to filter recordDelta
-      // to only visible fields using this hook, so that we
-      // don't try to send fields updates to the server
-      // for fields that are not editable (like SQL computed fields)
-      !appCol.AppColumn_ui_hidden 
-      // REVIEW:
-      // Make an exception for the primary key field,
-      // as it is used to avoid rendering empty/null records 
-      // around lines 56-69 in NodeForm.tsx...
-      || appCol.AppColumn_column_name === navTable+'_id'
+    .filter(
+      (appCol) =>
+        // REVIEW:
+        // Filters out ui hidden since they are not needed to drive UI,
+        // and MORE IMPORTANTLY, I want to filter recordDelta
+        // to only visible fields using this hook, so that we
+        // don't try to send fields updates to the server
+        // for fields that are not editable (like SQL computed fields)
+        !appCol.AppColumn_ui_hidden ||
+        // REVIEW:
+        // Make an exception for the primary key field,
+        // as it is used to avoid rendering empty/null records
+        // around lines 56-69 in NodeForm.tsx...
+        appCol.AppColumn_column_name === navTable + "_id"
     )
-    .map( appCol => appCol.AppColumn_column_name); 
+    .map((appCol) => appCol.AppColumn_column_name);
 
-  const filterOnlyVisibleColumns = (rec:RecordOfAnyType) => {
-    const rv : RecordOfAnyType = Object.keys(rec).reduce(
-      (prev,colName) => {
-        if (tableVisibleFieldNames.includes(colName))
-          prev[colName] = rec[colName];
-        return prev;
-      },{} as RecordOfAnyType);
-      return rv;
-  }
+  const filterOnlyVisibleColumns = (rec: RecordOfAnyType) => {
+    const rv: RecordOfAnyType = Object.keys(rec).reduce((prev, colName) => {
+      if (tableVisibleFieldNames.includes(colName))
+        prev[colName] = rec[colName];
+      return prev;
+    }, {} as RecordOfAnyType);
+    return rv;
+  };
   const origRecord = filterOnlyVisibleColumns(props.origRecord);
   const record = filterOnlyVisibleColumns(props.latestNodeformState.record);
 
-  const strOrigRecord = JSON.stringify(origRecord, Object.keys(origRecord).sort());
+  const strOrigRecord = JSON.stringify(
+    origRecord,
+    Object.keys(origRecord).sort()
+  );
   const strRecord = JSON.stringify(record, Object.keys(record).sort());
-  const cleanFlag = (!navTableID || strOrigRecord===strRecord) && navTableID!=='-1';
+
+  const cleanFlag =
+    (!navTableID || strOrigRecord === strRecord) && navTableID !== "-1";
 
   return (
-    <Grid container xs = {12} className = { classes.OutlineEditButton } style={{backgroundColor: 'lightgrey'}}> 
-      { !navTable ? 
-        <>
-          <Grid item xs = {1} style={{cursor: 'pointer', textAlign: 'center'}}>
-            <PlayCircleFilledIcon style={{fontSize:'2.1em', position: 'relative', left: 2, top: 1, opacity: .7, color: 'black' }} className={classes.rotate80}/> 
-          </Grid>
-          <Grid item xs = {11} style={{backgroundColor: 'lightgrey'}}>
-            <SearchBox />
-          </Grid>
-{/*
-          <Grid item xs = {11}>
-            <Paper className={classes.root}>
-              Select an outline item to view, edit or add...
-            </Paper> 
-          </Grid>
-*/}
-        </>
-        :
-        <div color='secondary' style = {{ width: '100%' }}> 
-          { 
-          (mode !== "Both" && navTableID ) &&
-            <IconButton area-label="Navigation Outline"
-              style = {{ padding: 6, position: 'relative', top: -6  }} 
-              onClick = { () => { 
-                // TODO: Move handlers out of render...
-                setMode(otherMode) } 
-              }>
-            <PlayCircleFilledIcon style={{fontSize:'1.4em', position: 'relative', top: 1, color: 'black', opacity: .7}}
-              className = { otherMode==='Outline' ? classes.rotate80 : '' } />
-            <div style={{height: '1.4em'}}>
-              { otherMode==='Outline' ?
-                <FolderOpenIcon style={{fontSize:'1.5em', color: 'black', opacity: .7 }} />  
-                : <InputIcon style={{fontSize:'1.3em', color: 'black', opacity: .7, position: 'relative', top: 3, left: 2}} />  
-              }
-            </div> 
-            </IconButton>
-          }
-          <div  className = { classes.buttonBar }
-            style = {{ display: 'inline-block', float: 'right' }} >
-            { 
-              cleanFlag ?
-                <>
-                  <Button 
-                    variant='contained' 
-                    style={{maxWidth:"140px ! important"}}
-                    onClick = { () => {
-                      // TODO: Move handlers out of render...
-                      dispatch(addNewBlankRecordForm({navTable}));
-                      console.log(mode);
-                      setMode(mode==='Both'?mode:'Edit'); 
-                    } } >
-                    Add { navTable }
-                  </Button> 
-
-                  { navTableID &&
-                  <Button 
-                    id="crudDelete" 
-                    variant='contained' 
-                    onClick={ () => {
-                      // TODO: Move handlers out of render...
-                      dispatch(deleteRecord(state.navigate,state.settings));
-                      setMode(mode==='Both'?mode:'Outline');
-                    } } > 
-                    Delete 
-                  </Button>                
-                  }
-                </> 
-              : 
-                navTableID && <>
-                  <Button
-                    id="crudSave" 
-                    variant='contained' 
-                    disabled={ !isFormValid }
-                    onClick={ () => {
-                      // TODO: Move handlers out of render...
-                      if (!isFormValid) {
-                        alert('Please fill in all required fields before saving');
-                        return;
-                      }
-                      if (navTableID==="-1")
-                        dispatch(insertRecord(state.navigate, state.settings, record));
-                      else {
-                        console.log(`ORIGRECORD = ${strOrigRecord}`);
-                        console.log(`RECORD = ${strRecord}`);
-                        dispatch(updateRecord(state.navigate, state.settings,
-                          recordDelta(record, origRecord)));
-                      }
-                  }}> Save </Button> 
-                  <Button 
-                    id="crudCancel" variant='contained'
-                    onClick={ ()=> { 
-                      // TODO: Move handlers out of render...
-                      setLatestNodeformState({ 
-                        record: origRecord, 
-                        isFormValid: true
-                      });
-                      // Remove form if Add New record form...
-                      if (navTableID === '-1') {
-                        dispatch(setFocus({ 
-                        table:navTable, 
-                        tableID: '', 
-                        parentTable: navParentTable,
-                        parentID: navStrParentID 
-                        }));
-                        // Return to outline display only...
-                        setMode('Outline');
-                      } else
-                      // If user was editing an existing record, flag rerender...
-                        setRerenderFlat(rerenderFlag+1);  
-                    }
-                  }> Cancel </Button>
-                </>
-            }
-          </div>
+    <Grid
+      container
+      xs={12}
+      className={classes.OutlineEditButton}
+      style={{ backgroundColor: "lightgrey" }}
+    >
+      {!navTable || mobileSearchMode ? (
+        <SearchBarOnly />
+      ) : (
+        <div color="secondary" style={{ width: "100%" }}>
+          {mode !== "Both" && navTableID ? (
+            !mobileSearchLayout ? (
+              <Grid container xs={12}>
+                <Grid item xs={2}>
+                  <OutlineFormSwitch />
+                </Grid>
+                <Grid item xs={6}>
+                  {mode !== "Edit" && <SearchBox />}
+                </Grid>
+                <Grid item xs={4}>
+                  <AddDeleteSaveUndo />
+                </Grid>
+              </Grid>
+            ) : (
+              <Grid container xs={12}>
+                <Grid item xs={2}>
+                  <OutlineFormSwitch />
+                </Grid>
+                <Grid item xs={3} style={{ textAlign: "right" }}>
+                  {mode !== "Edit" && (
+                    <Button
+                      aria-label="search"
+                      variant="contained"
+                      style={{
+                        height: 33,
+                        position: "relative",
+                        top: 1,
+                        paddingTop: 8,
+                      }}
+                      onClick={() => {
+                        setMobileSearchMode(true);
+                      }}
+                    >
+                      <SearchIcon />
+                    </Button>
+                  )}
+                </Grid>
+                <Grid item xs={7}>
+                  <AddDeleteSaveUndo />
+                </Grid>
+              </Grid>
+            )
+          ) : !mobileSearchLayout ? (
+            <Grid container xs={12}>
+              <Grid item xs={6}>
+                <SearchBox />
+              </Grid>
+              <Grid item xs={6}>
+                <AddDeleteSaveUndo />
+              </Grid>
+            </Grid>
+          ) : (
+            <Grid container xs={12}>
+              <Grid item xs={6}>
+                <Button
+                  aria-label="search"
+                  variant="contained"
+                  style={{
+                    height: 33,
+                    position: "relative",
+                    top: 1,
+                    paddingTop: 8,
+                    left: "10px",
+                  }}
+                  onClick={() => {
+                    setMobileSearchMode(true);
+                  }}
+                >
+                  <SearchIcon />
+                </Button>
+              </Grid>
+              <Grid item xs={6}>
+                <AddDeleteSaveUndo />
+              </Grid>
+            </Grid>
+          )}
         </div>
-      }
-    </Grid> 
-  )
+      )}
+    </Grid>
+  );
 
-  function SearchBox() 
-  {
+  function SearchBox() {
     const classes = useSearchStyles();
     return (
-      <Paper component="form" className={classes.root}>
-        <InputBase
-          className={classes.input}
-          placeholder="Enter search text / Select item below..."
-          inputProps={{ 'aria-label': 'full-text search' }}
-        />
-        <IconButton className={classes.iconButton} aria-label="search">
-          <SearchIcon />
-        </IconButton>
-      </Paper>
+      <Grid container xs={12}>
+        <Grid item xs={11}>
+          <Paper component="form" className={classes.root}>
+            <InputBase
+              className={classes.input}
+              placeholder="Enter search text / Select item below..."
+              inputProps={{ "aria-label": "full-text search" }}
+            />
+            <IconButton className={classes.iconButton} aria-label="search">
+              <SearchIcon />
+            </IconButton>
+          </Paper>
+        </Grid>
+        <Grid item xs={1}>
+          <HighlightOffIcon
+            style={{
+              fontSize: "2em",
+              color: "black",
+              opacity: 0.7,
+              paddingTop: 6,
+              position: "relative",
+              left: -4,
+            }}
+          />
+        </Grid>
+      </Grid>
     );
   }
-}
 
+  function SearchBarOnly() {
+    return (
+      <>
+        {mobileSearchMode && (
+          <Grid item xs={1} style={{ cursor: "pointer", textAlign: "center" }}>
+            <PlayCircleFilledIcon
+              className={classes.rotate80}
+              style={{
+                fontSize: "2.1em",
+                position: "relative",
+                left: 2,
+                top: 1,
+                opacity: 0.7,
+                color: "black",
+              }}
+              onClick={() => {
+                setMobileSearchMode(false);
+              }}
+            />
+          </Grid>
+        )}
+        <Grid
+          item
+          xs={mobileSearchMode ? 11 : 12}
+          style={{ backgroundColor: "lightgrey" }}
+        >
+          <SearchBox />
+        </Grid>
+      </>
+    );
+  }
+
+  function OutlineFormSwitch() {
+    return (
+      <IconButton
+        area-label="Navigation Outline"
+        style={{ padding: 6, position: "relative", top: -6 }}
+        onClick={() => {
+          // TODO: Move handlers out of render...
+          setMode(otherMode);
+        }}
+      >
+        <PlayCircleFilledIcon
+          style={{
+            fontSize: "1.4em",
+            position: "relative",
+            top: 1,
+            color: "black",
+            opacity: 0.7,
+          }}
+          className={otherMode === "Outline" ? classes.rotate80 : ""}
+        />
+        <div style={{ height: "1.4em" }}>
+          {otherMode === "Outline" ? (
+            <FolderOpenIcon
+              style={{
+                fontSize: "1.5em",
+                color: "black",
+                opacity: 0.7,
+              }}
+            />
+          ) : (
+            <InputIcon
+              style={{
+                fontSize: "1.3em",
+                color: "black",
+                opacity: 0.7,
+                position: "relative",
+                top: 3,
+                left: 2,
+              }}
+            />
+          )}
+        </div>
+      </IconButton>
+    );
+  }
+
+  function AddDeleteSaveUndo() {
+    return (
+      <div
+        className={classes.buttonBar}
+        style={{ display: "inline-block", float: "right" }}
+      >
+        {cleanFlag ? (
+          <>
+            <Button
+              variant="contained"
+              style={{ maxWidth: "140px ! important" }}
+              onClick={() => {
+                // TODO: Move handlers out of render...
+                dispatch(addNewBlankRecordForm({ navTable }));
+                console.log(mode);
+                setMode(mode === "Both" ? mode : "Edit");
+              }}
+            >
+              <AddCircleIcon
+                style={{ fontSize: "1.7em", color: "darkgreen", opacity: 0.7 }}
+              />{" "}
+              {navTable}
+            </Button>
+
+            {navTableID && (
+              <Button
+                id="crudDelete"
+                variant="contained"
+                onClick={() => {
+                  // TODO: Move handlers out of render...
+                  dispatch(deleteRecord(state.navigate, state.settings));
+                  setMode(mode === "Both" ? mode : "Outline");
+                }}
+              >
+                <DeleteIcon
+                  style={{ fontSize: "1.8em", color: "maroon", opacity: 0.7 }}
+                />
+              </Button>
+            )}
+          </>
+        ) : (
+          navTableID && (
+            <Grid>
+              <Button
+                id="crudSave"
+                variant="contained"
+                disabled={!isFormValid}
+                onClick={() => {
+                  // TODO: Move handlers out of render...
+                  if (!isFormValid) {
+                    alert("Please fill in all required fields before saving");
+                    return;
+                  }
+                  if (navTableID === "-1")
+                    dispatch(
+                      insertRecord(state.navigate, state.settings, record)
+                    );
+                  else {
+                    console.log(`ORIGRECORD = ${strOrigRecord}`);
+                    console.log(`RECORD = ${strRecord}`);
+                    dispatch(
+                      updateRecord(
+                        state.navigate,
+                        state.settings,
+                        recordDelta(record, origRecord)
+                      )
+                    );
+                  }
+                }}
+              >
+                <SaveIcon
+                  style={{ fontSize: "2em", color: "darkgreen", opacity: 0.7 }}
+                />
+                Save
+              </Button>
+              <Button
+                id="crudCancel"
+                variant="contained"
+                onClick={() => {
+                  // TODO: Move handlers out of render...
+                  setLatestNodeformState({
+                    record: origRecord,
+                    isFormValid: true,
+                  });
+                  // Remove form if Add New record form...
+                  if (navTableID === "-1") {
+                    dispatch(
+                      setFocus({
+                        table: navTable,
+                        tableID: "",
+                        parentTable: navParentTable,
+                        parentID: navStrParentID,
+                      })
+                    );
+                    // Return to outline display only...
+                    setMode("Outline");
+                  }
+                  // If user was editing an existing record, flag rerender...
+                  else setRerenderFlat(rerenderFlag + 1);
+                }}
+              >
+                <UndoIcon
+                  style={{ fontSize: "2em", color: "maroon", opacity: 0.7 }}
+                />
+              </Button>
+            </Grid>
+          )
+        )}
+      </div>
+    );
+  }
+};

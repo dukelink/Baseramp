@@ -89,13 +89,13 @@ export const useTreeItemStyles = makeStyles(theme => ({
           marginTop: "2px",
           paddingTop: "5px !important",
           paddingBottom: "4px !important",
-          paddingLeft: "10px !important",
-          paddingRight: "10px !important",
+          paddingLeft: "6px !important",
+          paddingRight: "6px !important",
           maxHeight: "32px",
           maxWidth: "47vw",
           overflow: "hidden",
           whiteSpace: "nowrap",
-          justifyContent: "left",
+          justifyContent: "center",
           textOverflow: "ellipsis"
       }
     }
