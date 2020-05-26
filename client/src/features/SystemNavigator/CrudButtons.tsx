@@ -25,7 +25,7 @@ import React, { useState, Dispatch, SetStateAction, useEffect } from "react";
 import { Grid, IconButton, Paper, InputBase } from "@material-ui/core";
 import { Button } from "@material-ui/core";
 
-import PlayCircleFilledIcon from "@material-ui/icons/PlayCircleFilledTwoTone";
+import PlayCircleFilledIcon from "@material-ui/icons/PlayCircleFilled";
 import InputIcon from "@material-ui/icons/InputTwoTone";
 import SearchIcon from "@material-ui/icons/SearchTwoTone";
 import AddCircleIcon from "@material-ui/icons/AddCircleTwoTone";
@@ -169,7 +169,7 @@ export const CrudButtons = (props: {
                         setMobileSearchMode(true);
                       }}
                     >
-                      <SearchIcon style={{ fontSize: '1.5em' }} />
+                      <SearchIcon style={{ fontSize: '1.5em', color: 'black', opacity: .7 }} />
                     </IconButton>
                   )}
                 </Grid>
@@ -189,7 +189,8 @@ export const CrudButtons = (props: {
             </Grid>
           ) : (
             <Grid container xs={12}>
-              <Grid item xs={6}>
+              <Grid item xs={3}/>
+              <Grid item xs={2}>
                 <IconButton
                   area-label="Search"
                   style={{ padding: 6, position: "relative", top: -6 }}
@@ -198,10 +199,10 @@ export const CrudButtons = (props: {
                     setMobileSearchMode(true);
                   }}
                 >
-                  <SearchIcon style={{ fontSize: '1.5em' }} />
+                  &nbsp;&nbsp;<SearchIcon style={{ fontSize: '1.5em', color: 'black', opacity: .7 }} />
                 </IconButton>
               </Grid>
-              <Grid item xs={6}>
+              <Grid item xs={7}>
                 <AddDeleteSaveUndo />
               </Grid>
             </Grid>
@@ -300,7 +301,7 @@ export const CrudButtons = (props: {
             <FolderOpenIcon
               style={{
                 fontSize: "1.5em",
-                color: "black",
+                color: "darkgreen",
                 opacity: 0.7,
               }}
             />
@@ -308,7 +309,7 @@ export const CrudButtons = (props: {
             <InputIcon
               style={{
                 fontSize: "1.3em",
-                color: "black",
+                color: "darkgreen",
                 opacity: 0.7,
                 position: "relative",
                 top: 3,
