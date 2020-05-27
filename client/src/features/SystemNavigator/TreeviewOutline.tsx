@@ -63,10 +63,10 @@ function OutlineItemLabel(props: { item : OutlineNode })
       .filter((x) => x[0]!==item.table).length > 3)
     grandChildCounts += ", ...";    
 
-  let childCount : (number|string) = item.children
+  const childCount : (number|string) = item.children
     .filter( item => item.children.filter(child=>child.inFilter).length || (item.showTable && item.inFilter) || grandChildCounts ).length;
-  if (childCount===1)
-    childCount = 0;
+
+  const isAhit = (childCount || grandChildCounts || item.inFilter);
 
   return (
     <div className={classes.labelRoot}>
@@ -79,11 +79,12 @@ function OutlineItemLabel(props: { item : OutlineNode })
       }
       <Typography 
           variant="body2" 
+          style={{ opacity: isAhit?1.0:0.5 }}
           className={
             item.closedItem ? 
               classes.labelTextClosedItem : classes.labelText }>
         { item.itemTitle /*showTable=${item.showTable},inFilter=${item.inFilter}*/ }
-        { !childCount ? '' : <sup>&nbsp;({childCount})</sup> }
+        { childCount<=1 ? '' : <sup>&nbsp;({childCount})</sup> }
         { !grandChildCounts ? '' : 
           <sup>&nbsp;
               ({ grandChildCounts })
@@ -98,13 +99,15 @@ const OutlineItem = memo((props:{item:OutlineNode, key : any, children?:any}) =>
   const { item  } = props;
   const dispatch = useDispatch();
   console.log('OutlineItem');
+  const outlineLabel = OutlineItemLabel({ item });
   return (
-    <TreeItem 
+    <TreeItem
         key = { item.itemKey } 
         nodeId = { item.itemKey as string } 
         className = 'customItem' 
-        label = { OutlineItemLabel({ item }) }  
-        onClick={ (e:any) => { outlineItemClick(item) }}>
+        label = { outlineLabel }  
+        onClick={ (e:any) => { outlineItemClick(item) }}
+        >
       { item.children
           .filter( item => (
             item.children.length || (item.showTable && item.inFilter) ) )
