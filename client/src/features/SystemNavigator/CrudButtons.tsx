@@ -90,7 +90,9 @@ export const CrudButtons = (props: {
 
   useEffect(() => {
     if (mobileSearchMode && !mobileSearchLayout) setMobileSearchMode(false);
-  }, [mobileSearchLayout]);
+    if (state.settings.searchFilter != search.searchKey)
+      setSearch({...search,searchKey:state.settings.searchFilter});
+  }, [mobileSearchLayout,state.settings.searchFilter]);
 
   console.log("CRUDBUTTONS()");
 
