@@ -63,8 +63,7 @@ function OutlineItemLabel(props: { item : OutlineNode })
       .filter((x) => x[0]!==item.table).length > 3)
     grandChildCounts += ", ...";    
 
-  const childCount : (number|string) = item.children
-    .filter( item => item.children.filter(child=>child.inFilter).length || (item.showTable && item.inFilter) || grandChildCounts ).length;
+  const childCount : (number|string) = item.children.filter(searchFilterRule).length;
 
   const isAhit = (childCount || grandChildCounts || item.inFilter);
 
@@ -95,6 +94,13 @@ function OutlineItemLabel(props: { item : OutlineNode })
   )
 }
 
+function searchFilterRule(item : OutlineNode) {
+  return ( 
+    Object.keys(item.totalChildRecords).length 
+      || (item.showTable && item.inFilter)
+  );
+}
+
 const OutlineItem = memo((props:{item:OutlineNode, key : any, children?:any}) => { 
   const { item  } = props;
   const dispatch = useDispatch();
@@ -109,8 +115,7 @@ const OutlineItem = memo((props:{item:OutlineNode, key : any, children?:any}) =>
         onClick={ (e:any) => { outlineItemClick(item) }}
         >
       { item.children
-          .filter( item => (
-            item.children.length || (item.showTable && item.inFilter) ) )
+          .filter(searchFilterRule)
           .map( item => <OutlineItem item={item} key={item.itemKey}/> )
       }
     </TreeItem>);
