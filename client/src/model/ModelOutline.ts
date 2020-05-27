@@ -103,36 +103,54 @@ export function buildOutline(
   // Tally number of records for all children by 'table'...
   function addRecordTallies(outline: OutlineNode[]) : RecordOfAnyType 
   {
-    let tallies : RecordOfAnyType = {};
     // NOTE: See commit of 4/23/2020 and consider:
     //   Instead of just tallying, I build a list of IDs
     //   so that I can display / troubleshoot the exact
-    //   derrivation of each tally within TreeviewOutline.tsx
-    //   when needed. I can go back to just tallying record counts, 
-    //   when I no longer need/want the option of a diagnostic display...
-    //
+    //   derrivation of each tally within TreeviewOutline.tsx and
+    //   unit tests. I can go back to just tallying record counts, 
+    //   when I no longer need these diagnostics...
+
+    // Allocate an object to accumulate tallies by DB table for all
+    // the (peer) nodes in the array parameter, and include the 
+    // accumulated tallies for children of these nodes...
+    let tallies : RecordOfAnyType = {};
+
+    // Iterate through all nodes in 'outline' parameter
     [...outline].forEach( node => {
       const { table, tableID, children, inFilter } = node;
-      if (table && tableID && inFilter) {
+
+      // RULE: XREF - count primary table name first
+      const normalizedTableID = tableID?.toString().split('-')[0]
+
+      if (table && normalizedTableID && inFilter) {
+        // Initial store for current table's tallies if not already present
         if (!tallies[table]) 
           tallies[table] = {};
-        tallies[table][
-          // RULE: XREF - count primary table name first
-          tableID.toString().split('-')[0]
-        ] = 1; // dummy value (using Object like a Set; only keys are needed)
+        // Count myself if I'm a row in a table that is visible within current filters
+        // NOTE: "1" below is a dummy value (using Object like a Set; only keys are needed)
+        tallies[table][normalizedTableID] = 1; // 1 is dummy value
       }
       
+      // Compute and store child tallies; these are saved in
+      // the outline node for UI display...
       const subTallies = addRecordTallies(children);
       node.totalChildRecords  = subTallies;
 
+      // Sum individual and child node tallies into 'tallies' object
+      // by first computing the unique set of tables, which is the union of
+      // the current value of 'tallies' and this nodes child tallies...
       (new Set([...Object.keys(tallies),...Object.keys(subTallies)]))
       .forEach(table => {
         if (!tallies[table])
+          // No tallies for the current table yet so just store child tallies
           tallies[table] = subTallies[table];
         else
+          // A noted at the top of this routine, we store every unique tableID
+          // within a collection to present a 'tally' of rows within each table,
+          // so we 'sum' tallies by merging the sets of tableID's (which are 
+          // stored as object keys (the associate values are just dummy placeholders))
           tallies[table] 
-            = { ...(tallies[table] || {}),
-                ...(subTallies[table] || {}) };
+            = { ...tallies[table], ...(subTallies[table] || {}) };
       })  
     })
     return tallies;
