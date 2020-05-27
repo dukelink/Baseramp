@@ -45,26 +45,34 @@ function OutlineItemLabel(props: { item : OutlineNode })
       ? classes.labelIconInProgress 
         : ( ( !item.tableID || item.closedItem ) 
         ? classes.labelIcon : classes.labelIconNotInProgress );
-/*
-  let childCount : (number|string) = item.children
-    .filter( item => item.children.length || item.showTable ).length;
-  if (childCount===1)
-    childCount = 0;
-*/
+
+  const childCount : (number|string) = item.children.filter(searchFilterRule).length;
+
+  // Limit the tally subscript display to avoid TOO much detail and wrapping...
+  const maxSubTalliesToShow = 3;
+
   let grandChildCounts = 
     Object.entries(item.totalChildRecords)
     .filter((x) => x[0]!==item.table && x[0][0].toLowerCase()===x[0][0])
     .sort((f,s) => (Object.keys(s[1]).length - Object.keys(f[1]).length))
-    .filter((x,index) => index < 3)
-    .map( x => x[0][0] + x[0][1] //+ x[0][2]
-      + ':' + Object.keys(x[1]).length/* for debug use: .join(', ')*/)
+    .filter((x,index) => index < maxSubTalliesToShow)
+    .map( x => (
+      // Just 1st 2 letters of table name for subtally stats
+      x[0][0] + x[0][1] + ':' 
+        // Followed by tally count...
+        + Object.keys(x[1]).length
+      // To see tableIDs making up tally, use: ".join(', ')"
+    ))
     .join(', ');
+  
+  // Limit the tally subscript display to avoid TOO much detail and wrapping...
   if (Object.keys(item.totalChildRecords)
-      .filter((x) => x[0]!==item.table).length > 3)
+      .filter((x) => x[0]!==item.table).length > maxSubTalliesToShow)
     grandChildCounts += ", ...";    
 
-  const childCount : (number|string) = item.children.filter(searchFilterRule).length;
-
+  // isAhit used to 'dim' (opacity .5) items that are NOT hits,
+  // only used for top-level outline branches at present, as will
+  // filter out non-hits everywhere else...
   const isAhit = (childCount || grandChildCounts || item.inFilter);
 
   return (
