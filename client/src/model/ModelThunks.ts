@@ -39,7 +39,8 @@ const settings : SettingsState = {
   showAdminTables: false, 
   activeFilter:true, 
   paletteType: 'light',
-  lastAuditTableID: -1
+  lastAuditTableID: -1,
+  searchFilter: ''
 }
 
 export const initialLoad = (route:string="all") => 

@@ -53,7 +53,8 @@ import {
   insertRecord,
   deleteRecord,
 } from "../../model/ModelThunks";
-import { addNewBlankRecordForm, setFocus, setFilter } from "./NavigateSlice";
+import { addNewBlankRecordForm, setFocus } from "./NavigateSlice";
+import { setOutlineFilters } from '../../features/SettingsPage/SettingsSlice';
 import { useTableAppCols } from "../../model/ModelSelectors";
 import { useWindowSize, recordDelta, usePrevious } from "../../utils/utils";
 
@@ -256,7 +257,9 @@ export const CrudButtons = (props: {
             style={{ height: 32, marginTop: 2 }}
             onSubmit={(e) => {
               e.preventDefault();
-              dispatch(setFilter({ navFilter: search.searchKeyInput }));
+              dispatch(setOutlineFilters({ 
+                settings: {...state.settings, searchFilter: search.searchKeyInput}
+              }));
               setSearch({...search,searchKey:search.searchKeyInput});
             }}
           >
@@ -305,6 +308,9 @@ export const CrudButtons = (props: {
               left: -4,
             }}
             onClick={() => {
+              dispatch(setOutlineFilters({ 
+                settings: {...state.settings, searchFilter: ''}
+              }));              
               setSearch({ ...search, searchKeyInput: "", searchKey: "" });
             }}
           />

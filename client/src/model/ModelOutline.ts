@@ -35,6 +35,7 @@ export interface OutlineNode {
   children : OutlineNode[],
   closedItem ?: boolean,
   inProgress ?: boolean,
+  inFilter ?: boolean,
   showTable : boolean,
   totalChildRecords : RecordOfAnyType 
 }
@@ -74,13 +75,14 @@ const childTableSet = new Set(
 export function buildOutline(
     derivedModel: ViewModelDerived, 
     settings: SettingsState ) {
-  const { activeFilter } = settings;
+  const { activeFilter, searchFilter } = settings;
+  const searchFilterLower = searchFilter.toLowerCase();
 
   console.time('buildTableHeadingsOutline');
   let outline = buildTableHeadingsOutline(Object.keys(derivedModel));
   console.timeEnd('buildTableHeadingsOutline');
   outline = sequenceOutline(outline) as OutlineNode[];
-  addRecordTallies(outline);
+  addRecordTallies(outline, settings);
 
   return outline;
 
@@ -99,7 +101,7 @@ export function buildOutline(
   }
 
   // Tally number of records for all children by 'table'...
-  function addRecordTallies(outline: OutlineNode[]) : RecordOfAnyType 
+  function addRecordTallies(outline: OutlineNode[], settings: SettingsState) : RecordOfAnyType 
   {
     let tallies : RecordOfAnyType = {};
     // NOTE: See commit of 4/23/2020 and consider:
@@ -110,8 +112,8 @@ export function buildOutline(
     //   when I no longer need/want the option of a diagnostic display...
     //
     [...outline].forEach( node => {
-      const { table, tableID, children } = node;
-      if (table && tableID) {
+      const { table, tableID, children, inFilter } = node;
+      if (table && tableID && inFilter) {
         if (!tallies[table]) 
           tallies[table] = {};
         tallies[table][
@@ -120,7 +122,7 @@ export function buildOutline(
         ] = 1; // dummy value (using Object like a Set; only keys are needed)
       }
       
-      const subTallies = addRecordTallies(children);
+      const subTallies = addRecordTallies(children, settings);
       node.totalChildRecords  = subTallies;
 
       (new Set([...Object.keys(tallies),...Object.keys(subTallies)]))
@@ -197,6 +199,8 @@ export function buildOutline(
       inProgress: 
         derivedModel[tableHeading] 
           && derivedModel[tableHeading][row.tableID||0].inProgress,
+      inFilter :
+        row.itemTitle.includes(searchFilterLower)
     }))
     .sort((firstEl,secondEl) => {
       const   firstStarted = (firstEl.inProgress ? 0 : 1 ) + (firstEl.closedItem ? 2 : 0 ),
@@ -296,6 +300,7 @@ export function buildOutline(
             parentID,
             closedItem: false,
             inProgress: false,
+            inFilter: itemTitle.includes(searchFilterLower),
             showTable,
             children: childRows,
             totalChildRecords: {}
