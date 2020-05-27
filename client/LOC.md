@@ -445,6 +445,26 @@ Number of files read :  7
 Number of files read :  38  
 ````
 
+````
+5/27/2020 - Full text search
+  159.16 KB  build\static\js\2.e74e7c49.chunk.js
+  13.12 KB   build\static\js\main.d14ac2b7.chunk.js
+  783 B      build\static\js\runtime-main.fd5b1e98.js
+  583 B      build\static\css\2.47271137.chunk.css
+  434 B      build\static\css\main.2c61f976.chunk.css
+            Physical :  4483
+              Source :  3173
+             Comment :  997
+ Single-line comment :  391
+       Block comment :  606
+               Mixed :  76
+ Empty block comment :  100
+               Empty :  489
+               To Do :  30
+Number of files read :  38  
+````
+
+
 # HELPFUL SNIPPETS:
 
 npx sloc src -- get lines of code reports, presented above

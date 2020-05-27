@@ -295,6 +295,8 @@ export const CrudButtons = (props: {
                 ...highlightSearch,
                 paddingLeft: 4,
                 paddingRight: 0,
+                paddingTop: 0,
+                paddingBottom: 0,
                 height: 28,
               }}
             >
