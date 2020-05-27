@@ -82,7 +82,7 @@ export function buildOutline(
   let outline = buildTableHeadingsOutline(Object.keys(derivedModel));
   console.timeEnd('buildTableHeadingsOutline');
   outline = sequenceOutline(outline) as OutlineNode[];
-  addRecordTallies(outline, settings);
+  addRecordTallies(outline);
 
   return outline;
 
@@ -101,7 +101,7 @@ export function buildOutline(
   }
 
   // Tally number of records for all children by 'table'...
-  function addRecordTallies(outline: OutlineNode[], settings: SettingsState) : RecordOfAnyType 
+  function addRecordTallies(outline: OutlineNode[]) : RecordOfAnyType 
   {
     let tallies : RecordOfAnyType = {};
     // NOTE: See commit of 4/23/2020 and consider:
@@ -122,7 +122,7 @@ export function buildOutline(
         ] = 1; // dummy value (using Object like a Set; only keys are needed)
       }
       
-      const subTallies = addRecordTallies(children, settings);
+      const subTallies = addRecordTallies(children);
       node.totalChildRecords  = subTallies;
 
       (new Set([...Object.keys(tallies),...Object.keys(subTallies)]))
