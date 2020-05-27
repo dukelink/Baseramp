@@ -200,7 +200,7 @@ export function buildOutline(
         derivedModel[tableHeading] 
           && derivedModel[tableHeading][row.tableID||0].inProgress,
       inFilter :
-        row.itemTitle.includes(searchFilterLower)
+        row.itemTitle.toLowerCase().includes(searchFilterLower)
     }))
     .sort((firstEl,secondEl) => {
       const   firstStarted = (firstEl.inProgress ? 0 : 1 ) + (firstEl.closedItem ? 2 : 0 ),
@@ -300,7 +300,7 @@ export function buildOutline(
             parentID,
             closedItem: false,
             inProgress: false,
-            inFilter: itemTitle.includes(searchFilterLower),
+            inFilter: false,
             showTable,
             children: childRows,
             totalChildRecords: {}

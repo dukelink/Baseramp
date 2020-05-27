@@ -45,12 +45,12 @@ function OutlineItemLabel(props: { item : OutlineNode })
       ? classes.labelIconInProgress 
         : ( ( !item.tableID || item.closedItem ) 
         ? classes.labelIcon : classes.labelIconNotInProgress );
-
+/*
   let childCount : (number|string) = item.children
     .filter( item => item.children.length || item.showTable ).length;
   if (childCount===1)
     childCount = 0;
-
+*/
   let grandChildCounts = 
     Object.entries(item.totalChildRecords)
     .filter((x) => x[0]!==item.table && x[0][0].toLowerCase()===x[0][0])
@@ -62,6 +62,11 @@ function OutlineItemLabel(props: { item : OutlineNode })
   if (Object.keys(item.totalChildRecords)
       .filter((x) => x[0]!==item.table).length > 3)
     grandChildCounts += ", ...";    
+
+  let childCount : (number|string) = item.children
+    .filter( item => item.children.filter(child=>child.inFilter).length || (item.showTable && item.inFilter) || grandChildCounts ).length;
+  if (childCount===1)
+    childCount = 0;
 
   return (
     <div className={classes.labelRoot}>
@@ -77,7 +82,7 @@ function OutlineItemLabel(props: { item : OutlineNode })
           className={
             item.closedItem ? 
               classes.labelTextClosedItem : classes.labelText }>
-        { item.itemTitle }
+        { item.itemTitle /*showTable=${item.showTable},inFilter=${item.inFilter}*/ }
         { !childCount ? '' : <sup>&nbsp;({childCount})</sup> }
         { !grandChildCounts ? '' : 
           <sup>&nbsp;
@@ -101,7 +106,8 @@ const OutlineItem = memo((props:{item:OutlineNode, key : any, children?:any}) =>
         label = { OutlineItemLabel({ item }) }  
         onClick={ (e:any) => { outlineItemClick(item) }}>
       { item.children
-          .filter( item => item.children.length || item.showTable )
+          .filter( item => (
+            item.children.length || (item.showTable && item.inFilter) ) )
           .map( item => <OutlineItem item={item} key={item.itemKey}/> )
       }
     </TreeItem>);
