@@ -54,7 +54,7 @@ import {
   deleteRecord,
 } from "../../model/ModelThunks";
 import { addNewBlankRecordForm, setFocus } from "./NavigateSlice";
-import { setOutlineFilters } from '../../features/SettingsPage/SettingsSlice';
+import { setOutlineFilters } from "../../features/SettingsPage/SettingsSlice";
 import { useTableAppCols } from "../../model/ModelSelectors";
 import { useWindowSize, recordDelta, usePrevious } from "../../utils/utils";
 
@@ -62,7 +62,7 @@ import { RecordOfAnyType } from "../../model/ModelTypes";
 
 const initialSearchParams = {
   searchKeyInput: "",
-  searchKey: ""
+  searchKey: "",
 };
 
 export const CrudButtons = (props: {
@@ -142,13 +142,16 @@ export const CrudButtons = (props: {
   const cleanFlag =
     (!navTableID || strOrigRecord === strRecord) && navTableID !== "-1";
 
-  let searchFilterCSS : CSSStyleDeclaration | {} = {
+  let searchFilterCSS: CSSStyleDeclaration | {} = {
     fontSize: "1.5em",
     color: "black",
-    opacity: "0.5",
+    opacity: search.searchKeyInput ? "1" : "0.5",
   };
   if (search.searchKey)
-    searchFilterCSS = Object.assign(searchFilterCSS, { color: 'darkgreen', opacity: '1' });
+    searchFilterCSS = Object.assign(searchFilterCSS, {
+      color: "darkgreen",
+      opacity: "1",
+    });
 
   return (
     <Grid
@@ -240,17 +243,27 @@ export const CrudButtons = (props: {
       const input = formRef.current.getElementsByTagName(
         "input"
       )[0] as HTMLInputElement;
-      if (search.searchKeyInput !== priorSearch?.searchKeyInput) 
+      if (search.searchKeyInput !== priorSearch?.searchKeyInput || !navTableID)
+        // TODO: this is a hack related to loss of record focus
         input.focus();
     });
     console.log("SearchBox()");
     const searchEdited = search.searchKeyInput !== search.searchKey;
-    let highlightSearch : CSSStyleDeclaration | {} = {
-       backgroundColor: "lightgrey", color: "black" };
+    let highlightSearch: CSSStyleDeclaration | {} = {
+      backgroundColor: "lightgrey",
+      color: "black",
+    };
     if (search.searchKey)
-      highlightSearch = {...highlightSearch, backgroundColor: 'darkgreen', color: 'white'};
-    if (searchEdited)
-      highlightSearch = {...highlightSearch, color: 'Chartreuse'}
+      highlightSearch = {
+        ...highlightSearch,
+        backgroundColor: "darkgreen",
+        color: "white",
+      };
+    if (searchEdited) {
+      highlightSearch = { ...highlightSearch, color: "maroon" };
+      if (search.searchKey)
+        highlightSearch = { ...highlightSearch, backgroundColor: "lightgreen" };
+    }
 
     return (
       <Grid container xs={12}>
@@ -261,10 +274,15 @@ export const CrudButtons = (props: {
             style={{ height: 32, marginTop: 2 }}
             onSubmit={(e) => {
               e.preventDefault();
-              dispatch(setOutlineFilters({ 
-                settings: {...state.settings, searchFilter: search.searchKeyInput}
-              }));
-              setSearch({...search,searchKey:search.searchKeyInput});
+              dispatch(
+                setOutlineFilters({
+                  settings: {
+                    ...state.settings,
+                    searchFilter: search.searchKeyInput,
+                  },
+                })
+              );
+              setSearch({ ...search, searchKey: search.searchKeyInput });
             }}
           >
             <IconButton
@@ -275,7 +293,7 @@ export const CrudButtons = (props: {
                 ...highlightSearch,
                 paddingLeft: 4,
                 paddingRight: 0,
-                height: 28
+                height: 28,
               }}
             >
               <SearchIcon />
@@ -296,7 +314,7 @@ export const CrudButtons = (props: {
                   setSearch({ ...search, searchKeyInput: search.searchKey });
                 }}
               >
-                <UndoIcon style={{ color: "inherit" }} />
+                <UndoIcon style={{ color: "maroon", opacity: .7 }} />
               </IconButton>
             )}
           </Paper>
@@ -312,9 +330,11 @@ export const CrudButtons = (props: {
               left: -4,
             }}
             onClick={() => {
-              dispatch(setOutlineFilters({ 
-                settings: {...state.settings, searchFilter: ''}
-              }));              
+              dispatch(
+                setOutlineFilters({
+                  settings: { ...state.settings, searchFilter: "" },
+                })
+              );
               setSearch({ ...search, searchKeyInput: "", searchKey: "" });
             }}
           />
@@ -327,7 +347,7 @@ export const CrudButtons = (props: {
     const target = e.target as HTMLInputElement;
     setSearch({
       ...search,
-      searchKeyInput: target.value
+      searchKeyInput: target.value,
     });
   }
 
