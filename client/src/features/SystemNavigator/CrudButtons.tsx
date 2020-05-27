@@ -142,6 +142,14 @@ export const CrudButtons = (props: {
   const cleanFlag =
     (!navTableID || strOrigRecord === strRecord) && navTableID !== "-1";
 
+  let searchFilterCSS : CSSStyleDeclaration | {} = {
+    fontSize: "1.5em",
+    color: "black",
+    opacity: "0.5",
+  };
+  if (search.searchKey)
+    searchFilterCSS = Object.assign(searchFilterCSS, { color: 'darkgreen', opacity: '1' });
+
   return (
     <Grid
       container
@@ -181,13 +189,7 @@ export const CrudButtons = (props: {
                         setMobileSearchMode(true);
                       }}
                     >
-                      <SearchIcon
-                        style={{
-                          fontSize: "1.5em",
-                          color: "black",
-                          opacity: 0.7,
-                        }}
-                      />
+                      <SearchIcon style={searchFilterCSS} />
                     </IconButton>
                   )}
                 </Grid>
@@ -218,9 +220,7 @@ export const CrudButtons = (props: {
                   }}
                 >
                   &nbsp;&nbsp;
-                  <SearchIcon
-                    style={{ fontSize: "1.5em", color: "black", opacity: 0.7 }}
-                  />
+                  <SearchIcon style={searchFilterCSS} />
                 </IconButton>
               </Grid>
               <Grid item xs={7}>
@@ -245,9 +245,13 @@ export const CrudButtons = (props: {
     });
     console.log("SearchBox()");
     const searchEdited = search.searchKeyInput !== search.searchKey;
-    const highlightSearch = !searchEdited
-      ? {}
-      : { backgroundColor: "yellow", color: "black" };
+    let highlightSearch : CSSStyleDeclaration | {} = {
+       backgroundColor: "lightgrey", color: "black" };
+    if (search.searchKey)
+      highlightSearch = {...highlightSearch, backgroundColor: 'darkgreen', color: 'white'};
+    if (searchEdited)
+      highlightSearch = {...highlightSearch, color: 'Chartreuse'}
+
     return (
       <Grid container xs={12}>
         <Grid item xs={11}>
@@ -271,7 +275,7 @@ export const CrudButtons = (props: {
                 ...highlightSearch,
                 paddingLeft: 4,
                 paddingRight: 0,
-                height: 28,
+                height: 28
               }}
             >
               <SearchIcon />

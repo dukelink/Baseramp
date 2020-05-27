@@ -94,7 +94,7 @@ export const Login = (props:{state:StateType, setState: React.Dispatch<React.Set
       <br></br>
       <br></br>
       <span style={{ fontSize: '18px' }}>
-        Are you a new visitor interested in learning more about Baseramp?
+        Are you interested in learning more about Baseramp?
         <br></br>
         <div style={{ fontSize: '18px', textDecoration: 'none', position: 'relative', top: '10px' }}
           onClick={ () => { history.push('/Info'); } }> 
