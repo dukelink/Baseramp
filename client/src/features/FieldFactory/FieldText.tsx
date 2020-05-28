@@ -43,6 +43,7 @@ export const FieldText = memo((props : {
     let { field } = props; 
 
     let InputProps = {};
+    let FormatProps = {} as React.CSSProperties;
 
     // TODO/NOTE: A business rule repeated in other Field...tsx files...
     const flagEmptyRequiredField = AppColumn_is_nullable==="NO" && !field;
@@ -56,16 +57,17 @@ export const FieldText = memo((props : {
         // Character fields w/o length are assumed to be large variable-
         // length fields that should receive textarea style controls...
         && !AppColumn_character_maximum_length)
-    InputProps = { ...InputProps, rows: "5", rowsMin: "5", rowsMax: "10", multiline: true };
+      InputProps = { ...InputProps, rows: "5", rowsMin: "5", rowsMax: "10", multiline: true };
 
     if (fieldName === 'user_password_hash')
     InputProps = { ...InputProps, type: "password" };
 
-    InputProps = { ...InputProps, style: {
-    minWidth: AppColumn_ui_minwidth 
-        || ( AppColumn_character_maximum_length 
-        ||   AppColumn_data_type !== 'character varying' ? "150px" : "100%" )
-    } };
+    FormatProps = {
+      width: AppColumn_ui_minwidth || '150px',
+      minWidth: AppColumn_ui_minwidth 
+          || ( AppColumn_character_maximum_length 
+          ||   AppColumn_data_type !== 'character varying' ? "150px" : "100%" )
+    };
 
     if (fieldName.indexOf('_points')!==-1)
         InputProps = { ...InputProps, inputComponent: NumberFormatPoints };
@@ -90,11 +92,7 @@ export const FieldText = memo((props : {
     }
 
     return (
-      <FormControl 
-        style = {{ minWidth: AppColumn_ui_minwidth || 
-          ( AppColumn_character_maximum_length 
-              || AppColumn_data_type!=='character varying' ? "150px" : "100%" )
-          }} >
+      <FormControl style={FormatProps}>
         <TextField
             error={ flagEmptyRequiredField }
             variant="outlined" 
