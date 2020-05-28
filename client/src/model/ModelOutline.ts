@@ -217,7 +217,7 @@ export function buildOutline(
       inProgress: 
         derivedModel[tableHeading] 
           && derivedModel[tableHeading][row.tableID||0].inProgress,
-      inFilter :
+      inFilter : 
         row.itemTitle.toLowerCase().includes(searchFilterLower)
     }))
     .sort((firstEl,secondEl) => {
@@ -304,6 +304,8 @@ export function buildOutline(
  
         const childRows = buildRowsOutline(tableHeading, parentTable, parentID);
 
+        const inFilter = itemTitle.toLowerCase().includes(searchFilterLower);
+
         // HACK: CYCLIC outline headings may be removed
         if (    (tableHeading===parentTable && childRows.length) 
             ||  (!parentTable && tableHeading==='category' && childRows.length) 
@@ -318,7 +320,7 @@ export function buildOutline(
             parentID,
             closedItem: false,
             inProgress: false,
-            inFilter: false,
+            inFilter,
             showTable,
             children: childRows,
             totalChildRecords: {}
