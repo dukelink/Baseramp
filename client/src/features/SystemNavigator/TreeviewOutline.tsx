@@ -20,7 +20,7 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import React, { memo, useRef, useEffect } from "react";
+import React, { memo, useRef, useEffect, useState, ChangeEvent } from "react";
 import { TreeView, TreeItem } from "@material-ui/lab";
 import { Typography } from "@material-ui/core";
 import { useTreeItemStyles } from "./SystemNavigatorStyles";
@@ -29,6 +29,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { setFocus } from "./NavigateSlice";
 import { OutlineNode } from "../../model/ModelOutline";
 import { RootState } from "../../rootReducer";
+import { usePrevious } from "../../utils/utils";
 
 import FolderIcon from "@material-ui/icons/Folder";
 import AssignmentIcon from "@material-ui/icons/Assignment";
@@ -85,19 +86,28 @@ function OutlineItemLabel(props: { item: OutlineNode }) {
   let itemTitle = item.itemTitle;
   const searchFilter = settings.searchFilter;
   const matchMarkupPrefix = '<span style="background-color:yellow">';
-  const matchMarkupSuffix = '</span>';
+  const matchMarkupSuffix = "</span>";
   let pos = 0;
-  while (searchFilter && item.inFilter && (pos = itemTitle.toLowerCase().indexOf(searchFilter.toLowerCase(),pos))!==-1) {
-    if (pos===-1) break;
-    itemTitle = itemTitle.slice(0,pos)
-      + matchMarkupPrefix + itemTitle.slice(pos,pos+searchFilter.length)
-      + matchMarkupSuffix + itemTitle.slice(pos+searchFilter.length);
-    pos += searchFilter.length + matchMarkupPrefix.length + matchMarkupSuffix.length; 
+  while (
+    searchFilter &&
+    item.inFilter &&
+    (pos = itemTitle.toLowerCase().indexOf(searchFilter.toLowerCase(), pos)) !==
+      -1
+  ) {
+    if (pos === -1) break;
+    itemTitle =
+      itemTitle.slice(0, pos) +
+      matchMarkupPrefix +
+      itemTitle.slice(pos, pos + searchFilter.length) +
+      matchMarkupSuffix +
+      itemTitle.slice(pos + searchFilter.length);
+    pos +=
+      searchFilter.length + matchMarkupPrefix.length + matchMarkupSuffix.length;
   }
-  
-  useEffect(()=>{
+
+  useEffect(() => {
     (ctrlRef.current as HTMLSpanElement).innerHTML = itemTitle;
-  },[itemTitle]);
+  }, [itemTitle]);
 
   return (
     <div className={classes.labelRoot}>
@@ -162,12 +172,42 @@ const OutlineItem = memo(
 
 export const Outline = (props: { outline: OutlineNode[] }) => {
   const classes: any = useTreeItemStyles();
+  const searchFilter = useSelector(
+    (state: RootState) => state.settings.searchFilter
+  );
+  const navTableID = useSelector(
+    (state: RootState) => state.navigate.navTableID
+  );
+  const [expanded, setExpanded] = useState([] as string[]);
+  const [selected, setSelected] = useState("");
+  const priorSearchFilter = usePrevious(searchFilter);
+
+  useEffect(() => {
+    if ((!navTableID || navTableID === "-1") && selected) setSelected("");
+
+    // RULE: (Default pending expand/collapse control):
+    // Collapse outline after any search, but retain open nodes when search is cleared via 'x'
+    if (searchFilter !== priorSearchFilter && searchFilter) setExpanded([]);
+  }, [searchFilter, navTableID]);
+
+  const handleToggle: any = (event: ChangeEvent, nodeIds: string[]) => {
+    setExpanded(nodeIds);
+  };
+  const handleSelect: any = (event: ChangeEvent, nodeIds: string) => {
+    setSelected(nodeIds);
+  };
+
+  console.log("Outline");
 
   return (
     <TreeView
       className={classes.treeviewRoot}
       defaultCollapseIcon={<ArrowDropDownIcon />}
       defaultExpandIcon={<ArrowRightIcon />}
+      expanded={expanded}
+      selected={selected}
+      onNodeToggle={handleToggle}
+      onNodeSelect={handleSelect}
     >
       {props.outline.map((item) => (
         <OutlineItem item={item} key={item.itemKey} />
