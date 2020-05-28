@@ -76,7 +76,7 @@ export function useWindowSize() {
     const intv = setInterval( () => {
       if (ref.current && ( 
           ref.current[0]!==window.innerWidth
-          || ref.current[1]!==window.innerHeight )
+          /* || ref.current[1]!==window.innerHeight */ )
       ) {
         ref.current = [window.innerWidth, window.innerHeight];
         updateSize();
