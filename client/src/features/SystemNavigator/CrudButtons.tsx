@@ -91,8 +91,8 @@ export const CrudButtons = (props: {
   useEffect(() => {
     if (mobileSearchMode && !mobileSearchLayout) setMobileSearchMode(false);
     if (state.settings.searchFilter != search.searchKey)
-      setSearch({...search,searchKey:state.settings.searchFilter});
-  }, [mobileSearchLayout,state.settings.searchFilter]);
+      setSearch({ ...search, searchKey: state.settings.searchFilter });
+  }, [mobileSearchLayout, state.settings.searchFilter]);
 
   console.log("CRUDBUTTONS()");
 
@@ -260,11 +260,17 @@ export const CrudButtons = (props: {
         ...highlightSearch,
         backgroundColor: "darkgreen",
         color: "white",
+        opacity: "0.7",
       };
     if (searchEdited) {
-      highlightSearch = { ...highlightSearch, color: "maroon" };
-      if (search.searchKey)
-        highlightSearch = { ...highlightSearch, backgroundColor: "lightgreen" };
+      highlightSearch = { ...highlightSearch, color: "red" };
+      if (search.searchKey) {
+        highlightSearch = {
+          ...highlightSearch,
+          backgroundColor: "green",
+          opacity: "0.9",
+        };
+      }
     }
 
     return (
@@ -307,6 +313,11 @@ export const CrudButtons = (props: {
               className={classes.input}
               placeholder="Enter search text / Select item below..."
               inputProps={{ "aria-label": "full-text search" }}
+              style={{
+                fontKerning: "auto",
+                fontWeight:
+                  search.searchKey && !searchEdited ? "bold" : "normal",
+              }}
               value={search.searchKeyInput}
               onChange={setInputFieldState}
             />
@@ -318,31 +329,30 @@ export const CrudButtons = (props: {
                   setSearch({ ...search, searchKeyInput: search.searchKey });
                 }}
               >
-                <UndoIcon style={{ color: "maroon", opacity: .7 }} />
+                <UndoIcon style={{ color: "red", opacity: 0.7 }} />
               </IconButton>
             )}
+            <HighlightOffIcon
+              style={{
+                fontSize: "1.8em",
+                color: "green",
+                position: "relative",
+                left: -4,
+                cursor: "pointer",
+                display: search.searchKey ? "default" : "none",
+              }}
+              onClick={() => {
+                dispatch(
+                  setOutlineFilters({
+                    settings: { ...state.settings, searchFilter: "" },
+                  })
+                );
+                setSearch({ ...search, searchKeyInput: "", searchKey: "" });
+              }}
+            />
           </Paper>
         </Grid>
-        <Grid item xs={1}>
-          <HighlightOffIcon
-            style={{
-              fontSize: "2em",
-              color: "black",
-              opacity: 0.7,
-              paddingTop: 6,
-              position: "relative",
-              left: -4,
-            }}
-            onClick={() => {
-              dispatch(
-                setOutlineFilters({
-                  settings: { ...state.settings, searchFilter: "" },
-                })
-              );
-              setSearch({ ...search, searchKeyInput: "", searchKey: "" });
-            }}
-          />
-        </Grid>
+        <Grid item xs={1}></Grid>
       </Grid>
     );
   }
