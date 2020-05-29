@@ -188,7 +188,7 @@ export const Outline = (props: { outline: OutlineNode[] }) => {
     // RULE: (Default pending expand/collapse control):
     // Collapse outline after any search, but retain open nodes when search is cleared via 'x'
     if (searchFilter !== priorSearchFilter && searchFilter) setExpanded([]);
-  }, [searchFilter, navTableID]);
+  }, [searchFilter,navTableID,priorSearchFilter,selected]);
 
   const handleToggle: any = (event: ChangeEvent, nodeIds: string[]) => {
     setExpanded(nodeIds);

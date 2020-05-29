@@ -245,7 +245,7 @@ export const CrudButtons = (props: {
       const input = formRef.current.getElementsByTagName(
         "input"
       )[0] as HTMLInputElement;
-      if (search.searchKeyInput !== priorSearch?.searchKeyInput || !navTableID)
+      if (search.searchKeyInput && search.searchKeyInput !== priorSearch?.searchKeyInput)
         // TODO: this is a hack related to loss of record focus
         input.focus();
     });

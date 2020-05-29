@@ -37,6 +37,8 @@ export function buildDerived(model: Model)
   let inprogress_status_ids: Array<number>;
   let apiDerived : ViewModelDerived = {}; 
 
+  if (!apiModel['status']) return;
+
   //
   // Compute attributes of closed & in progress for all records in all tables
   //

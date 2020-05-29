@@ -23,7 +23,7 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { PaletteType } from '@material-ui/core';
 
-import { Records, AuditUpdate } from '../../model/ModelTypes';
+import { AuditUpdate } from '../../model/ModelTypes';
 
 export interface SettingsState {
   activeFilter: boolean;
