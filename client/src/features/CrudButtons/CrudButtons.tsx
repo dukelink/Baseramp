@@ -25,6 +25,7 @@ import React, {
   Dispatch,
   SetStateAction,
   useEffect,
+  useLayoutEffect,
   useRef,
 } from "react";
 
@@ -299,7 +300,7 @@ function AddDeleteSaveUndo(props: {
   const navigate = useSelector<RootState, INavigateState>((state) => state.navigate);
   const settings = useSelector<RootState, SettingsState>((state) => state.settings);
   const dispatch = useDispatch();
-  const [rerenderFlag, setRerenderFlat] = useState(1);
+  const [rerenderFlag, setRerenderFlag] = useState(1);
 
   const {record,origRecord,setLatestNodeformState,mode,setMode,latestNodeformState} = props;
   const { isFormValid } = latestNodeformState;
@@ -346,6 +347,7 @@ function AddDeleteSaveUndo(props: {
             <Button
               id="crudDelete"
               variant="contained"
+              style={{minWidth: '30px'}}
               onClick={() => {
                 // TODO: Move handlers out of render...
                 dispatch(deleteRecord(navigate, settings));
@@ -416,7 +418,7 @@ function AddDeleteSaveUndo(props: {
                   setMode("Outline");
                 }
                 // If user was editing an existing record, flag rerender...
-                else setRerenderFlat(rerenderFlag + 1);
+                else setRerenderFlag(rerenderFlag + 1);
               }}
             >
               <UndoIcon
@@ -444,9 +446,10 @@ function SearchBox(props: {
 } ) {
   const classes = useSearchStyles();
   const formRef = useRef<any>();
-  const [search, setSearch] = useState(initialSearchParams);    
+  const search = useRef(initialSearchParams);    
   const settings = useSelector<RootState, SettingsState>((state) => state.settings);
   const dispatch = useDispatch();
+  const [rerenderFlag, setRerenderFlag] = useState(1); 
 
   const { mobileSearchMode, setMobileSearchMode, mobileSearchLayout } = props;
 /*    
@@ -454,33 +457,36 @@ function SearchBox(props: {
     const input = formRef.current.getElementsByTagName(
       "input"
     )[0] as HTMLInputElement;
-//      if (search.searchKeyInput !== priorSearch?.searchKeyInput) || !navTableID)
+//      if (search.current.searchKeyInput !== priorSearch?.searchKeyInput) || !navTableID)
       // TODO: this is a hack related to loss of record focus
 //        input.focus(); 
   });
 */
 
-  useEffect(() => {
+  useLayoutEffect(() => {
 
     if (mobileSearchMode && !mobileSearchLayout) 
       setMobileSearchMode(false);
 
-    if (settings.searchFilter != search.searchKey)
-      setSearch({ ...search, searchKey: settings.searchFilter, searchKeyInput: settings.searchFilter });
+    if (settings.searchFilter != search.current.searchKey) {
+      console.log(`RERENDER 1: settings.searchFilter=${JSON.stringify(settings.searchFilter)}, search.current.searchKey=${JSON.stringify(search.current.searchKey)}`);   
+      search.current = {...search.current, searchKey: settings.searchFilter, searchKeyInput: settings.searchFilter};
+      setRerenderFlag(rerenderFlag + 1);   
+    }
 
-  }, [mobileSearchLayout, settings.searchFilter]);
+  }, [mobileSearchLayout, mobileSearchMode]);
 
   console.log(`SearchBox(); search=${JSON.stringify(search)}`);
 
   if (props.searchBarOnly) return <SearchBarOnly />;
   if (props.collapsed) return <MobileSearchCollapsed/>;
 
-  const searchEdited = search.searchKeyInput !== search.searchKey;
+  const searchEdited = search.current.searchKeyInput !== search.current.searchKey;
   let highlightSearch: CSSStyleDeclaration | {} = {
     backgroundColor: "lightgrey",
     color: "black",
   };
-  if (search.searchKey)
+  if (search.current.searchKey)
     highlightSearch = {
       ...highlightSearch,
       backgroundColor: "darkgreen",
@@ -489,7 +495,7 @@ function SearchBox(props: {
     };
   if (searchEdited) {
     highlightSearch = { ...highlightSearch, color: "red" };
-    if (search.searchKey) {
+    if (search.current.searchKey) {
       highlightSearch = {
         ...highlightSearch,
         backgroundColor: "green",
@@ -507,15 +513,19 @@ function SearchBox(props: {
           style={{ height: 32, marginTop: 2 }}
           onSubmit={(e) => {
             e.preventDefault();
+            console.log('RERENDER 2');   
+            // NOTE: RERENDER 1 takes care of updating 
+            // 'search.current.searchKey' once state settles
             dispatch(
               setOutlineFilters({
                 settings: {
                   ...settings,
-                  searchFilter: search.searchKeyInput,
+                  searchFilter: search.current.searchKeyInput,
                 },
               })
-            );
-            setSearch({ ...search, searchKey: search.searchKeyInput });
+            ); 
+            search.current.searchKey = search.current.searchKeyInput;
+            setRerenderFlag(rerenderFlag + 1);
           }}
         >
           <IconButton
@@ -541,20 +551,19 @@ function SearchBox(props: {
             style={{
               fontKerning: "auto",
               fontWeight:
-                search.searchKey && !searchEdited ? "bold" : "normal",
+                search.current.searchKey && !searchEdited ? "bold" : "normal",
             }}
-            value={search.searchKeyInput}
+            value={search.current.searchKeyInput}
             onChange={setInputFieldState}
-//              onBlur={(e)=>{
-//                console.log(e.target)
-//              }}
           />
           {searchEdited && (
             <IconButton
               className={classes.iconButton}
               aria-label="search"
               onClick={() => {
-                setSearch({ ...search, searchKeyInput: search.searchKey });
+                console.log('RERENDER 3');   
+                search.current.searchKeyInput = search.current.searchKey;
+                setRerenderFlag(rerenderFlag + 1);
               }}
             >
               <UndoIcon style={{ color: "red", opacity: 0.7 }} />
@@ -570,12 +579,15 @@ function SearchBox(props: {
               display: settings.searchFilter ? "default" : "none",
             }}
             onClick={() => {
+              console.log('RERENDER 4');   
               dispatch(
                 setOutlineFilters({
                   settings: { ...settings, searchFilter: "" },
                 })
               );
-              setSearch({ ...search, searchKeyInput: "", searchKey: "" });
+              search.current.searchKeyInput = '';
+              search.current.searchKey = '';
+              setRerenderFlag(rerenderFlag + 1);
             }}
           />
         </Paper>
@@ -586,20 +598,19 @@ function SearchBox(props: {
 
   function setInputFieldState(e: React.SyntheticEvent | React.KeyboardEvent) {
     const target = e.target as HTMLInputElement;
-    setSearch({
-      ...search,
-      searchKeyInput: target.value,
-    });
+    console.log('RERENDER 5');   
+    search.current.searchKeyInput = target.value;
+    setRerenderFlag(rerenderFlag + 1); 
   }
   
   function MobileSearchCollapsed() {
     let searchFilterCSS: CSSProperties = {
       fontSize: "1.5em",
       color: "black",
-      opacity: search.searchKeyInput ? "1" : "0.5",
+      opacity: search.current.searchKeyInput ? "1" : "0.5",
     };
     
-    if (search.searchKey)
+    if (search.current.searchKey)
       searchFilterCSS = Object.assign(searchFilterCSS, {
         color: "darkgreen",
         opacity: "1",
