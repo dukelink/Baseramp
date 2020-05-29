@@ -95,7 +95,8 @@ export interface Model {
   metaModel: IMetaModelState,
   outline: OutlineNode[],
   inactive_status_ids: number[],
-  inprogress_status_ids: number[]
+  inprogress_status_ids: number[],
+  lastAuditTableID: number
 }
 
 export interface AuditUpdate {

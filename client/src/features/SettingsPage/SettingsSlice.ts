@@ -29,7 +29,6 @@ export interface SettingsState {
   activeFilter: boolean;
   showAdminTables: boolean;
   paletteType: PaletteType;
-  lastAuditTableID: number;
   searchFilter: string;
 }
 
@@ -37,7 +36,6 @@ const initialState: SettingsState = {
   paletteType : 'light',
   activeFilter: true,
   showAdminTables: false,
-  lastAuditTableID: -1,
   searchFilter: ''
 }
 
@@ -45,15 +43,6 @@ const settingsSlice = createSlice({
   name: 'common', // critical if reducer logic is shared in other slices!
   initialState,
   reducers: {
-    refreshVMfromAuditRecords(state, 
-      action:PayloadAction<{settings:SettingsState,audit_updates:AuditUpdate[]}>)
-    {
-      const { settings, audit_updates } = action.payload;
-      if (audit_updates?.length)
-        state.lastAuditTableID = 
-            Object.values(audit_updates).slice(-1)[0].audit_id
-              || settings.lastAuditTableID; // REVIEW: Consider MAX for safety's sake!
-    },
     setOutlineFilters(state,action:PayloadAction<{settings : SettingsState}>) {
       Object.assign(state, action.payload.settings);
     },

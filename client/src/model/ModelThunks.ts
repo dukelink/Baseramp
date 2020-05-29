@@ -39,7 +39,6 @@ const settings : SettingsState = {
   showAdminTables: false, 
   activeFilter:true, 
   paletteType: 'light',
-  lastAuditTableID: -1,
   searchFilter: ''
 }
 
@@ -103,9 +102,12 @@ let fetchInProgress = false;
 export const refreshFromServer = (settings:SettingsState) =>
 //  : AppThunk => async dispatch => 
 {
+  // REVIEW: Not using 'store' may not be SSR compatible?  Not that it needs to be....
+  const lastAuditTableID = store.getState().model.lastAuditTableID; 
+
   if (!fetchInProgress) {
     fetchInProgress = true;
-    Fetch(`audit_updates/${settings.lastAuditTableID}`)
+    Fetch(`audit_updates/${lastAuditTableID}`)
     .then(res => res && res.json())
     .catch(() => { fetchInProgress = false; } )
     .then(res => {

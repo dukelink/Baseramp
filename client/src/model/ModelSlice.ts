@@ -36,7 +36,8 @@ let initialState : Model = {
   },
   outline: [],
   inactive_status_ids: [],
-  inprogress_status_ids: []
+  inprogress_status_ids: [],
+  lastAuditTableID: -1
 };
 
 const model = createSlice({
@@ -74,6 +75,12 @@ const model = createSlice({
         const { table_name, table_id, update_type, field_changes } = update;
         const tableID = table_id.toString(); // Number not allowed as object 'index' key
         const record = JSON.parse(field_changes);
+
+        if (audit_updates?.length)
+          model.lastAuditTableID = 
+              Object.values(audit_updates).slice(-1)[0].audit_id
+                || model.lastAuditTableID; // REVIEW: Consider MAX for safety's sake!        
+
         if (['INSERT','UPDATE'].includes(update_type)) 
         {
           const tableToUpdate = model.apiModel[table_name];
@@ -84,15 +91,8 @@ const model = createSlice({
             if (!recordRef) // INSERT case (should we assert this on update_type?)
               model.apiModel[table_name][tableID] = record;
             else {          // UPDATE case
-              //const newRec : RecordOfAnyType = 
-              Object.assign(recordRef, record);  //  Important: this is the operative code for audit updates
-              /* REVIEW...
-              // Meta data UPDATES only at this time (no INSERT/DELETEs)...
-              if (table_name==='AppTable') 
-                Object.assign(model.metaModel.AppTable[tableID], newRec);
-              else if (table_name==='AppColumn')
-                Object.assign(model.metaModel.AppColumn[tableID], newRec);
-              */
+              //  Important: this is the operative code for audit updates
+              Object.assign(recordRef, record);  
             }
           }
         } 
