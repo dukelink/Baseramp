@@ -37,7 +37,7 @@ import  Adapter from 'enzyme-adapter-react-16';
 import { configure, mount } from 'enzyme';
 import { ViewModelState } from '../../model/ModelSlice';
 import { setTestDataMode } from '../../model/ModelThunks';
-import { CrudButtons } from '../SystemNavigator/CrudButtons';
+import { CrudButtons } from '../CrudButtons/CrudButtons';
 
 configure({ adapter: new Adapter() });
 

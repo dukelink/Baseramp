@@ -238,6 +238,7 @@ export function buildOutline(
         parentTable?: string,
         parentID?: number
   ) {
+    if (!derivedModel['AppTable']) return [];
     //
     // TODO: If we provide direct access to metaModel then we wouldn't need
     // to derive this....

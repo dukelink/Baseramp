@@ -26,7 +26,7 @@ import { Paper, Grid } from '@material-ui/core';
 import { useNavPanelStyles } from './SystemNavigatorStyles';
 import { useWindowSize, VerticalSpace } from '../../utils/utils';
 
-import { CrudButtons } from './CrudButtons';
+import { CrudButtons } from '../CrudButtons/CrudButtons';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../rootReducer'; 
 import { NodeFormEditState } from '../NodeForm/NodeForm';

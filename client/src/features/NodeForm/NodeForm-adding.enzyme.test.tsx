@@ -25,7 +25,7 @@ import { Provider, ConnectedComponent } from 'react-redux';
 import store from '../../store';
 import { NodeFormView } from './NodeFormView';
 import { NodeForm } from './NodeForm';
-import { CrudButtons } from '../SystemNavigator/CrudButtons';
+import { CrudButtons } from '../CrudButtons/CrudButtons';
 
 import Button from '@material-ui/core/Button';
 import { setFocus, INavigateState } from '../SystemNavigator/NavigateSlice'; 

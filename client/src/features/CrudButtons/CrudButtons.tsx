@@ -41,30 +41,25 @@ import HighlightOffIcon from "@material-ui/icons/HighlightOffTwoTone";
 import DeleteIcon from "@material-ui/icons/DeleteForeverTwoTone";
 import FolderOpenIcon from "@material-ui/icons/FolderOpen";
 
-import { useNavPanelStyles, useSearchStyles } from "./SystemNavigatorStyles";
+import { useNavPanelStyles, useSearchStyles } from "../SystemNavigator/SystemNavigatorStyles";
 
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../rootReducer";
 import { NodeFormEditState } from "../NodeForm/NodeForm";
-import { EditMode } from "./SystemNavigator";
+import { EditMode } from "../SystemNavigator/SystemNavigator";
 import {
   updateRecord,
   insertRecord,
   deleteRecord,
 } from "../../model/ModelThunks";
-import { addNewBlankRecordForm, setFocus } from "./NavigateSlice";
-import { setOutlineFilters, SettingsState } from "../../features/SettingsPage/SettingsSlice";
-import {INavigateState} from "../../features/SystemNavigator/NavigateSlice";
+import { addNewBlankRecordForm, setFocus } from "../SystemNavigator/NavigateSlice";
+import { setOutlineFilters, SettingsState } from "../SettingsPage/SettingsSlice";
+import {INavigateState} from "../SystemNavigator/NavigateSlice";
 import { useTableAppCols } from "../../model/ModelSelectors";
 import { useWindowSize, recordDelta, usePrevious } from "../../utils/utils";
 
 import { RecordOfAnyType } from "../../model/ModelTypes";
 import { CSSProperties } from "@material-ui/core/styles/withStyles";
-
-const initialSearchParams = {
-  searchKeyInput: "",
-  searchKey: "",
-};
 
 export const CrudButtons = (props: {
   latestNodeformState: NodeFormEditState,
@@ -125,6 +120,10 @@ export const CrudButtons = (props: {
   const origRecord = filterOnlyVisibleColumns(props.origRecord);
   const record = filterOnlyVisibleColumns(props.latestNodeformState.record);
 
+  const searchBarOnly = !navTable || mobileSearchMode;
+
+  console.log(`searchBarOnly=${searchBarOnly}`);
+
   return (
     <Grid
       container
@@ -132,8 +131,12 @@ export const CrudButtons = (props: {
       className={classes.OutlineEditButton}
       style={{ backgroundColor: "lightgrey" }}
     >
-      {!navTable || mobileSearchMode ? (
-        <SearchBarOnly />
+      {searchBarOnly ? ( 
+        <SearchBox 
+          mobileSearchLayout={mobileSearchLayout} 
+          mobileSearchMode={mobileSearchMode} 
+          searchBarOnly={searchBarOnly}
+          setMobileSearchMode={setMobileSearchMode}/>
       ) : (
         <div color="secondary" style={{ width: "100%" }}>
           {mode !== "Both" && navTableID ? (
@@ -147,6 +150,7 @@ export const CrudButtons = (props: {
                     <SearchBox 
                       mobileSearchLayout={mobileSearchLayout} 
                       mobileSearchMode={mobileSearchMode} 
+                      searchBarOnly={searchBarOnly}
                       setMobileSearchMode={setMobileSearchMode}/>
                   ) } 
                 </Grid>
@@ -172,6 +176,7 @@ export const CrudButtons = (props: {
                       collapsed={true} 
                       mobileSearchLayout={mobileSearchLayout} 
                       mobileSearchMode={mobileSearchMode} 
+                      searchBarOnly={searchBarOnly}
                       setMobileSearchMode={setMobileSearchMode}/>
                   ) }
                 </Grid>
@@ -193,6 +198,7 @@ export const CrudButtons = (props: {
                 <SearchBox 
                   mobileSearchLayout={mobileSearchLayout} 
                   mobileSearchMode={mobileSearchMode} 
+                  searchBarOnly={searchBarOnly}
                   setMobileSearchMode={setMobileSearchMode}/>
               </Grid>
               <Grid item xs={6}>
@@ -214,6 +220,7 @@ export const CrudButtons = (props: {
                   collapsed={true} 
                   mobileSearchLayout={mobileSearchLayout} 
                   mobileSearchMode={mobileSearchMode} 
+                  searchBarOnly={searchBarOnly}
                   setMobileSearchMode={setMobileSearchMode}/>
               </Grid>
               <Grid item xs={7}>
@@ -232,41 +239,6 @@ export const CrudButtons = (props: {
       )}
     </Grid>
   );
-
-  function SearchBarOnly() {
-    return (
-      <>
-        {mobileSearchMode && (
-          <Grid item xs={1} style={{ cursor: "pointer", textAlign: "center" }}>
-            <PlayCircleFilledIcon
-              className={classes.rotate80}
-              style={{
-                fontSize: "2.1em",
-                position: "relative",
-                left: 2,
-                top: 1,
-                opacity: 0.7,
-                color: "black",
-              }}
-              onClick={() => {
-                setMobileSearchMode(false);
-              }}
-            />
-          </Grid>
-        )}
-        <Grid
-          item
-          xs={mobileSearchMode ? 11 : 12}
-          style={{ backgroundColor: "lightgrey" }}
-        >
-          <SearchBox 
-            mobileSearchLayout={mobileSearchLayout} 
-            mobileSearchMode={mobileSearchMode} 
-            setMobileSearchMode={setMobileSearchMode}/>
-        </Grid>
-      </>
-    );
-  }
 
   function OutlineFormSwitch() {
     return (
@@ -458,9 +430,15 @@ function AddDeleteSaveUndo(props: {
   );
 }
 
+const initialSearchParams = {
+  searchKeyInput: "",
+  searchKey: "",
+};
+
 function SearchBox(props: { 
   mobileSearchLayout : boolean,
   mobileSearchMode : boolean, 
+  searchBarOnly : boolean,
   setMobileSearchMode : Dispatch<SetStateAction<boolean>>, 
   collapsed ?: boolean 
 } ) {
@@ -481,40 +459,21 @@ function SearchBox(props: {
 //        input.focus(); 
   });
 */
+
   useEffect(() => {
-    if (mobileSearchMode && !mobileSearchLayout) setMobileSearchMode(false);
+
+    if (mobileSearchMode && !mobileSearchLayout) 
+      setMobileSearchMode(false);
+
     if (settings.searchFilter != search.searchKey)
       setSearch({ ...search, searchKey: settings.searchFilter, searchKeyInput: settings.searchFilter });
+
   }, [mobileSearchLayout, settings.searchFilter]);
 
-  console.log("SearchBox()");
+  console.log(`SearchBox(); search=${JSON.stringify(search)}`);
 
-  if (props.collapsed) {
-    let searchFilterCSS: CSSProperties = {
-      fontSize: "1.5em",
-      color: "black",
-      opacity: search.searchKeyInput ? "1" : "0.5",
-    };
-    
-    if (search.searchKey)
-      searchFilterCSS = Object.assign(searchFilterCSS, {
-        color: "darkgreen",
-        opacity: "1",
-      });
-          
-    return (
-        <IconButton
-        area-label="Search"
-        style={{ padding: 6, position: "relative", top: -6 }}
-        onClick={() => {
-          // TODO: Move handlers out of render...
-          setMobileSearchMode(true);
-        }}
-      >
-        <SearchIcon style={searchFilterCSS} />
-      </IconButton>
-    )
-  }
+  if (props.searchBarOnly) return <SearchBarOnly />;
+  if (props.collapsed) return <MobileSearchCollapsed/>;
 
   const searchEdited = search.searchKeyInput !== search.searchKey;
   let highlightSearch: CSSStyleDeclaration | {} = {
@@ -631,5 +590,69 @@ function SearchBox(props: {
       ...search,
       searchKeyInput: target.value,
     });
-  }    
+  }
+  
+  function MobileSearchCollapsed() {
+    let searchFilterCSS: CSSProperties = {
+      fontSize: "1.5em",
+      color: "black",
+      opacity: search.searchKeyInput ? "1" : "0.5",
+    };
+    
+    if (search.searchKey)
+      searchFilterCSS = Object.assign(searchFilterCSS, {
+        color: "darkgreen",
+        opacity: "1",
+      });
+          
+    return (
+        <IconButton
+        area-label="Search"
+        style={{ padding: 6, position: "relative", top: -6 }}
+        onClick={() => {
+          // TODO: Move handlers out of render...
+          setMobileSearchMode(true);
+        }}
+      >
+        <SearchIcon style={searchFilterCSS} />
+      </IconButton>
+    )    
+  }
+
+  function SearchBarOnly() {
+    const classes = useNavPanelStyles();
+    return (
+      <>
+        {mobileSearchMode && (
+          <Grid item xs={1} style={{ cursor: "pointer", textAlign: "center" }}>
+            <PlayCircleFilledIcon
+              className={classes.rotate80}
+              style={{
+                fontSize: "2.1em",
+                position: "relative",
+                left: 2,
+                top: 1,
+                opacity: 0.7,
+                color: "black",
+              }}
+              onClick={() => {
+                setMobileSearchMode(false);
+              }}
+            />
+          </Grid>
+        )}
+        <Grid
+          item
+          xs={mobileSearchMode ? 11 : 12}
+          style={{ backgroundColor: "lightgrey" }}
+        >
+          <SearchBox 
+            mobileSearchLayout={mobileSearchLayout} 
+            mobileSearchMode={mobileSearchMode} 
+            searchBarOnly={false}
+            setMobileSearchMode={setMobileSearchMode}/>
+        </Grid>
+      </>
+    );
+  }  
 }
