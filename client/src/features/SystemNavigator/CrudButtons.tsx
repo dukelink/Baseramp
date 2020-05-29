@@ -344,7 +344,7 @@ export const CrudButtons = (props: {
                 position: "relative",
                 left: -4,
                 cursor: "pointer",
-                display: search.searchKey ? "default" : "none",
+                display: state.settings.searchFilter ? "default" : "none",
               }}
               onClick={() => {
                 dispatch(
