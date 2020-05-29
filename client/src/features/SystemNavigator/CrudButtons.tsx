@@ -59,6 +59,7 @@ import { useTableAppCols } from "../../model/ModelSelectors";
 import { useWindowSize, recordDelta, usePrevious } from "../../utils/utils";
 
 import { RecordOfAnyType } from "../../model/ModelTypes";
+import { CSSProperties } from "@material-ui/core/styles/withStyles";
 
 const initialSearchParams = {
   searchKeyInput: "",
@@ -136,18 +137,6 @@ export const CrudButtons = (props: {
   const cleanFlag =
     (!navTableID || strOrigRecord === strRecord) && navTableID !== "-1";
 
-  let searchFilterCSS: CSSStyleDeclaration | {} = {
-    fontSize: "1.5em",
-    color: "black",
-    //opacity: search.searchKeyInput ? "1" : "0.5",
-  };
-  /*
-  if (search.searchKey)
-    searchFilterCSS = Object.assign(searchFilterCSS, {
-      color: "darkgreen",
-      opacity: "1",
-    });
-*/
   return (
     <Grid
       container
@@ -174,22 +163,11 @@ export const CrudButtons = (props: {
               </Grid>
             ) : (
               <Grid container xs={12}>
-                <Grid item xs={2}>
+                <Grid item xs={3}>
                   <OutlineFormSwitch />
                 </Grid>
-                <Grid item xs={3} style={{ textAlign: "right" }}>
-                  {mode !== "Edit" && (
-                    <IconButton
-                      area-label="Search"
-                      style={{ padding: 6, position: "relative", top: -6 }}
-                      onClick={() => {
-                        // TODO: Move handlers out of render...
-                        setMobileSearchMode(true);
-                      }}
-                    >
-                      <SearchIcon style={searchFilterCSS} />
-                    </IconButton>
-                  )}
+                <Grid item xs={2}>
+                  {mode !== "Edit" && <SearchBox collapsed={true}/>}
                 </Grid>
                 <Grid item xs={7}>
                   <AddDeleteSaveUndo />
@@ -209,17 +187,7 @@ export const CrudButtons = (props: {
             <Grid container xs={12}>
               <Grid item xs={3}></Grid>
               <Grid item xs={2}>
-                <IconButton
-                  area-label="Search"
-                  style={{ padding: 6, position: "relative", top: -6 }}
-                  onClick={() => {
-                    // TODO: Move handlers out of render...
-                    setMobileSearchMode(true);
-                  }}
-                >
-                  &nbsp;&nbsp;
-                  <SearchIcon style={searchFilterCSS} />
-                </IconButton>
+                <SearchBox collapsed={true}/>
               </Grid>
               <Grid item xs={7}>
                 <AddDeleteSaveUndo />
@@ -231,7 +199,7 @@ export const CrudButtons = (props: {
     </Grid>
   );
 
-  function SearchBox() {
+  function SearchBox(props: { collapsed ?: boolean } ) {
     const classes = useSearchStyles();
     const formRef = useRef<any>();
     const [search, setSearch] = useState(initialSearchParams);    
@@ -252,6 +220,34 @@ export const CrudButtons = (props: {
     }, [mobileSearchLayout, state.settings.searchFilter]);
 
     console.log("SearchBox()");
+
+    if (props.collapsed) {
+      let searchFilterCSS: CSSProperties = {
+        fontSize: "1.5em",
+        color: "black",
+        opacity: search.searchKeyInput ? "1" : "0.5",
+      };
+      
+      if (search.searchKey)
+        searchFilterCSS = Object.assign(searchFilterCSS, {
+          color: "darkgreen",
+          opacity: "1",
+        });
+            
+      return (
+          <IconButton
+          area-label="Search"
+          style={{ padding: 6, position: "relative", top: -6 }}
+          onClick={() => {
+            // TODO: Move handlers out of render...
+            setMobileSearchMode(true);
+          }}
+        >
+          <SearchIcon style={searchFilterCSS} />
+        </IconButton>
+      )
+    }
+
     const searchEdited = search.searchKeyInput !== search.searchKey;
     let highlightSearch: CSSStyleDeclaration | {} = {
       backgroundColor: "lightgrey",
