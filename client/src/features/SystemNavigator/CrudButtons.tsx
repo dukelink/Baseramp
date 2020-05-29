@@ -81,18 +81,10 @@ export const CrudButtons = (props: {
   const [mobileSearchMode, setMobileSearchMode] = useState(false);
   const [rerenderFlag, setRerenderFlat] = useState(1);
   const [width] = useWindowSize();
-  const [search, setSearch] = useState(initialSearchParams);
-  const priorSearch = usePrevious(search);
-
+ 
   const otherMode = mode === "Outline" ? "Edit" : "Outline";
 
   const mobileSearchLayout = width < 640;
-
-  useEffect(() => {
-    if (mobileSearchMode && !mobileSearchLayout) setMobileSearchMode(false);
-    if (state.settings.searchFilter != search.searchKey)
-      setSearch({ ...search, searchKey: state.settings.searchFilter });
-  }, [mobileSearchLayout, state.settings.searchFilter]);
 
   console.log("CRUDBUTTONS()");
 
@@ -147,14 +139,15 @@ export const CrudButtons = (props: {
   let searchFilterCSS: CSSStyleDeclaration | {} = {
     fontSize: "1.5em",
     color: "black",
-    opacity: search.searchKeyInput ? "1" : "0.5",
+    //opacity: search.searchKeyInput ? "1" : "0.5",
   };
+  /*
   if (search.searchKey)
     searchFilterCSS = Object.assign(searchFilterCSS, {
       color: "darkgreen",
       opacity: "1",
     });
-
+*/
   return (
     <Grid
       container
@@ -241,14 +234,23 @@ export const CrudButtons = (props: {
   function SearchBox() {
     const classes = useSearchStyles();
     const formRef = useRef<any>();
+    const [search, setSearch] = useState(initialSearchParams);    
+/*    
     useLayoutEffect(() => {
       const input = formRef.current.getElementsByTagName(
         "input"
       )[0] as HTMLInputElement;
-      if (search.searchKeyInput && search.searchKeyInput !== priorSearch?.searchKeyInput)
+//      if (search.searchKeyInput !== priorSearch?.searchKeyInput) || !navTableID)
         // TODO: this is a hack related to loss of record focus
-        input.focus();
+//        input.focus();
     });
+*/
+    useEffect(() => {
+      if (mobileSearchMode && !mobileSearchLayout) setMobileSearchMode(false);
+      if (state.settings.searchFilter != search.searchKey)
+        setSearch({ ...search, searchKey: state.settings.searchFilter, searchKeyInput: state.settings.searchFilter });
+    }, [mobileSearchLayout, state.settings.searchFilter]);
+
     console.log("SearchBox()");
     const searchEdited = search.searchKeyInput !== search.searchKey;
     let highlightSearch: CSSStyleDeclaration | {} = {
@@ -320,6 +322,9 @@ export const CrudButtons = (props: {
               }}
               value={search.searchKeyInput}
               onChange={setInputFieldState}
+//              onBlur={(e)=>{
+//                console.log(e.target)
+//              }}
             />
             {searchEdited && (
               <IconButton
@@ -355,14 +360,14 @@ export const CrudButtons = (props: {
         <Grid item xs={1}></Grid>
       </Grid>
     );
-  }
 
-  function setInputFieldState(e: React.SyntheticEvent | React.KeyboardEvent) {
-    const target = e.target as HTMLInputElement;
-    setSearch({
-      ...search,
-      searchKeyInput: target.value,
-    });
+    function setInputFieldState(e: React.SyntheticEvent | React.KeyboardEvent) {
+      const target = e.target as HTMLInputElement;
+      setSearch({
+        ...search,
+        searchKeyInput: target.value,
+      });
+    }    
   }
 
   function SearchBarOnly() {
