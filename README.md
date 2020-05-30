@@ -1,6 +1,7 @@
 # Baseramp
 
-## _An end user database system, enabling personal data usage and private data ownership!_
+## _A no-code database system, for end user data ownership_
+
 
 <br/>
 <hr/>
@@ -13,9 +14,9 @@
 
 ### What does Baseramp do?
 
-* Gives end users ownership of a **private** database
+* Creates an individually owned, private database
 
-* With a library of common pre-built applications:
+* With a library of pre-built applications:
   * To Do Lists
   * Recurring Chores
   * Project Management
@@ -25,7 +26,7 @@
   * Contact Lists
   * etc.
 
-* Enabling centralized **Usage, Retention, and Control** of personal data
+* For independent **Usage, Retention, and Control** of information
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 </td>
 <td>
