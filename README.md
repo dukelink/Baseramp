@@ -13,7 +13,7 @@
 
 ### What does Baseramp do?
 
-* Creates a privately database
+* Creates a private database
 
 * On a local or cloud server
 
