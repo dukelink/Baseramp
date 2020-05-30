@@ -13,9 +13,9 @@
 
 ### What does Baseramp do?
 
-* Provides No-Code access to your own private Graph and SQL database
+* Gives end users ownership of a **private** database
 
-* With pre-built schemas for common applications:
+* With a library of common pre-built applications:
   * To Do Lists
   * Recurring Chores
   * Project Management
@@ -25,7 +25,7 @@
   * Contact Lists
   * etc.
 
-* Enabling full **Usage, Retention, and Control** of your information
+* Enabling centralized **Usage, Retention, and Control** of personal data
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 </td>
 <td>
@@ -75,15 +75,15 @@
 
 ### How does Baseramp work?
 
-* By enabling end users to spin-up a **personal** database
+* Baseramp spins-up a **personal** SQL database
 
-* Hosted on their own server hardware
+* Hosted on inexpensive hardware like the Raspberry Pi
 
-* Or hosted by a secure cloud provider
+* Or hosted on a cloud based platform like Microsoft Azure
 
-* With one consistent interface
+* With one consistent user-interace, giving you
 
-* And **full, direct, and centralized** access to data
+* **Full, direct, and centralized** access to all your data
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 </td>
 <td>
@@ -106,15 +106,17 @@
 
 ### What makes Baseramp easy to use?
 
-* A familiar outlining method to organize your data your way
+* A simple outlining system to organize records
 
-* A catalog of plug-in templates for common applications
+* With a catalog of plug-in templates for common applications
 
-* Built-in logic that "understands" database structures
+* And Graph Theory structures that interrelate records
 
-* To automate data entry and reporting **without coding**
+* To automate navigation, forms and reporting **without coding**
 
-* Packaged as a Progressive Web App; dockable on PC and mobile desktops
+* Packaged as a Progressive Web Application (PWA)
+
+* For one-click website installs to PCs and mobile devices
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 </td>
 <td>
@@ -165,9 +167,9 @@
 
 ### What more is planned for the initial release?
 
-* Notes formatting, probably using simple markdown format
+* Notes formatting, probably using markdown format
 
-* Reports to support the initial set of application templates
+* Reporting for the initial set of applications
 
 * APIs to migrate data from popular cloud services
 
