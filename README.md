@@ -1,6 +1,6 @@
 # Baseramp
 
-## _A no-code database system, for end user data ownership_
+## _The no-code database solution for end user data ownership_
 
 
 <br/>
