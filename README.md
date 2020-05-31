@@ -1,6 +1,6 @@
 # Baseramp
 
-## _A database for users that want to own their data_
+## _A personal database system that protects information privacy_
 
 <br/>
 <hr/>
@@ -13,13 +13,13 @@
 
 ### What does Baseramp do?
 
-* Creates a private database
+* **Creates a privately owned and centralized database**
 
 * On a local or cloud server
 
-* That is user configurable without coding
+* That is configurable without coding
 
-* Bundled with pre-configured applications:
+* With a library of pre-built applications:
   * To Do Lists
   * Recurring Chores
   * Project Management
@@ -29,7 +29,7 @@
   * Contact Lists
   * etc.
 
-* Enabling you to consolidate, use, protect, share and **own your information**
+* To consolidate, analyze, and utilize **all your information**
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 </td>
 <td>
@@ -49,7 +49,7 @@
 <tr>
 <td>
 
-### What problems does data ownership address?
+### What problems are solved by database ownership?
 
 * Proliferation of paid subscriptions
 
@@ -81,22 +81,23 @@
 <tr>
 <td>
 
-### How does data ownership empower users?
+### How are users empowered by database ownership?
 
-* Faster data - when data is kept close in proximity
+* Faster data access - when data is kept close in proximity
 
-* More data - when there is a fast & easy place to store it
+* More data collected - with a configurable database to store everything 
 
-* More timely data - when speed and convenience allow "on the fly" capture
+* More timely data - with easy database access to allow "on the fly" capture
 
-* More accurate data - when you know your sensitive data is private
+* More accurate data - when you know your sensitive data is under your private control
 
-* More comprehensive data - with a system designed for data consolidation
+* More historical data - with perpetual database ownership
 
-* Better connection of data - when you decide what and with whom to share it
+* More comprehensive data - with a system designed for consolidation and archival storage
 
+* More useable data - when users control raw content as well as database structure
 
-* Enabling you to do more within **your own data universe**
+* **Enabling users to create their own data universe**
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 </td>
 <td>
@@ -151,7 +152,7 @@
 
 * A simple outlining system to organize records
 
-* A pre-configured library of common applications
+* A library of pre-built applications
 
 * Graph Theory structures to amend and interrelate records
 
