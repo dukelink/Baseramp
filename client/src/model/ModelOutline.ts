@@ -82,6 +82,7 @@ export function buildOutline(
   let outline = buildTableHeadingsOutline(Object.keys(derivedModel));
   console.timeEnd('buildTableHeadingsOutline');
   outline = sequenceOutline(outline) as OutlineNode[];
+  propagateInFilter(outline);
   addRecordTallies(outline);
 
   return outline;
@@ -99,6 +100,29 @@ export function buildOutline(
         return outline;
       })
   }
+
+  
+  function propagateInFilter(outline: OutlineNode[]) : boolean 
+  {
+    // Note: Don't shortcut routine since returning true/false
+    // is only half the goal, the other half of the goal is to 
+    // set/update the inFilter flag in ALL child records...
+    let rvInFilter = false;
+    outline
+      .forEach((item) => {
+        const { inFilter, children } = item;
+        const childrenInFilter = 
+          // avoid func. call if no children (test length)
+          children.length && propagateInFilter(children);
+        if (inFilter)
+          rvInFilter = true; // may already be true, but this is fast
+        else if (childrenInFilter)
+            item.inFilter = true;
+        rvInFilter = rvInFilter || (item.inFilter || false);
+      });
+    return rvInFilter;
+  }
+  
 
   // Tally number of records for all children by 'table'...
   function addRecordTallies(outline: OutlineNode[]) : RecordOfAnyType 
