@@ -81,7 +81,7 @@ function OutlineItemLabel(props: { item: OutlineNode }) {
   // isAhit used to 'dim' (opacity .5) items that are NOT hits,
   // only used for top-level outline branches at present, as will
   // filter out non-hits everywhere else...
-  const isAhit = childCount || grandChildCounts || item.inFilter;
+  const isAhit = childCount || grandChildCounts || item.inFilterPropagated;
 
   let itemTitle = item.itemTitle;
   const searchFilter = settings.searchFilter;
@@ -90,7 +90,7 @@ function OutlineItemLabel(props: { item: OutlineNode }) {
   let pos = 0;
   while (
     searchFilter &&
-    item.inFilter &&
+    item.inFilterPropagated &&
     (pos = itemTitle.toLowerCase().indexOf(searchFilter.toLowerCase(), pos)) !==
       -1
   ) {
@@ -138,7 +138,7 @@ function OutlineItemLabel(props: { item: OutlineNode }) {
 function searchFilterRule(item: OutlineNode) {
   return (
     Object.keys(item.totalChildRecords).length ||
-    (item.showTable && item.inFilter)
+    (item.showTable && item.inFilterPropagated)
   );
 }
 

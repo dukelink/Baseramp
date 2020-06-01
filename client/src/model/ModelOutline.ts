@@ -35,6 +35,7 @@ export interface OutlineNode {
   children : OutlineNode[],
   closedItem ?: boolean,
   inProgress ?: boolean,
+  inFilterPropagated ?: boolean, // self in filter OR children in filter
   inFilter ?: boolean,
   showTable : boolean,
   totalChildRecords : RecordOfAnyType 
@@ -81,8 +82,15 @@ export function buildOutline(
   console.time('buildTableHeadingsOutline');
   let outline = buildTableHeadingsOutline(Object.keys(derivedModel));
   console.timeEnd('buildTableHeadingsOutline');
+
+  // Needed for correct treeview navigation;
+  // itemKeys must be unique for all nodes!
   outline = sequenceOutline(outline) as OutlineNode[];
+  
+  // Call to include table folders in search results...
   propagateInFilter(outline);
+
+  // Computed record 'hit' stats
   addRecordTallies(outline);
 
   return outline;
@@ -101,7 +109,6 @@ export function buildOutline(
       })
   }
 
-  
   function propagateInFilter(outline: OutlineNode[]) : boolean 
   {
     // Note: Don't shortcut routine since returning true/false
@@ -110,15 +117,21 @@ export function buildOutline(
     let rvInFilter = false;
     outline
       .forEach((item) => {
-        const { inFilter, children } = item;
+        const { inFilter, children, showTable } = item;
+        if (!showTable)
+          item.inFilterPropagated = false;
+        else
+          item.inFilterPropagated = inFilter;
+
         const childrenInFilter = 
           // avoid func. call if no children (test length)
           children.length && propagateInFilter(children);
-        if (inFilter)
+        if (item.inFilterPropagated)
           rvInFilter = true; // may already be true, but this is fast
         else if (childrenInFilter)
-            item.inFilter = true;
-        rvInFilter = rvInFilter || (item.inFilter || false);
+            item.inFilterPropagated = true;
+            
+        rvInFilter = rvInFilter || (item.inFilterPropagated || false);
       });
     return rvInFilter;
   }
