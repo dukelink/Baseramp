@@ -87,7 +87,7 @@ export const useTreeItemStyles = makeStyles(theme => ({
       "& button": {
           marginLeft: 5,
           marginTop: "2px",
-          paddingTop: "5px !important",
+          paddingTop: "4px !important",
           paddingBottom: "4px !important",
           paddingLeft: "6px !important",
           paddingRight: "6px !important",

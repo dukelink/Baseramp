@@ -158,7 +158,7 @@ export function AddDeleteSaveUndo(props: {
               }}
             >
               <SaveIcon
-                style={{ fontSize: "2em", color: "darkgreen", opacity: 0.7 }}
+                style={{ fontSize: "1.8em", color: "darkgreen", opacity: 0.7 }}
               />
               Save
             </Button>
@@ -189,7 +189,7 @@ export function AddDeleteSaveUndo(props: {
               }}
             >
               <UndoIcon
-                style={{ fontSize: "2em", color: "maroon", opacity: 0.7 }}
+                style={{ fontSize: "1.8em", color: "maroon", opacity: 0.7 }}
               />
             </Button>
           </Grid>
