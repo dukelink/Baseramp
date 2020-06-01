@@ -132,6 +132,8 @@ export function SearchBox(props: {
     }
   }
 
+  const displayFilterClearIcon = settings.searchFilter ? "default" : "none";
+
   return (
     <Grid container xs={12}>
       <Grid item xs={11}>
@@ -198,13 +200,18 @@ export function SearchBox(props: {
             </IconButton>
           )}
           <HighlightOffIcon
+            key = {
+              // Probable React Bug: was not detecting display attribute
+              // change alone, so I've added this key. 
+              displayFilterClearIcon 
+            }
             style={{
               fontSize: "1.8em",
               color: "green",
               position: "relative",
               left: -4,
               cursor: "pointer",
-              display: settings.searchFilter ? "default" : "none",
+              display: displayFilterClearIcon,
             }}
             onClick={() => {
               console.log("RERENDER 4");
