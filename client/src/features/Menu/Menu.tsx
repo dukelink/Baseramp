@@ -174,7 +174,7 @@ const AppBarMenu = (props:{menuItem:number, path:string, children?:any}) =>
 
         <Tab disabled={!isLoggedIn} label={
            <MyLabel to='/Navigator' path={path}>
-            <div style={{padding:10}}>Navigate</div>
+            <div style={{padding:10}}>Database</div>
            </MyLabel>
           } {...a11yProps(1)} style={{display:isLoggedIn?'initial':'none'}} />
 
