@@ -154,9 +154,7 @@ const OutlineItem = memo(
         nodeId={item.itemKey as string}
         className="customItem"
         label={outlineLabel}
-        onClick={(e: any) => {
-          outlineItemClick(item);
-        }}
+        onClick={ outlineItemClick }
       >
         {item.children.filter(searchFilterRule).map((item) => (
           <OutlineItem item={item} key={item.itemKey} />
@@ -164,7 +162,7 @@ const OutlineItem = memo(
       </TreeItem>
     );
 
-    function outlineItemClick(item: OutlineNode) {
+    function outlineItemClick() {
       dispatch(setFocus(item));
     }
   }
@@ -183,7 +181,13 @@ export const Outline = (props: { outline: OutlineNode[] }) => {
   const priorSearchFilter = usePrevious(searchFilter);
 
   useEffect(() => {
-    if ((!navTableID || navTableID === "-1") && selected) setSelected("");
+// I think the following line was to clear record focus after
+// cancelling out of new record addition...  But it messes with
+// commit/story titled "Navigation focus vs. expand/collapse action"
+// I'll add the issue to the story titled:
+// "NIT: After new record save, update outline focus"
+// And then I can delete this note after that story is completed...
+//  if ((!navTableID || navTableID === "-1") && selected) setSelected("");
 
     // RULE: (Default pending expand/collapse control):
     // Collapse outline after any search, but retain open nodes when search is cleared via 'x'
@@ -191,14 +195,29 @@ export const Outline = (props: { outline: OutlineNode[] }) => {
   }, [searchFilter,navTableID,priorSearchFilter,selected]);
 
   const handleToggle: any = (event: ChangeEvent, nodeIds: string[]) => {
-    setExpanded(nodeIds);
-  };
-  const handleSelect: any = (event: ChangeEvent, nodeIds: string) => {
-    setSelected(nodeIds);
+    // onNodeToggle is raised before onNodeSelect, and I need the information
+    // from both events but I don't want to track when both have been raised
+    // so the following derives the selected node from the prior and current
+    // set of expanded nodes...
+    const isExpandedLarger = expanded.length > nodeIds.length;
+    const smallerArray = isExpandedLarger ? nodeIds : expanded;
+    const largerArray = isExpandedLarger ? expanded : nodeIds;
+    const smallerSet = new Set(smallerArray);
+    const newlySelected = largerArray.find((id)=>(!smallerSet.has(id)));
+    
+    // RULE: if node not expanded, then expand, select, and display form
+    if (!isExpandedLarger)
+      setExpanded(nodeIds);
+    // RULE: if already selected and expanded, then collapse outline
+    else if (selected===newlySelected)
+      setExpanded(nodeIds);
+    // else RULE: if not selected and expanded, then select but don't collapse
   };
 
+  const handleSelect: any = (event: ChangeEvent, nodeId: string) => {
+    setSelected(nodeId);
+  };
   console.log("Outline");
-
   return (
     <TreeView
       className={classes.treeviewRoot}
