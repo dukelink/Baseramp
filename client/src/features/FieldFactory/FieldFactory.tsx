@@ -143,6 +143,9 @@ export const AppField = /*memo(*/ (props: {
           <div
             style={{
               width: AppColumn_ui_minwidth || "198px",
+              marginLeft: "0px",
+              marginRight: "0px",
+              marginBottom: "15px"
             }}
             className={classes.nowrap}
           >
