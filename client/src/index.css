@@ -38,3 +38,8 @@ border-radius: 0;
 .MuiIconButton-root, .MuiIconButton-label {
   border-radius: 0px !important; /* messes up iconbuttons on safari 3/11/2020 */
 }
+
+input.MuiInputBase-input::placeholder { /* Chrome, Firefox, Opera, Safari 10.1+ */
+  color: black;
+  opacity: .7; /* Firefox */
+}

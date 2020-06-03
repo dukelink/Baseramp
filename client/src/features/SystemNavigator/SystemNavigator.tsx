@@ -87,7 +87,7 @@ export const SystemNavigator = () => {
     setMode("Outline");
 
   return ( 
-    <Grid container spacing={0}>
+    <Grid container spacing={0} > 
 
       {/* CRUD button bar & Outline vs. Form mode for small form factors... */}
       <CrudButtons { ...{

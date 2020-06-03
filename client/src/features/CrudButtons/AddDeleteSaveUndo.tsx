@@ -107,7 +107,7 @@ export function AddDeleteSaveUndo(props: {
             }}
           >
             <AddCircleIcon
-              style={{ fontSize: "1.7em", color: "darkgreen", opacity: 0.7 }}
+              style={{ fontSize: "1.7em", color: "darkgreen", opacity: 1 }}
             />{" "}
             {navTable}
           </Button>
@@ -124,7 +124,7 @@ export function AddDeleteSaveUndo(props: {
               }}
             >
               <DeleteIcon
-                style={{ fontSize: "1.8em", color: "maroon", opacity: 0.7 }}
+                style={{ fontSize: "1.8em", color: "maroon", opacity: 0.9 }}
               />
             </Button>
           )}
@@ -158,7 +158,7 @@ export function AddDeleteSaveUndo(props: {
               }}
             >
               <SaveIcon
-                style={{ fontSize: "1.8em", color: "darkgreen", opacity: 0.7 }}
+                style={{ fontSize: "1.8em", color: "darkgreen", opacity: 1 }}
               />
               Save
             </Button>
@@ -189,7 +189,7 @@ export function AddDeleteSaveUndo(props: {
               }}
             >
               <UndoIcon
-                style={{ fontSize: "1.8em", color: "maroon", opacity: 0.7 }}
+                style={{ fontSize: "1.8em", color: "maroon", opacity: 0.9 }}
               />
             </Button>
           </Grid>

@@ -65,7 +65,7 @@ export const useTreeItemStyles = makeStyles(theme => ({
       padding: theme.spacing(1),
       textAlign: 'left',
       color: theme.palette.text.primary,
-      height: "calc(100vh - 107px)",
+      height: "calc(100vh - 97px)",
       overflowY: "auto",
       overflowX: "hidden",
       marginBottom: "0px",
@@ -80,6 +80,7 @@ export const useTreeItemStyles = makeStyles(theme => ({
       padding: "4px", 
       paddingLeft: "0px",
       textAlign: 'left', 
+      backgroundColor: '#192254', // '#3f51b5'
       "&" : {
         borderBottom: 'groove'
       }

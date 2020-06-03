@@ -86,7 +86,7 @@ export function SearchBox(props: {
   useLayoutEffect(() => {
     if (mobileSearchMode && !mobileSearchLayout) setMobileSearchMode(false);
 
-    if (settings.searchFilter != search.current.searchKey) {
+    if (settings.searchFilter !== search.current.searchKey) {
       console.log(
         `RERENDER 1: settings.searchFilter=${JSON.stringify(
           settings.searchFilter
@@ -117,17 +117,16 @@ export function SearchBox(props: {
   if (search.current.searchKey)
     highlightSearch = {
       ...highlightSearch,
-      backgroundColor: "darkgreen",
-      color: "white",
-      opacity: "0.7",
+      color: "darkgreen",
+      //opacity: "0.7",
     };
   if (searchEdited) {
-    highlightSearch = { ...highlightSearch, color: "red" };
+    highlightSearch = { ...highlightSearch, color: "maroon" };
     if (search.current.searchKey) {
       highlightSearch = {
         ...highlightSearch,
         backgroundColor: "green",
-        opacity: "0.9",
+        //opacity: "0.9",
       };
     }
   }
@@ -140,7 +139,7 @@ export function SearchBox(props: {
         <Paper
           component="form"
           className={classes.root}
-          style={{ height: 32, marginTop: 2 }}
+          style={{ height: 32, marginTop: 2, backgroundColor: 'lightgrey' }}
           onSubmit={(e) => {
             e.preventDefault();
             console.log("RERENDER 2");
@@ -180,6 +179,7 @@ export function SearchBox(props: {
             inputProps={{ "aria-label": "full-text search" }}
             style={{
               fontKerning: "auto",
+              backgroundColor: "lightgrey",
               fontWeight:
                 search.current.searchKey && !searchEdited ? "bold" : "normal",
             }}
@@ -195,8 +195,8 @@ export function SearchBox(props: {
                 search.current.searchKeyInput = search.current.searchKey;
                 setRerenderFlag(rerenderFlag + 1);
               }}
-            >
-              <UndoIcon style={{ color: "red", opacity: 0.7 }} />
+            > 
+              <UndoIcon style={{ color: "maroon", opacity: 0.7 }} />
             </IconButton>
           )}
           <HighlightOffIcon
@@ -206,8 +206,8 @@ export function SearchBox(props: {
               displayFilterClearIcon 
             }
             style={{
-              fontSize: "1.8em",
-              color: "green",
+              fontSize: "1.6em",
+              color: "darkgreen",
               position: "relative",
               left: -4,
               cursor: "pointer",
@@ -241,8 +241,8 @@ export function SearchBox(props: {
   function MobileSearchCollapsed() {
     let searchFilterCSS: CSSProperties = {
       fontSize: "1.5em",
-      color: "black",
-      opacity: search.current.searchKeyInput ? "1" : "0.5",
+      color: "white",
+      opacity: search.current.searchKeyInput ? "1" : "0.8",
     };
 
     if (search.current.searchKey)
@@ -278,8 +278,8 @@ export function SearchBox(props: {
                 position: "relative",
                 left: 2,
                 top: 1,
-                opacity: 0.7,
-                color: "black",
+                opacity: 0.8,
+                color: "white",
               }}
               onClick={() => {
                 setMobileSearchMode(false);
@@ -290,7 +290,7 @@ export function SearchBox(props: {
         <Grid
           item
           xs={mobileSearchMode ? 11 : 12}
-          style={{ backgroundColor: "lightgrey" }}
+          style={{ backgroundColor: "transparent" }}
         >
           <SearchBox
             mobileSearchLayout={mobileSearchLayout}

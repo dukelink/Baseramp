@@ -62,7 +62,7 @@ function a11yProps(index:any) {
   };
 }
 
-const menuHeight = 60;
+const menuHeight = 30;
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -85,11 +85,12 @@ const useStyles = makeStyles(theme => ({
   },
   menuItem: {
     color:'white',
+    backgroundColor: 'transparent',
     height: menuHeight+'px',
     width:'inherit',
     minWidth: '100px',
     textDecoration:'none',
-    paddingTop: 10,
+    paddingTop: 0,
     lineHeight: '1.5em'
   }
 }));
@@ -159,7 +160,7 @@ const AppBarMenu = (props:{menuItem:number, path:string, children?:any}) =>
   console.log('AppBarMenu');
   
   return (
-    <AppBar position="static">
+    <AppBar position="static" style={{backgroundColor:'#192254'}}>
       <Tabs value={ menuItem } aria-label="Application Tabs">
 
          <Tab label={

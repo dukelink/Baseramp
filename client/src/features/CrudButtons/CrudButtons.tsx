@@ -109,8 +109,7 @@ export const CrudButtons = (props: {
     <Grid
       container
       xs={12}
-      className={classes.OutlineEditButton}
-      style={{ backgroundColor: "lightgrey" }}
+      className={ classes.OutlineEditButton }
     >
       {searchBarOnly ? (
         <SearchBox
@@ -241,8 +240,8 @@ export const CrudButtons = (props: {
             fontSize: "1.4em",
             position: "relative",
             top: 1,
-            color: "black",
-            opacity: 0.7,
+            color: "white",
+            opacity: 0.8,
           }}
           className={otherMode === "Outline" ? classes.rotate80 : ""}
         />
@@ -251,16 +250,16 @@ export const CrudButtons = (props: {
             <FolderOpenIcon
               style={{
                 fontSize: "1.5em",
-                color: "darkgreen",
-                opacity: 0.7,
+                color: "white",
+                opacity: 0.8,
               }}
             />
           ) : (
             <InputIcon
               style={{
                 fontSize: "1.3em",
-                color: "darkgreen",
-                opacity: 0.7,
+                color: "white",
+                opacity: 0.8,
                 position: "relative",
                 top: 3,
                 left: 2,
