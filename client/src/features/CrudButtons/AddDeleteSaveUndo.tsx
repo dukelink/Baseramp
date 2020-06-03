@@ -136,6 +136,7 @@ export function AddDeleteSaveUndo(props: {
               id="crudSave"
               variant="contained"
               disabled={!isFormValid}
+              style={{ backgroundColor: isFormValid ? 'lightgrey' : 'darkgrey' }}
               onClick={() => {
                 // TODO: Move handlers out of render...
                 if (!isFormValid) {

@@ -21,6 +21,7 @@ export const useStyles = makeStyles(theme => ({
     },
     textControl: {
       margin: theme.spacing(1),
+      marginTop: 0,
       /* Following ensures TextInput (multiline) is "open" (1st five lines) when 
       ** with a scrollbar in case of text overflow.  The control should expand to 
       ** 10 ilnes but doesn't when it is initially hidden.  Modifying AutoForm
@@ -30,6 +31,9 @@ export const useStyles = makeStyles(theme => ({
       "& div>textarea:first-of-type" : {
         minHeight: "95px",
         overflowY: "scroll !important"
+      },
+      "& div>input:first-of-type" : {
+        paddingTop: "6px"
       }
     },
     fkDefaultLable: {
