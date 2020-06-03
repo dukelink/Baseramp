@@ -10,7 +10,10 @@ export const useTreeItemStyles = makeStyles(theme => ({
       },
       "& sup:nth-child(2)" : {
         //opacity: 0.7
-      }      
+      },
+      "& .MuiTreeItem-iconContainer" : {
+        marginRight: '0px'
+      } 
     },
     labelRoot: {
       display: 'flex',
@@ -20,9 +23,12 @@ export const useTreeItemStyles = makeStyles(theme => ({
     },
     labelIcon: {
       marginRight: theme.spacing(1),
+      color: 'black',
       cursor: 'default',
-      //opacity: 0.8,
-      fontSize: '1.3em'
+      backgroundColor: 'white',
+      borderRadius: '3px',
+      opacity: 0.7,      
+      fontSize: '1.2em'
     },
     labelIconInProgress: {
       marginRight: theme.spacing(1),
@@ -30,7 +36,7 @@ export const useTreeItemStyles = makeStyles(theme => ({
       cursor: 'default',
       backgroundColor: 'white',
       borderRadius: '3px',
-      //opacity: 0.7,      
+      opacity: 0.7,      
       fontSize: '1.2em'
     },
     labelIconNotInProgress: {
@@ -39,19 +45,31 @@ export const useTreeItemStyles = makeStyles(theme => ({
       cursor: 'default',
       backgroundColor: 'white',
       borderRadius: '3px',
-      //opacity: 0.7,    
+      opacity: 0.7,    
       fontSize: '1.2em'
+    },
+    hover: {
+      "&:hover" : {
+        backgroundColor: 'yellow',
+        opacity: 1
+      }
     },
     labelText: {
       fontSize: 16,
       flexGrow: 1,
       cursor: 'default',
+      "&:hover" : {
+        textDecoration: 'underline'
+      }
     },
     labelTextClosedItem: {
       fontSize: 16,
       flexGrow: 1,
       cursor: 'default',
-      textDecoration: 'line-through'
+      textDecoration: 'line-through',
+      "&:hover" : {
+        textDecoration: 'underline'
+      }
     }    
   }));
   

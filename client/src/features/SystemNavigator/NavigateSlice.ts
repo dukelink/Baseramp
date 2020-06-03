@@ -58,6 +58,7 @@ const model = createSlice({
       state.navStrParentID = (parentID||"").toString();
     },
     addNewBlankRecordForm(state,action:PayloadAction<{navTable:string}>) {
+      state.navTable = action.payload.navTable;
       state.navTableID = '-1';
       console.log('ADD NEW BLANK RECORD');
     },

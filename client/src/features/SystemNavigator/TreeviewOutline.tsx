@@ -20,34 +20,38 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import React, { memo, useRef, useEffect, useState, ChangeEvent } from "react";
+import React, { memo, Dispatch, useRef, useEffect, useState, ChangeEvent } from "react";
 import { TreeView, TreeItem } from "@material-ui/lab";
 import { Typography } from "@material-ui/core";
 import { useTreeItemStyles } from "./SystemNavigatorStyles";
 
 import { useDispatch, useSelector } from "react-redux";
-import { setFocus } from "./NavigateSlice";
+import {
+  addNewBlankRecordForm,
+  setFocus,
+} from "./NavigateSlice";
 import { OutlineNode } from "../../model/ModelOutline";
 import { RootState } from "../../rootReducer";
 import { usePrevious } from "../../utils/utils";
 
-import FolderIcon from "@material-ui/icons/FolderOutlined";
-import AssignmentIcon from "@material-ui/icons/ChevronRightSharp";
 import ArrowRightIcon from "@material-ui/icons/ArrowRight";
-import InputIcon from "@material-ui/icons/Input";
 import ArrowDropDownIcon from "@material-ui/icons/ArrowDropDown";
+
+import FolderIcon from "@material-ui/icons/FolderTwoTone";
+import FolderNewIcon from "@material-ui/icons/CreateNewFolderTwoTone";
 
 function OutlineItemLabel(props: { item: OutlineNode }) {
   const classes: any = useTreeItemStyles();
   const { item } = props;
   const settings = useSelector((state: RootState) => state.settings);
   const ctrlRef = useRef<HTMLSpanElement | any>();
+  const dispatch = useDispatch();
 
-  const labelClassName = item.inProgress
+  const labelClassName = (item.inProgress
     ? classes.labelIconInProgress
     : !item.tableID || item.closedItem
     ? classes.labelIcon
-    : classes.labelIconNotInProgress;
+    : classes.labelIconNotInProgress) +' '+ classes.hover;
 
   const childCount: number | string = item.children.filter(searchFilterRule)
     .length;
@@ -109,14 +113,24 @@ function OutlineItemLabel(props: { item: OutlineNode }) {
     (ctrlRef.current as HTMLSpanElement).innerHTML = itemTitle;
   }, [itemTitle]);
 
+  const isNonOutlineSqlRow = item.table!=='category' && item.tableID
+
   return (
     <div className={classes.labelRoot}>
-      {!item.tableID ? (
+      { isNonOutlineSqlRow ? (
         <FolderIcon color="inherit" className={labelClassName} />
-      ) : item.children.length ? (
-        <InputIcon color="inherit" className={labelClassName} />
       ) : (
-        <AssignmentIcon color="inherit" className={labelClassName} />
+        <FolderNewIcon color="inherit" className={labelClassName} 
+          style = {{ cursor: 'pointer' }}
+          id='addable'
+          onClick = {(e) => {
+            // e.stopPropagation();
+            // REVIEW: (hack) Allow item to gain focus before adding new record...
+            setTimeout(()=>{ 
+              dispatch(addNewBlankRecordForm({ navTable: item.table }))            
+            })
+          }}
+        />
       )}
       <Typography
         variant="body2"
@@ -126,6 +140,9 @@ function OutlineItemLabel(props: { item: OutlineNode }) {
         }
       >
         <span ref={ctrlRef}>{/*itemTitle*/}</span>
+
+        {/*<em>isNonOutlineSqlRow && " - " + item.table</em>*/}
+
         {((childCount === 1 && !grandChildCounts) || childCount > 1) && (
           <sup>&nbsp;({childCount})</sup>
         )}
@@ -148,7 +165,7 @@ const OutlineItem = memo(
     const dispatch = useDispatch();
     console.log("OutlineItem");
     const outlineLabel = OutlineItemLabel({ item });
-    return (
+    return (<>
       <TreeItem
         key={item.itemKey}
         nodeId={item.itemKey as string}
@@ -160,10 +177,13 @@ const OutlineItem = memo(
           <OutlineItem item={item} key={item.itemKey} />
         ))}
       </TreeItem>
-    );
+    </>);
 
-    function outlineItemClick() {
-      dispatch(setFocus(item));
+    function outlineItemClick(e : React.MouseEvent) 
+    {
+      // Open/close icon does not change selected row focus...
+      if (itemClickType(e as any) !== 'TOGGLE')
+          dispatch(setFocus(item));
     }
   }
 );
@@ -195,6 +215,12 @@ export const Outline = (props: { outline: OutlineNode[] }) => {
   }, [searchFilter,navTableID,priorSearchFilter,selected]);
 
   const handleToggle: any = (event: ChangeEvent, nodeIds: string[]) => {
+    // Open/close icon always has normal expand/collapse behavior...
+    if (itemClickType(event) === 'TOGGLE') {
+      setExpanded(nodeIds);
+      return;
+    }
+
     // onNodeToggle is raised before onNodeSelect, and I need the information
     // from both events but I don't want to track when both have been raised
     // so the following derives the selected node from the prior and current
@@ -204,18 +230,20 @@ export const Outline = (props: { outline: OutlineNode[] }) => {
     const largerArray = isExpandedLarger ? expanded : nodeIds;
     const smallerSet = new Set(smallerArray);
     const newlySelected = largerArray.find((id)=>(!smallerSet.has(id)));
-    
+
     // RULE: if node not expanded, then expand, select, and display form
     if (!isExpandedLarger)
       setExpanded(nodeIds);
-    // RULE: if already selected and expanded, then collapse outline
-    else if (selected===newlySelected)
+    // RULE: if already selected and expanded (and not ADD), then collapse outline
+    else if (selected===newlySelected && itemClickType(event) !== 'ADD')
       setExpanded(nodeIds);
     // else RULE: if not selected and expanded, then select but don't collapse
   };
 
   const handleSelect: any = (event: ChangeEvent, nodeId: string) => {
-    setSelected(nodeId);
+    // Open/close icon does not change selected row focus...
+    if (itemClickType(event) === 'SELECT')
+      setSelected(nodeId);
   };
   console.log("Outline");
   return (
@@ -234,3 +262,18 @@ export const Outline = (props: { outline: OutlineNode[] }) => {
     </TreeView>
   );
 };
+
+function itemClickType(event: ChangeEvent)
+{
+  let target = event.target;
+  let rv : 'ADD' | 'SELECT' | 'TOGGLE' = 'TOGGLE';
+  if (target.nodeName==='SPAN')
+    rv = 'SELECT';
+  else if (target.nodeName==='path')
+    target = target.parentElement || target;
+  
+  if (target.id==='addable')
+    rv = 'ADD';
+
+  return rv;
+}
