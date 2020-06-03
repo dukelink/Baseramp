@@ -66,7 +66,7 @@ export const FieldMtoM = memo((props : {
       <Select
         className={ classes.formControl }
         multiple
-        variant="outlined"
+        //variant="outlined"
         error={ flagEmptyRequiredField }
         label = { appColTitle }
         disabled = { AppColumn_read_only }

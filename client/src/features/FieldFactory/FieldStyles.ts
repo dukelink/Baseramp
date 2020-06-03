@@ -37,7 +37,7 @@ export const useStyles = makeStyles(theme => ({
       ** Foreign key label placement hacks (focus vs. not vs. empty vs. filled)
       ** (I tried FormControlLabel instead of InputLabel but that hasn't helped yet)
       */
-      "&": { left: 23, top: 3 },    
+      "&": { left: 8, top: 3 }, /* Use left:23 for variant='outlined' controls */    
       "&.Mui-focused,&.MuiFormLabel-filled": { top: 0 }
     },
     chips: {

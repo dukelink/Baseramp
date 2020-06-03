@@ -60,7 +60,7 @@ export const FieldFK = memo((props : {
             </InputLabel>
             <Select
                 className={ classes.formControl }
-                variant="outlined"
+                //variant="outlined"
                 error={ flagEmptyRequiredField }
                 label = { appColTitle }
                 disabled = { AppColumn_read_only }

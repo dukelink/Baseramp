@@ -95,7 +95,8 @@ export const FieldText = memo((props : {
       <FormControl style={FormatProps}>
         <TextField
             error={ flagEmptyRequiredField }
-            variant="outlined" 
+            size="small" 
+            //variant="outlined"
             className={ classes.textControl }
             label = { appColTitle }
             value = { 

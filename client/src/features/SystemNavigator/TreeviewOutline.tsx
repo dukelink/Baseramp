@@ -31,8 +31,8 @@ import { OutlineNode } from "../../model/ModelOutline";
 import { RootState } from "../../rootReducer";
 import { usePrevious } from "../../utils/utils";
 
-import FolderIcon from "@material-ui/icons/Folder";
-import AssignmentIcon from "@material-ui/icons/Assignment";
+import FolderIcon from "@material-ui/icons/FolderOutlined";
+import AssignmentIcon from "@material-ui/icons/ChevronRightSharp";
 import ArrowRightIcon from "@material-ui/icons/ArrowRight";
 import InputIcon from "@material-ui/icons/Input";
 import ArrowDropDownIcon from "@material-ui/icons/ArrowDropDown";

@@ -6,10 +6,10 @@ export const useTreeItemStyles = makeStyles(theme => ({
         backgroundColor: theme.palette.background.default
       },
       "& sup" : {
-        opacity: 1
+        //opacity: 1
       },
       "& sup:nth-child(2)" : {
-        opacity: 0.7
+        //opacity: 0.7
       }      
     },
     labelRoot: {
@@ -21,8 +21,8 @@ export const useTreeItemStyles = makeStyles(theme => ({
     labelIcon: {
       marginRight: theme.spacing(1),
       cursor: 'default',
-      opacity: 0.7,
-      fontSize: '1.8em'
+      //opacity: 0.8,
+      fontSize: '1.3em'
     },
     labelIconInProgress: {
       marginRight: theme.spacing(1),
@@ -30,7 +30,8 @@ export const useTreeItemStyles = makeStyles(theme => ({
       cursor: 'default',
       backgroundColor: 'white',
       borderRadius: '3px',
-      opacity: 0.7      
+      //opacity: 0.7,      
+      fontSize: '1.2em'
     },
     labelIconNotInProgress: {
       marginRight: theme.spacing(1),
@@ -38,7 +39,8 @@ export const useTreeItemStyles = makeStyles(theme => ({
       cursor: 'default',
       backgroundColor: 'white',
       borderRadius: '3px',
-      opacity: 0.7    
+      //opacity: 0.7,    
+      fontSize: '1.2em'
     },
     labelText: {
       fontSize: 16,

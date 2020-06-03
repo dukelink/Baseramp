@@ -195,7 +195,8 @@ export const AppField = /*memo(*/ (props: {
                 value={field || null /* null works well for date fields */}
                 disabled={AppColumn_read_only}
                 onChange={onDatepickerChange}
-                inputVariant="outlined"
+                size="small"
+                //inputVariant="filled"
                 KeyboardButtonProps={{
                   "aria-label": "change date",
                 }}
