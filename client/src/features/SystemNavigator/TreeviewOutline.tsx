@@ -20,7 +20,7 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import React, { memo, Dispatch, useRef, useEffect, useState, ChangeEvent } from "react";
+import React, { memo, useRef, useEffect, useState, ChangeEvent } from "react";
 import { TreeView, TreeItem } from "@material-ui/lab";
 import { Typography } from "@material-ui/core";
 import { useTreeItemStyles } from "./SystemNavigatorStyles";
@@ -34,11 +34,11 @@ import { OutlineNode } from "../../model/ModelOutline";
 import { RootState } from "../../rootReducer";
 import { usePrevious } from "../../utils/utils";
 
-import ArrowRightIcon from "@material-ui/icons/ArrowRight";
-import ArrowDropDownIcon from "@material-ui/icons/ArrowDropDown";
+//import ArrowRightIcon from "@material-ui/icons/ArrowRight";
+//import ArrowDropDownIcon from "@material-ui/icons/ArrowDropDown";
 
-import FolderIcon from "@material-ui/icons/FolderTwoTone";
-import FolderNewIcon from "@material-ui/icons/CreateNewFolderTwoTone";
+import FolderIcon from "@material-ui/icons/FolderOutlined";
+import FolderNewIcon from "@material-ui/icons/CreateNewFolderOutlined";
 
 function OutlineItemLabel(props: { item: OutlineNode }) {
   const classes: any = useTreeItemStyles();
@@ -109,6 +109,8 @@ function OutlineItemLabel(props: { item: OutlineNode }) {
       searchFilter.length + matchMarkupPrefix.length + matchMarkupSuffix.length;
   }
 
+  // ctrlRef and useEffect supports dynamic html formatting
+  // base on current search critera; it highlights matching text...
   useEffect(() => {
     (ctrlRef.current as HTMLSpanElement).innerHTML = itemTitle;
   }, [itemTitle]);
@@ -142,7 +144,9 @@ function OutlineItemLabel(props: { item: OutlineNode }) {
           item.closedItem ? classes.labelTextClosedItem : classes.labelText
         }
       >
-        <span ref={ctrlRef}>{/*itemTitle*/}</span>
+        <span ref={ctrlRef}        
+              style={{cursor: 'pointer'}}
+        >{/*itemTitle*/}</span>
 
         {/*<em>isNonOutlineSqlRow && " - " + item.table</em>*/}
 
@@ -172,7 +176,6 @@ const OutlineItem = memo(
       <TreeItem
         key={item.itemKey}
         nodeId={item.itemKey as string}
-        className="customItem"
         label={outlineLabel}
         onClick={ outlineItemClick }
       >
