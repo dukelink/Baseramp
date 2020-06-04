@@ -342,6 +342,8 @@ export function buildOutline(
  
         const childRows = buildRowsOutline(tableHeading, parentTable, parentID);
 
+        itemTitle = itemTitle==='Categories' ? '...' : itemTitle;
+
         const inFilter = itemTitle.toLowerCase().includes(searchFilterLower);
 
         // HACK: CYCLIC outline headings may be removed
@@ -352,7 +354,11 @@ export function buildOutline(
         else
           prev.push({
             itemKey: tableHeading,
-            itemTitle,
+            
+            // Do use an expression here, edit itemTitle assignment instead
+            // to preserve compatibility with full text search
+            itemTitle, 
+
             table: tableHeading,
             parentTable,
             parentID,

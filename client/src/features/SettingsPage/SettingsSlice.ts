@@ -30,13 +30,17 @@ export interface SettingsState {
   showAdminTables: boolean;
   paletteType: PaletteType;
   searchFilter: string;
+  expandOutline: boolean;
+  expandCollapseUpdateCounter: number
 }
 
 const initialState: SettingsState = {
   paletteType : 'light',
   activeFilter: true,
   showAdminTables: false,
-  searchFilter: ''
+  searchFilter: '',
+  expandOutline: false,
+  expandCollapseUpdateCounter: 0 
 }
 
 const settingsSlice = createSlice({

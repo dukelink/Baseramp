@@ -39,7 +39,9 @@ const settings : SettingsState = {
   showAdminTables: false, 
   activeFilter:true, 
   paletteType: 'light',
-  searchFilter: ''
+  searchFilter: '',
+  expandOutline: false,
+  expandCollapseUpdateCounter: 0
 }
 
 export const initialLoad = (route:string="all") => 

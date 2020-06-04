@@ -34,6 +34,8 @@ import PlayCircleFilledIcon from "@material-ui/icons/PlayCircleFilled";
 import SearchIcon from "@material-ui/icons/SearchRounded";
 import UndoIcon from "@material-ui/icons/UndoTwoTone";
 import HighlightOffIcon from "@material-ui/icons/HighlightOffTwoTone";
+import Icon from '@mdi/react';
+import { mdiExpandAllOutline, mdiCollapseAllOutline } from '@mdi/js'; 
 
 import {
   useNavPanelStyles,
@@ -72,16 +74,6 @@ export function SearchBox(props: {
   const [rerenderFlag, setRerenderFlag] = useState(1);
 
   const { mobileSearchMode, setMobileSearchMode, mobileSearchLayout } = props;
-  /*    
-  useLayoutEffect(() => {
-    const input = formRef.current.getElementsByTagName(
-      "input"
-    )[0] as HTMLInputElement;
-//      if (search.current.searchKeyInput !== priorSearch?.searchKeyInput) || !navTableID)
-      // TODO: this is a hack related to loss of record focus
-//        input.focus(); 
-  });
-*/
 
   useLayoutEffect(() => {
     if (mobileSearchMode && !mobileSearchLayout) setMobileSearchMode(false);
@@ -135,7 +127,7 @@ export function SearchBox(props: {
 
   return (
     <Grid container xs={12}>
-      <Grid item xs={11}>
+      <Grid item xs={9}>
         <Paper
           component="form"
           className={classes.root}
@@ -227,7 +219,46 @@ export function SearchBox(props: {
           />
         </Paper>
       </Grid>
-      <Grid item xs={1}></Grid>
+      <Grid item xs={3} style={{color: 'white', paddingTop: '3px'}}>
+        <Grid container xs={12} style={{ justifyContent: 'space-around'}}> 
+          <div
+            style={{cursor:'pointer'}} 
+            onClick={() => {
+            dispatch(
+              setOutlineFilters({
+                settings: { ...settings, expandOutline: true,
+                  expandCollapseUpdateCounter : settings.expandCollapseUpdateCounter + 1 },
+              })
+            );
+          }}>
+            <Icon path={mdiExpandAllOutline}
+              title="Outline - Expand All"
+              size={1.2}
+              horizontal
+              vertical
+              rotate={180}
+              color="lightgrey" />
+          </div>
+          <div
+            style={{cursor:'pointer'}} 
+            onClick={() => {
+            dispatch(
+              setOutlineFilters({
+                settings: { ...settings, expandOutline: false, 
+                  expandCollapseUpdateCounter : settings.expandCollapseUpdateCounter + 1 },
+              })
+            );
+          }}>
+            <Icon path={mdiCollapseAllOutline}
+              title="Outline - Collapse All"
+              size={1.2}
+              horizontal
+              vertical
+              rotate={0}
+              color="lightgrey" />
+          </div>
+        </Grid>
+      </Grid>
     </Grid>
   );
 

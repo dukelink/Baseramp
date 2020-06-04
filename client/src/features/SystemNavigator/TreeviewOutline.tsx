@@ -196,29 +196,54 @@ const OutlineItem = memo(
 
 export const Outline = (props: { outline: OutlineNode[] }) => {
   const classes: any = useTreeItemStyles();
-  const searchFilter = useSelector(
-    (state: RootState) => state.settings.searchFilter
+  const settings = useSelector(
+    (state: RootState) => state.settings
   );
+  const { searchFilter, expandOutline, expandCollapseUpdateCounter } = settings;
   const navTableID = useSelector(
     (state: RootState) => state.navigate.navTableID
   );
   const [expanded, setExpanded] = useState([] as string[]);
   const [selected, setSelected] = useState("");
   const priorSearchFilter = usePrevious(searchFilter);
+  const priorExpandCollapseUpdateCounter = usePrevious(expandCollapseUpdateCounter);
 
   useEffect(() => {
-// I think the following line was to clear record focus after
-// cancelling out of new record addition...  But it messes with
-// commit/story titled "Navigation focus vs. expand/collapse action"
-// I'll add the issue to the story titled:
-// "NIT: After new record save, update outline focus"
-// And then I can delete this note after that story is completed...
-//  if ((!navTableID || navTableID === "-1") && selected) setSelected("");
+    // I think the following line was to clear record focus after
+    // cancelling out of new record addition...  But it messes with
+    // commit/story titled "Navigation focus vs. expand/collapse action"
+    // I'll add the issue to the story titled:
+    // "NIT: After new record save, update outline focus"
+    // And then I can delete this note after that story is completed...
+    //  if ((!navTableID || navTableID === "-1") && selected) setSelected("");
 
     // RULE: (Default pending expand/collapse control):
-    // Collapse outline after any search, but retain open nodes when search is cleared via 'x'
-    if (searchFilter !== priorSearchFilter && searchFilter) setExpanded([]);
-  }, [searchFilter,navTableID,priorSearchFilter,selected]);
+    // Collapse outline after any search or when collapse icon pressed,
+    // but retain open nodes when search is cleared via 'x'
+    if ((priorExpandCollapseUpdateCounter !== expandCollapseUpdateCounter && !expandOutline) 
+      || (searchFilter !== priorSearchFilter && searchFilter))
+      setExpanded([]);
+
+    if (priorExpandCollapseUpdateCounter !== expandCollapseUpdateCounter && expandOutline) {
+      let allItems : OutlineNode[] = props.outline;
+      let newExpanded : string[] = [];
+      while (allItems.length) {
+        newExpanded = newExpanded.concat(allItems.filter(item=>item.showTable&&item.inFilterPropagated).map(item=>item.itemKey.toString()));
+        allItems = allItems.reduce((acc,item)=>acc.concat(item.children),[] as OutlineNode[]);
+      }
+      //const newExpanded = allItems.map(item=>item.itemKey) as string[]; 
+      console.log(newExpanded);
+      //setExpanded([ "category189category198category222category223category278category230category228category220category201category200198", "category189category198" ])
+      setExpanded(newExpanded);
+    }
+  }, [
+    searchFilter,
+    priorExpandCollapseUpdateCounter,
+    expandCollapseUpdateCounter,
+    navTableID,
+    priorSearchFilter,
+    selected,
+  ]);
 
   const handleToggle: any = (event: ChangeEvent, nodeIds: string[]) => {
     // Open/close icon always has normal expand/collapse behavior...
@@ -237,13 +262,18 @@ export const Outline = (props: { outline: OutlineNode[] }) => {
     const smallerSet = new Set(smallerArray);
     const newlySelected = largerArray.find((id)=>(!smallerSet.has(id)));
 
-    // RULE: if node not expanded, then expand, select, and display form
-    if (!isExpandedLarger)
-      setExpanded(nodeIds);
-    // RULE: if already selected and expanded (and not ADD), then collapse outline
-    else if (selected===newlySelected && itemClickType(event) !== 'ADD')
-      setExpanded(nodeIds);
-    // else RULE: if not selected and expanded, then select but don't collapse
+    // RULE: Don't expand or contract when adding for now; (we currently
+    // add new peer-level rows so we don't need to expand children to see
+    // what gets added).
+    if (itemClickType(event) !== 'ADD') {
+      // RULE: if node not expanded, then expand, select, and display form
+      if (!isExpandedLarger)
+        setExpanded(nodeIds);
+      // RULE: if already selected and expanded (and not ADD), then collapse outline
+      else if (selected===newlySelected)
+        setExpanded(nodeIds);
+      // else RULE: if not selected and expanded, then select but don't collapse
+    }
   };
 
   const handleSelect: any = (event: ChangeEvent, nodeId: string) => {
@@ -255,6 +285,11 @@ export const Outline = (props: { outline: OutlineNode[] }) => {
   return (
     <TreeView
       className={classes.treeviewRoot}
+      // REVIEW: Since we allow adding records by clicking
+      // on folder icones within the outline, it was a bit
+      // crowded (esp. for clicking) to continue to include
+      // the expanded/collapsed icon here too. I'm thinking
+      // about moving it to a right aligned position???
       //defaultCollapseIcon={<ArrowDropDownIcon />}
       //defaultExpandIcon={<ArrowRightIcon />}
       expanded={expanded}
