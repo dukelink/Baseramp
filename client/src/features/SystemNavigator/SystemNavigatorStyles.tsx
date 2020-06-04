@@ -28,7 +28,7 @@ export const useTreeItemStyles = makeStyles(theme => ({
       backgroundColor: 'white',
       borderRadius: '3px',
       opacity: 0.7,      
-      fontSize: '1.2em'
+      fontSize: '1.3em'
     },
     labelIconInProgress: {
       marginRight: theme.spacing(1),
@@ -37,7 +37,7 @@ export const useTreeItemStyles = makeStyles(theme => ({
       backgroundColor: 'white',
       borderRadius: '3px',
       opacity: 0.7,      
-      fontSize: '1.2em'
+      fontSize: '1.3em'
     },
     labelIconNotInProgress: {
       marginRight: theme.spacing(1),
@@ -46,30 +46,23 @@ export const useTreeItemStyles = makeStyles(theme => ({
       backgroundColor: 'white',
       borderRadius: '3px',
       opacity: 0.7,    
-      fontSize: '1.2em'
+      fontSize: '1.3em'
     },
     hover: {
       "&:hover" : {
-        backgroundColor: 'yellow',
         opacity: 1
       }
     },
     labelText: {
       fontSize: 16,
       flexGrow: 1,
-      cursor: 'default',
-      "&:hover" : {
-        textDecoration: 'underline'
-      }
+      cursor: 'default'
     },
     labelTextClosedItem: {
       fontSize: 16,
       flexGrow: 1,
       cursor: 'default',
-      textDecoration: 'line-through',
-      "&:hover" : {
-        textDecoration: 'underline'
-      }
+      textDecoration: 'line-through'
     }    
   }));
   
@@ -90,7 +83,7 @@ export const useTreeItemStyles = makeStyles(theme => ({
       width: "100%",
       boxShadow: 'none'
     },
-    rotate80: {
+    rotate180: {
       transform: 'rotate(180deg)'
     },
     OutlineEditButton: {

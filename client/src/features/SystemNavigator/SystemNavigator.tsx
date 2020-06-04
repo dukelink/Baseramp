@@ -77,14 +77,22 @@ export const SystemNavigator = () => {
 
   console.log(`SystemNavigator:: navTable: ${navTable}, navTableID: ${navTableID}, mode: ${mode}`); 
 
+  // Set correct mode based on response display mode 
+  // and focus / new record add status...
+  // NOTE: 960 must exactly match Material-UI 'md' breakpoint
   if (width >= 960 && mode!=="Both") 
-    // NOTE: 960 must exactly match Material-UI 'md' breakpoint
-    // REVIEW: Does this md=960px apply for all device types?
     setMode("Both");
-  else if (width < 960 && mode==="Both")
-    setMode("Outline");
-  else if (width < 960 && mode==="Edit" && !navTableID)
-    setMode("Outline");
+  else if (width < 960) {
+    if (mode==="Edit") {
+      if (!navTableID)
+        setMode("Outline");
+    } else { 
+      if (navTableID==="-1")
+        setMode("Edit");
+      if (mode==="Both")
+        setMode("Outline");
+    } 
+  }
 
   return ( 
     <Grid container spacing={0} > 

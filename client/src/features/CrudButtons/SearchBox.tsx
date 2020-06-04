@@ -272,7 +272,7 @@ export function SearchBox(props: {
         {mobileSearchMode && (
           <Grid item xs={1} style={{ cursor: "pointer", textAlign: "center" }}>
             <PlayCircleFilledIcon
-              className={classes.rotate80}
+              className={classes.rotate180}
               style={{
                 fontSize: "2.1em",
                 position: "relative",

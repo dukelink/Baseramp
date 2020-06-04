@@ -134,7 +134,10 @@ function OutlineItemLabel(props: { item: OutlineNode }) {
       )}
       <Typography
         variant="body2"
-        style={{ opacity: isAhit ? 1.0 : 0.5 }}
+        style={{ 
+          opacity: isAhit ? 1.0 : 0.5,
+          paddingRight: 25 
+        }}
         className={
           item.closedItem ? classes.labelTextClosedItem : classes.labelText
         }
@@ -249,8 +252,8 @@ export const Outline = (props: { outline: OutlineNode[] }) => {
   return (
     <TreeView
       className={classes.treeviewRoot}
-      defaultCollapseIcon={<ArrowDropDownIcon />}
-      defaultExpandIcon={<ArrowRightIcon />}
+      //defaultCollapseIcon={<ArrowDropDownIcon />}
+      //defaultExpandIcon={<ArrowRightIcon />}
       expanded={expanded}
       selected={selected}
       onNodeToggle={handleToggle}

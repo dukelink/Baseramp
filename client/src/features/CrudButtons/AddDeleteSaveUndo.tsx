@@ -80,14 +80,7 @@ export function AddDeleteSaveUndo(props: {
   const { isFormValid } = latestNodeformState;
   const { navTable, navTableID, navParentTable, navStrParentID } = navigate;
 
-  const strOrigRecord = JSON.stringify(
-    origRecord,
-    Object.keys(origRecord).sort()
-  );
-  const strRecord = JSON.stringify(record, Object.keys(record).sort());
-
-  const cleanFlag =
-    (!navTableID || strOrigRecord === strRecord) && navTableID !== "-1";
+  const cleanFlag = isCleanFlag(navTableID,origRecord,record);
 
   return (
     <div
@@ -102,8 +95,7 @@ export function AddDeleteSaveUndo(props: {
             onClick={() => {
               // TODO: Move handlers out of render...
               dispatch(addNewBlankRecordForm({ navTable }));
-              console.log(mode);
-              setMode(mode === "Both" ? mode : "Edit");
+              // setMode(mode === "Both" ? mode : "Edit");
             }}
           >
             <AddCircleIcon
@@ -146,8 +138,6 @@ export function AddDeleteSaveUndo(props: {
                 if (navTableID === "-1")
                   dispatch(insertRecord(navigate, settings, record));
                 else {
-                  console.log(`ORIGRECORD = ${strOrigRecord}`);
-                  console.log(`RECORD = ${strRecord}`);
                   dispatch(
                     updateRecord(
                       navigate,
@@ -198,4 +188,15 @@ export function AddDeleteSaveUndo(props: {
       )}
     </div>
   );
+}
+
+export function isCleanFlag(navTableID:string|number,origRecord:RecordOfAnyType,record:RecordOfAnyType) {
+  const strOrigRecord = JSON.stringify(
+    origRecord,
+    Object.keys(origRecord).sort()
+  );
+  const strRecord = JSON.stringify(record, Object.keys(record).sort());
+  const cleanFlag =
+    (!navTableID || strOrigRecord === strRecord) && navTableID !== "-1";
+  return cleanFlag && navTableID !== -1;
 }

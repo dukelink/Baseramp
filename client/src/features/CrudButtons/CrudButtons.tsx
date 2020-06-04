@@ -39,7 +39,7 @@ import { INavigateState } from "../SystemNavigator/NavigateSlice";
 import { useTableAppCols } from "../../model/ModelSelectors";
 import { useWindowSize } from "../../utils/utils";
 import { SearchBox } from "./SearchBox";
-import { AddDeleteSaveUndo } from "./AddDeleteSaveUndo";
+import { AddDeleteSaveUndo, isCleanFlag } from "./AddDeleteSaveUndo";
 
 import { RecordOfAnyType } from "../../model/ModelTypes";
 
@@ -100,6 +100,7 @@ export const CrudButtons = (props: {
   };
   const origRecord = filterOnlyVisibleColumns(props.origRecord);
   const record = filterOnlyVisibleColumns(props.latestNodeformState.record);
+  const cleanFlag = isCleanFlag(navTableID,origRecord,record);
 
   const searchBarOnly = !navTable || mobileSearchMode;
 
@@ -229,6 +230,7 @@ export const CrudButtons = (props: {
     return (
       <IconButton
         area-label="Navigation Outline"
+        disabled = { !cleanFlag }
         style={{ padding: 6, position: "relative", top: -6 }}
         onClick={() => {
           // TODO: Move handlers out of render...
@@ -240,17 +242,17 @@ export const CrudButtons = (props: {
             fontSize: "1.4em",
             position: "relative",
             top: 1,
-            color: "white",
+            color: cleanFlag ? "white" : "grey",
             opacity: 0.8,
           }}
-          className={otherMode === "Outline" ? classes.rotate80 : ""}
+          className={otherMode === "Outline" ? classes.rotate180 : ""}
         />
         <div style={{ height: "1.4em" }}>
           {otherMode === "Outline" ? (
             <FolderOpenIcon
               style={{
                 fontSize: "1.5em",
-                color: "white",
+                color: cleanFlag ? "white" : "grey",
                 opacity: 0.8,
               }}
             />
@@ -258,7 +260,7 @@ export const CrudButtons = (props: {
             <InputIcon
               style={{
                 fontSize: "1.3em",
-                color: "white",
+                color: cleanFlag ? "white" : "grey",
                 opacity: 0.8,
                 position: "relative",
                 top: 3,
