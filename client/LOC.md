@@ -463,7 +463,24 @@ Number of files read :  38
                To Do :  30
 Number of files read :  38  
 ````
-
+````
+6/3/2020 - Lots of UI refinements:
+  159.12 KB  build\static\js\2.d6279f63.chunk.js
+  14.02 KB   build\static\js\main.b4310512.chunk.js
+  783 B      build\static\js\runtime-main.fd5b1e98.js
+  583 B      build\static\css\2.47271137.chunk.css
+  488 B      build\static\css\main.107db9c1.chunk.css
+            Physical :  4966
+              Source :  3513
+             Comment :  1093
+ Single-line comment :  437
+       Block comment :  656
+               Mixed :  83
+ Empty block comment :  108
+               Empty :  551
+               To Do :  29
+Number of files read :  40
+````
 
 # HELPFUL SNIPPETS:
 
