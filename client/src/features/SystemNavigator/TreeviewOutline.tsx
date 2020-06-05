@@ -26,10 +26,7 @@ import { Typography } from "@material-ui/core";
 import { useTreeItemStyles } from "./SystemNavigatorStyles";
 
 import { useDispatch, useSelector } from "react-redux";
-import {
-  addNewBlankRecordForm,
-  setFocus,
-} from "./NavigateSlice";
+import { addNewBlankRecordForm, setFocus } from "./NavigateSlice";
 import { OutlineNode } from "../../model/ModelOutline";
 import { RootState } from "../../rootReducer";
 import { usePrevious } from "../../utils/utils";
@@ -47,11 +44,14 @@ function OutlineItemLabel(props: { item: OutlineNode }) {
   const ctrlRef = useRef<HTMLSpanElement | any>();
   const dispatch = useDispatch();
 
-  const labelClassName = (item.inProgress
-    ? classes.labelIconInProgress
-    : !item.tableID || item.closedItem
-    ? classes.labelIcon
-    : classes.labelIconNotInProgress) +' '+ classes.hover;
+  const labelClassName =
+    (item.inProgress
+      ? classes.labelIconInProgress
+      : !item.tableID || item.closedItem
+      ? classes.labelIcon
+      : classes.labelIconNotInProgress) +
+    " " +
+    classes.hover;
 
   const childCount: number | string = item.children.filter(searchFilterRule)
     .length;
@@ -115,38 +115,40 @@ function OutlineItemLabel(props: { item: OutlineNode }) {
     (ctrlRef.current as HTMLSpanElement).innerHTML = itemTitle;
   }, [itemTitle]);
 
-  const isNonOutlineSqlRow = item.table!=='category' && item.tableID
+  const isNonOutlineSqlRow = item.table !== "category" && item.tableID;
 
   return (
     <div className={classes.labelRoot}>
-      { isNonOutlineSqlRow ? (
+      {isNonOutlineSqlRow ? (
         <FolderIcon color="inherit" className={labelClassName} />
       ) : (
-        <FolderNewIcon color="inherit" className={labelClassName} 
-          style = {{ cursor: 'pointer' }}
-          id='addable'
-          onClick = {(e) => {
+        <FolderNewIcon
+          color="inherit"
+          className={labelClassName}
+          style={{ cursor: "pointer" }}
+          id="addable"
+          onClick={(e) => {
             // e.stopPropagation();
             // REVIEW: (hack) Allow item to gain focus before adding new record...
-            setTimeout(()=>{ 
-              dispatch(addNewBlankRecordForm({ navTable: item.table }))            
-            })
+            setTimeout(() => {
+              dispatch(addNewBlankRecordForm({ navTable: item.table }));
+            });
           }}
         />
       )}
       <Typography
         variant="body2"
-        style={{ 
+        style={{
           opacity: isAhit ? 1.0 : 0.5,
-          paddingRight: 25 
+          paddingRight: 25,
         }}
         className={
           item.closedItem ? classes.labelTextClosedItem : classes.labelText
         }
       >
-        <span ref={ctrlRef}        
-              style={{cursor: 'pointer'}}
-        >{/*itemTitle*/}</span>
+        <span ref={ctrlRef} style={{ cursor: "pointer" }}>
+          {/*itemTitle*/}
+        </span>
 
         {/*<em>isNonOutlineSqlRow && " - " + item.table</em>*/}
 
@@ -172,33 +174,31 @@ const OutlineItem = memo(
     const dispatch = useDispatch();
     console.log("OutlineItem");
     const outlineLabel = OutlineItemLabel({ item });
-    return (<>
-      <TreeItem
-        key={item.itemKey}
-        nodeId={item.itemKey as string}
-        label={outlineLabel}
-        onClick={ outlineItemClick }
-      >
-        {item.children.filter(searchFilterRule).map((item) => (
-          <OutlineItem item={item} key={item.itemKey} />
-        ))}
-      </TreeItem>
-    </>);
+    return (
+      <>
+        <TreeItem
+          key={item.itemKey}
+          nodeId={item.itemKey as string}
+          label={outlineLabel}
+          onClick={outlineItemClick}
+        >
+          {item.children.filter(searchFilterRule).map((item) => (
+            <OutlineItem item={item} key={item.itemKey} />
+          ))}
+        </TreeItem>
+      </>
+    );
 
-    function outlineItemClick(e : React.MouseEvent) 
-    {
+    function outlineItemClick(e: React.MouseEvent) {
       // Open/close icon does not change selected row focus...
-      if (itemClickType(e as any) !== 'TOGGLE')
-          dispatch(setFocus(item));
+      if (itemClickType(e as any) !== "TOGGLE") dispatch(setFocus(item));
     }
   }
 );
 
 export const Outline = (props: { outline: OutlineNode[] }) => {
   const classes: any = useTreeItemStyles();
-  const settings = useSelector(
-    (state: RootState) => state.settings
-  );
+  const settings = useSelector((state: RootState) => state.settings);
   const { searchFilter, expandOutline, expandCollapseUpdateCounter } = settings;
   const navTableID = useSelector(
     (state: RootState) => state.navigate.navTableID
@@ -206,34 +206,44 @@ export const Outline = (props: { outline: OutlineNode[] }) => {
   const [expanded, setExpanded] = useState([] as string[]);
   const [selected, setSelected] = useState("");
   const priorSearchFilter = usePrevious(searchFilter);
-  const priorExpandCollapseUpdateCounter = usePrevious(expandCollapseUpdateCounter);
+  const priorExpandCollapseUpdateCounter = usePrevious(
+    expandCollapseUpdateCounter
+  );
 
   useEffect(() => {
-    // I think the following line was to clear record focus after
-    // cancelling out of new record addition...  But it messes with
-    // commit/story titled "Navigation focus vs. expand/collapse action"
-    // I'll add the issue to the story titled:
-    // "NIT: After new record save, update outline focus"
-    // And then I can delete this note after that story is completed...
-    //  if ((!navTableID || navTableID === "-1") && selected) setSelected("");
+    // If we cancel out of a new record add, or we close current
+    // focus record, then there should be no 'selected' record...
+    if ((!navTableID || navTableID === "-1") && selected) 
+      setSelected("");
 
     // RULE: (Default pending expand/collapse control):
     // Collapse outline after any search or when collapse icon pressed,
     // but retain open nodes when search is cleared via 'x'
-    if ((priorExpandCollapseUpdateCounter !== expandCollapseUpdateCounter && !expandOutline) 
-      || (searchFilter !== priorSearchFilter && searchFilter))
+    if (
+      (priorExpandCollapseUpdateCounter !== expandCollapseUpdateCounter &&
+        !expandOutline) ||
+      (searchFilter !== priorSearchFilter && searchFilter)
+    )
       setExpanded([]);
 
-    if (priorExpandCollapseUpdateCounter !== expandCollapseUpdateCounter && expandOutline) {
-      let allItems : OutlineNode[] = props.outline;
-      let newExpanded : string[] = [];
+    if (
+      priorExpandCollapseUpdateCounter !== expandCollapseUpdateCounter &&
+      expandOutline
+    ) {
+      let allItems: OutlineNode[] = props.outline;
+      let newExpanded: string[] = [];
       while (allItems.length) {
-        newExpanded = newExpanded.concat(allItems.filter(item=>item.showTable&&item.inFilterPropagated).map(item=>item.itemKey.toString()));
-        allItems = allItems.reduce((acc,item)=>acc.concat(item.children),[] as OutlineNode[]);
+        newExpanded = newExpanded.concat(
+          allItems
+            .filter((item) => item.showTable && item.inFilterPropagated)
+            .map((item) => item.itemKey.toString())
+        );
+        allItems = allItems.reduce(
+          (acc, item) => acc.concat(item.children),
+          [] as OutlineNode[]
+        );
       }
-      //const newExpanded = allItems.map(item=>item.itemKey) as string[]; 
       console.log(newExpanded);
-      //setExpanded([ "category189category198category222category223category278category230category228category220category201category200198", "category189category198" ])
       setExpanded(newExpanded);
     }
   }, [
@@ -247,7 +257,7 @@ export const Outline = (props: { outline: OutlineNode[] }) => {
 
   const handleToggle: any = (event: ChangeEvent, nodeIds: string[]) => {
     // Open/close icon always has normal expand/collapse behavior...
-    if (itemClickType(event) === 'TOGGLE') {
+    if (itemClickType(event) === "TOGGLE") {
       setExpanded(nodeIds);
       return;
     }
@@ -260,26 +270,23 @@ export const Outline = (props: { outline: OutlineNode[] }) => {
     const smallerArray = isExpandedLarger ? nodeIds : expanded;
     const largerArray = isExpandedLarger ? expanded : nodeIds;
     const smallerSet = new Set(smallerArray);
-    const newlySelected = largerArray.find((id)=>(!smallerSet.has(id)));
+    const newlySelected = largerArray.find((id) => !smallerSet.has(id));
 
     // RULE: Don't expand or contract when adding for now; (we currently
     // add new peer-level rows so we don't need to expand children to see
     // what gets added).
-    if (itemClickType(event) !== 'ADD') {
+    if (itemClickType(event) !== "ADD") {
       // RULE: if node not expanded, then expand, select, and display form
-      if (!isExpandedLarger)
-        setExpanded(nodeIds);
+      if (!isExpandedLarger) setExpanded(nodeIds);
       // RULE: if already selected and expanded (and not ADD), then collapse outline
-      else if (selected===newlySelected)
-        setExpanded(nodeIds);
+      else if (selected === newlySelected) setExpanded(nodeIds);
       // else RULE: if not selected and expanded, then select but don't collapse
     }
   };
 
   const handleSelect: any = (event: ChangeEvent, nodeId: string) => {
     // Open/close icon does not change selected row focus...
-    if (itemClickType(event) === 'SELECT')
-      setSelected(nodeId);
+    if (itemClickType(event) === "SELECT") setSelected(nodeId);
   };
   console.log("Outline");
   return (
@@ -304,17 +311,13 @@ export const Outline = (props: { outline: OutlineNode[] }) => {
   );
 };
 
-function itemClickType(event: ChangeEvent)
-{
+function itemClickType(event: ChangeEvent) {
   let target = event.target;
-  let rv : 'ADD' | 'SELECT' | 'TOGGLE' = 'TOGGLE';
-  if (target.nodeName==='SPAN')
-    rv = 'SELECT';
-  else if (target.nodeName==='path')
-    target = target.parentElement || target;
-  
-  if (target.id==='addable')
-    rv = 'ADD';
+  let rv: "ADD" | "SELECT" | "TOGGLE" = "TOGGLE";
+  if (target.nodeName === "SPAN") rv = "SELECT";
+  else if (target.nodeName === "path") target = target.parentElement || target;
+
+  if (target.id === "addable") rv = "ADD";
 
   return rv;
 }

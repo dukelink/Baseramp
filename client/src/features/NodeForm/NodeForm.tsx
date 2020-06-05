@@ -26,6 +26,7 @@ import React, {
 import { RecordOfAnyType, AppColumnRow } from '../../model/ModelTypes';
 import { useTableAppCols } from '../../model/ModelSelectors';
 import { AppField } from '../FieldFactory/FieldFactory';  
+import { VerticalSpace } from '../../utils/utils';
 
 export class NodeFormEditState {
   constructor(
@@ -59,6 +60,7 @@ const InnerRender = memo(
     || ((state[navTable+"_id"]||'').toString() !== navTableID))
     && navTable!=='user' && navTableID!=="-1"; // REVIEW: render new user signup form
   return( empty ? <></> : <>
+  <VerticalSpace pixels={7}/>
   { // Make sure there is a form to render...
     (!state || (navTableID!=='-1' && !Object.keys(state).length)) ||
     tableAppCols

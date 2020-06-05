@@ -30,10 +30,15 @@ import React, {
 
 import { Grid, IconButton, Paper, InputBase } from "@material-ui/core";
 
+// Stock Material UI icons...
 import PlayCircleFilledIcon from "@material-ui/icons/PlayCircleFilled";
 import SearchIcon from "@material-ui/icons/SearchRounded";
 import UndoIcon from "@material-ui/icons/UndoTwoTone";
 import HighlightOffIcon from "@material-ui/icons/HighlightOffTwoTone";
+
+// Material Design Icons site...
+// https://dev.materialdesignicons.com/getting-started/react
+// https://materialdesignicons.com/tag/community
 import Icon from '@mdi/react';
 import { mdiExpandAllOutline, mdiCollapseAllOutline } from '@mdi/js'; 
 

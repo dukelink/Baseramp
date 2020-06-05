@@ -23,12 +23,13 @@
 import React, { useState, Dispatch, SetStateAction } from "react";
 
 import { Grid } from "@material-ui/core";
-import { Button } from "@material-ui/core";
+import { Button, IconButton } from "@material-ui/core";
 
 import AddCircleIcon from "@material-ui/icons/AddCircleTwoTone";
 import UndoIcon from "@material-ui/icons/UndoTwoTone";
 import SaveIcon from "@material-ui/icons/SaveTwoTone";
 import DeleteIcon from "@material-ui/icons/DeleteForeverTwoTone";
+import CancelIcon from "@material-ui/icons/CancelOutlined"; 
 
 import { useNavPanelStyles } from "../SystemNavigator/SystemNavigatorStyles";
 
@@ -84,7 +85,7 @@ export function AddDeleteSaveUndo(props: {
 
   return (
     <div
-      className={classes.buttonBar}
+      className={ classes.buttonBar }
       style={{ display: "inline-block", float: "right" }}
     >
       {cleanFlag ? (
@@ -186,6 +187,32 @@ export function AddDeleteSaveUndo(props: {
           </Grid>
         )
       )}
+    { navTableID!=='' && navTableID!=='-1' && cleanFlag &&
+      <IconButton style={{ 
+          position:'absolute', 
+          top: 97,
+          right: 16, 
+          minHeight: 38,
+          minWidth: 34,
+          color: 'black',
+          backgroundColor: 'white',
+          opacity: 1,
+          padding: '2px !important',
+          zIndex: 1000000 }}> 
+        <CancelIcon 
+          style={{ fontSize: "1.2em", opacity: ".8" }}
+          onClick={()=>{
+            dispatch(
+              setFocus({
+                table: navTable,
+                tableID: "",
+                parentTable: navParentTable,
+                parentID: navStrParentID,
+              })
+            );            
+          }} /> 
+      </IconButton>
+    }      
     </div>
   );
 }

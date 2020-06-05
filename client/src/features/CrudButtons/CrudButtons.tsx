@@ -27,6 +27,7 @@ import { Grid, IconButton } from "@material-ui/core";
 import PlayCircleFilledIcon from "@material-ui/icons/PlayCircleFilled";
 import InputIcon from "@material-ui/icons/InputTwoTone";
 import FolderOpenIcon from "@material-ui/icons/FolderOpen";
+import CancelIcon from "@material-ui/icons/CancelTwoTone";
 
 import { useNavPanelStyles } from "../SystemNavigator/SystemNavigatorStyles";
 
@@ -106,7 +107,7 @@ export const CrudButtons = (props: {
 
   console.log(`searchBarOnly=${searchBarOnly}`);
 
-  return (
+  return (<>
     <Grid
       container
       xs={12}
@@ -122,7 +123,7 @@ export const CrudButtons = (props: {
       ) : (
         <div color="secondary" style={{ width: "100%" }}>
           {mode !== "Both" && navTableID ? (
-            !mobileSearchLayout ? (
+            !mobileSearchLayout ? (<>
               <Grid container xs={12}>
                 <Grid item xs={2}>
                   <OutlineFormSwitch />
@@ -148,7 +149,7 @@ export const CrudButtons = (props: {
                   />
                 </Grid>
               </Grid>
-            ) : (
+            </>) : (
               <Grid container xs={12}>
                 <Grid item xs={3}>
                   <OutlineFormSwitch />
@@ -224,7 +225,18 @@ export const CrudButtons = (props: {
         </div>
       )}
     </Grid>
-  );
+    {/* navTableID!=='' && navTableID!=='-1' && cleanFlag &&
+    <div style={{ 
+        position:'absolute', 
+        top:96,
+        height:0, 
+        right: 14, 
+        color: 'black' }}>
+      <CancelIcon fontSize='large'
+        onClick={()=>{}} /> 
+    </div>
+    */}
+  </>);
 
   function OutlineFormSwitch() {
     return (
