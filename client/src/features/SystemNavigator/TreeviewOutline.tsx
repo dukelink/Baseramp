@@ -200,8 +200,8 @@ export const Outline = (props: { outline: OutlineNode[] }) => {
   const classes: any = useTreeItemStyles();
   const settings = useSelector((state: RootState) => state.settings);
   const { searchFilter, expandOutline, expandCollapseUpdateCounter } = settings;
-  const navTableID = useSelector(
-    (state: RootState) => state.navigate.navTableID
+  const { navTable, navTableID } = useSelector(
+    (state: RootState) => state.navigate
   );
   const [expanded, setExpanded] = useState([] as string[]);
   const [selected, setSelected] = useState("");
@@ -213,8 +213,8 @@ export const Outline = (props: { outline: OutlineNode[] }) => {
   useEffect(() => {
     // If we cancel out of a new record add, or we close current
     // focus record, then there should be no 'selected' record...
-    if ((!navTableID || navTableID === "-1") && selected) 
-      setSelected("");
+    if (!navTable && selected) 
+      setSelected(""); 
 
     // RULE: (Default pending expand/collapse control):
     // Collapse outline after any search or when collapse icon pressed,

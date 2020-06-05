@@ -187,7 +187,7 @@ export function AddDeleteSaveUndo(props: {
           </Grid>
         )
       )}
-    { navTableID!=='' && navTableID!=='-1' && cleanFlag &&
+    { navTable && cleanFlag &&
       <IconButton style={{ 
           position:'absolute', 
           top: 97,
@@ -204,10 +204,10 @@ export function AddDeleteSaveUndo(props: {
           onClick={()=>{
             dispatch(
               setFocus({
-                table: navTable,
+                table: "",
                 tableID: "",
-                parentTable: navParentTable,
-                parentID: navStrParentID,
+                parentTable: "",
+                parentID: "",
               })
             );            
           }} /> 

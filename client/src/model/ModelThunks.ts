@@ -29,7 +29,7 @@ import  { metaload, load,
           addRecordToVM, 
           deleteRecordFromVM
         } from './ModelSlice';
-import { INavigateState } from '../features/SystemNavigator/NavigateSlice';
+import { INavigateState, setFocus } from '../features/SystemNavigator/NavigateSlice';
 import { SettingsState, setOutlineFilters } from '../features/SettingsPage/SettingsSlice';
 import { RecordOfAnyType } from './ModelTypes';
 
@@ -177,6 +177,15 @@ export const deleteRecord = (navigate: INavigateState, settings: SettingsState)
       { method: 'DELETE' }
   ).then().catch((error) =>{ err = true; });
 
-  if (!err)
-    dispatch(deleteRecordFromVM({navigate,settings}))
+  if (!err) {
+    dispatch(deleteRecordFromVM({navigate,settings}));
+    dispatch(
+      setFocus({
+        table: "",
+        tableID: "",
+        parentTable: "",
+        parentID: "",
+      })
+    ); 
+  }
 }
