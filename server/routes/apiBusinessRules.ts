@@ -62,16 +62,19 @@ export const businessRules
             (err,passwordHash) => {
               if (err) 
                 reject(err);
-              else
+              else {
+                // Default new users to 'User' role...
+                // TODO: Remove hard code for role_id...
+                if (req.method === 'POST')
+                  newUserRecord.user_role_id = record.user_role_id || 2;
+                  
                 resolve({ record: {
                     ...newUserRecord,
                     user_password_hash:passwordHash,
-                    // Default new users to 'User' role...
-                    // TODO: Remove hard code for role_id...
-                    user_role_id: record.user_role_id || 2
                   }, 
                   virtual:[]
                 });
+              }
             })
         } else
           resolve({record,virtual:[]});
