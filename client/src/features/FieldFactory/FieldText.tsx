@@ -60,7 +60,7 @@ export const FieldText = memo((props : {
       InputProps = { ...InputProps, rows: "5", rowsMin: "5", rowsMax: "10", multiline: true };
 
     if (fieldName === 'user_password_hash')
-    InputProps = { ...InputProps, type: "password" };
+    InputProps = { ...InputProps, type: "text", autocomplete: "off" };
 
     FormatProps = {
       width: AppColumn_ui_minwidth || '150px',

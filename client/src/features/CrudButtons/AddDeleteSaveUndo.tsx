@@ -146,6 +146,13 @@ export function AddDeleteSaveUndo(props: {
                       recordDelta(record, origRecord)
                     )
                   );
+                  // PW in reflected User record is set to '********'
+                  if (navTable==='user') {
+                    setLatestNodeformState({
+                      record: { ...record, user_password_hash: '********'},
+                      isFormValid: true,
+                    });
+                  }
                 }
               }}
             >

@@ -398,7 +398,7 @@ export const addApiReadDataRoutes = async (router : Router ) =>
         data.map((auditRec)=>{
           const field_changes = JSON.parse(auditRec.field_changes);
           if (field_changes.user_password_hash) {
-            delete field_changes.user_password_hash;
+            field_changes.user_password_hash = '********';
             auditRec.field_changes = JSON.stringify(field_changes);
           }
           return auditRec;

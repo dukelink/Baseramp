@@ -27,7 +27,6 @@ import { Grid, IconButton } from "@material-ui/core";
 import PlayCircleFilledIcon from "@material-ui/icons/PlayCircleFilled";
 import InputIcon from "@material-ui/icons/InputTwoTone";
 import FolderOpenIcon from "@material-ui/icons/FolderOpen";
-import CancelIcon from "@material-ui/icons/CancelTwoTone";
 
 import { useNavPanelStyles } from "../SystemNavigator/SystemNavigatorStyles";
 
@@ -102,7 +101,14 @@ export const CrudButtons = (props: {
   const origRecord = filterOnlyVisibleColumns(props.origRecord);
   const record = filterOnlyVisibleColumns(props.latestNodeformState.record);
   const cleanFlag = isCleanFlag(navTableID,origRecord,record);
-
+/*
+  console.log(`
+  cleanFlag = ${cleanFlag}
+  record = ${JSON.stringify(record)}
+  origRecord = ${JSON.stringify(origRecord)}
+  propRecord = ${JSON.stringify(props.latestNodeformState.record)}
+  `);
+*/
   const searchBarOnly = !navTable || mobileSearchMode;
 
   console.log(`searchBarOnly=${searchBarOnly}`);
